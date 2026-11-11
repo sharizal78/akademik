@@ -76,6 +76,10 @@
             border-radius: 4px;
         }
     </style>
+    <!-- Firebase (sync data antara peranti) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
 
@@ -107,6 +111,10 @@
             </div>
 
             <div class="flex items-center space-x-2">
+                <!-- Cloud Sync Login -->
+                <button id="cloudBtn" onclick="cloudToggle()" class="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xs font-semibold flex items-center gap-1.5">
+                    <i class="fa-solid fa-cloud"></i><span id="cloudLabel" class="hidden sm:inline">Sync</span>
+                </button>
                 <!-- Add Custom Event Button (Countdown Tab) -->
                 <button id="addEventHeaderBtn" onclick="openModal()" class="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-sm shadow-indigo-500/30">
                     <i class="fa-solid fa-plus text-xs"></i>
@@ -593,6 +601,106 @@
             navigator.storage.persist().catch(() => {});
         }
 
+
+        // ========= FIREBASE CLOUD SYNC =========
+        // Tampal kod firebaseConfig anda di sini (lihat langkah setup)
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyC1npsJZEcbXHvBK8TdZCZvOliwAdLeDOs",
+            authDomain: "spm2027-41bdc.firebaseapp.com",
+            projectId: "spm2027-41bdc",
+            storageBucket: "spm2027-41bdc.firebasestorage.app",
+            messagingSenderId: "324414834312",
+            appId: "1:324414834312:web:db856fa87fc84a61cf413d"
+        };
+
+        let cloudUser = null, cloudRef = null, cloudUnsub = null, cloudAuth = null;
+        let applyingRemote = false, pushTimer = null;
+
+        function cloudConfigured() {
+            return FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith('ISI') && typeof firebase !== 'undefined';
+        }
+
+        function updateCloudUI(state) {
+            const btn = document.getElementById('cloudBtn');
+            const lbl = document.getElementById('cloudLabel');
+            if (!btn || !lbl) return;
+            if (!cloudConfigured()) {
+                lbl.textContent = 'Sync belum aktif';
+                btn.title = 'Firebase belum disetup. Data hanya disimpan dalam browser ini.';
+            } else if (!cloudUser) {
+                lbl.textContent = 'Log Masuk Google';
+                btn.title = 'Log masuk untuk sync data antara peranti';
+            } else {
+                lbl.textContent = state === 'saving' ? 'Menyimpan...' : 'Tersinkron ✓';
+                btn.title = 'Log masuk sebagai ' + (cloudUser.email || '') + ' (klik untuk log keluar)';
+            }
+        }
+
+        function initCloud() {
+            updateCloudUI();
+            if (!cloudConfigured()) return;
+            firebase.initializeApp(FIREBASE_CONFIG);
+            cloudAuth = firebase.auth();
+            const db = firebase.firestore();
+            cloudAuth.onAuthStateChanged(user => {
+                cloudUser = user;
+                if (cloudUnsub) { cloudUnsub(); cloudUnsub = null; }
+                cloudRef = null;
+                updateCloudUI();
+                if (!user) return;
+                cloudRef = db.collection('users').doc(user.uid);
+                cloudUnsub = cloudRef.onSnapshot(snap => {
+                    if (snap.metadata.hasPendingWrites) return;
+                    if (!snap.exists) { cloudPush(); return; } // akaun baru: hantar data sedia ada ke cloud
+                    try {
+                        const d = snap.data();
+                        applyingRemote = true;
+                        events = JSON.parse(d.events);
+                        gradesData = JSON.parse(d.grades);
+                        localStorage.setItem('spm2027_events', JSON.stringify(events));
+                        localStorage.setItem('spm2027_grades', JSON.stringify(gradesData));
+                        const badge = document.getElementById('eventCountBadge');
+                        if (badge) badge.textContent = `${events.length} Acara`;
+                        renderEventsGrid();
+                        updateTimers();
+                        renderAllGradeTables();
+                    } catch (e) {
+                        console.error('Data cloud tidak sah', e);
+                    } finally {
+                        applyingRemote = false;
+                    }
+                    updateCloudUI();
+                }, err => { console.error(err); alert('Ralat sync: ' + err.message); });
+            });
+        }
+
+        function cloudPush() {
+            if (!cloudRef || applyingRemote) return;
+            updateCloudUI('saving');
+            clearTimeout(pushTimer);
+            pushTimer = setTimeout(() => {
+                cloudRef.set({
+                    events: JSON.stringify(events),
+                    grades: JSON.stringify(gradesData),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => updateCloudUI())
+                  .catch(e => { console.error(e); alert('Gagal simpan ke cloud: ' + e.message); });
+            }, 400);
+        }
+
+        function cloudToggle() {
+            if (!cloudConfigured()) {
+                alert('Sync belum diaktifkan. Tampal firebaseConfig dalam fail index.html dahulu.');
+                return;
+            }
+            if (cloudUser) {
+                if (confirm('Log keluar? Data kekal dalam browser ini dan dalam cloud.')) cloudAuth.signOut();
+            } else {
+                cloudAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+                    .catch(e => alert('Log masuk gagal: ' + e.message));
+            }
+        }
+
         // State Variables
         let events = [];
         let activeTab = 'countdown';
@@ -617,6 +725,7 @@
             startCountdownLoop();
             newRandomQuote();
             renderAllGradeTables();
+            initCloud();
         });
 
         // Tab Navigation Switcher
@@ -703,6 +812,7 @@
 
         function saveGradesData() {
             localStorage.setItem('spm2027_grades', JSON.stringify(gradesData));
+            cloudPush();
         }
 
         function handleScoreChange(subjectId, value) {
@@ -922,6 +1032,7 @@
 
         function saveEvents() {
             localStorage.setItem('spm2027_events', JSON.stringify(events));
+            cloudPush();
             const badge = document.getElementById('eventCountBadge');
             if (badge) badge.textContent = `${events.length} Acara`;
         }
