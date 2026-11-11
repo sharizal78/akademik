@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="ms" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub SPM 2027 - Countdown & Rekod Keputusan</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f5ff',
+                            100: '#e5edff',
+                            500: '#4f46e5',
+                            600: '#4338ca',
+                            700: '#3730a3',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        
+        .dark .glass-card {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .gradient-hero-bg {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.15) 0%, rgba(168, 85, 247, 0.15) 50%, rgba(236, 72, 153, 0.1) 100%);
+        }
+
+        .glow-effect {
+            box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Custom scrollbar for horizontal table */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.4);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base sm:text-lg leading-tight flex items-center gap-2">
+                        Hub SPM <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-extrabold border border-indigo-200 dark:border-indigo-800">2027</span>
+                    </h1>
+                    <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">Countdown & Tracker Keputusan SPM</p>
+                </div>
+            </div>
+
+            <!-- Tab Switcher Navigation -->
+            <div class="flex items-center space-x-1 sm:space-x-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+                <button id="navCountdownBtn" onclick="switchTab('countdown')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <span>Countdown</span>
+                </button>
+                <button id="navGradesBtn" onclick="switchTab('grades')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Keputusan & Sasaran</span>
+                </button>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <!-- Add Custom Event Button (Countdown Tab) -->
+                <button id="addEventHeaderBtn" onclick="openModal()" class="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-sm shadow-indigo-500/30">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span class="hidden sm:inline">Tambah Tarikh</span>
+                </button>
+                
+                <!-- Reset Defaults Button -->
+                <button onclick="handleResetAction()" title="Set Semula Data" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xs">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </button>
+
+                <!-- Backup: Export / Import -->
+                <button onclick="exportData()" title="Simpan Backup (muat turun fail)" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xs">
+                    <i class="fa-solid fa-download"></i>
+                </button>
+                <button onclick="document.getElementById('importFile').click()" title="Pulihkan Backup (upload fail)" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xs">
+                    <i class="fa-solid fa-upload"></i>
+                </button>
+                <input type="file" id="importFile" accept="application/json,.json" class="hidden" onchange="importData(event)">
+
+                <!-- Dark Light Theme Toggle -->
+                <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xs">
+                    <i id="themeIcon" class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- ================= TAB 1: COUNTDOWN SPM ================= -->
+        <div id="tabCountdown" class="space-y-8">
+            <!-- Hero Section: Closest Upcoming Event -->
+            <section id="heroContainer" class="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-10 gradient-hero-bg glow-effect glass-card transition-all">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                    <!-- Event Info Left Side -->
+                    <div class="space-y-3 max-w-xl">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-semibold uppercase tracking-wider">
+                            <span class="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
+                            Acara Terdekat Akan Datang
+                        </div>
+                        <h2 id="heroTitle" class="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                            --
+                        </h2>
+                        <p id="heroDateStr" class="text-sm sm:text-base font-medium text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                            <i class="fa-regular fa-calendar-check text-indigo-500"></i> <span>--</span>
+                        </p>
+                        <p id="heroNote" class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 italic">
+                            --
+                        </p>
+                    </div>
+
+                    <!-- Live Countdown Cards Right Side -->
+                    <div class="grid grid-cols-4 gap-2 sm:gap-4 text-center min-w-[280px] sm:min-w-[360px]">
+                        <div class="bg-white/80 dark:bg-slate-900/80 p-3 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm backdrop-blur-sm">
+                            <div id="heroDays" class="text-2xl sm:text-4xl font-extrabold text-indigo-600 dark:text-indigo-400">00</div>
+                            <div class="text-[10px] sm:text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-1">Hari</div>
+                        </div>
+                        <div class="bg-white/80 dark:bg-slate-900/80 p-3 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm backdrop-blur-sm">
+                            <div id="heroHours" class="text-2xl sm:text-4xl font-extrabold text-indigo-600 dark:text-indigo-400">00</div>
+                            <div class="text-[10px] sm:text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-1">Jam</div>
+                        </div>
+                        <div class="bg-white/80 dark:bg-slate-900/80 p-3 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm backdrop-blur-sm">
+                            <div id="heroMinutes" class="text-2xl sm:text-4xl font-extrabold text-indigo-600 dark:text-indigo-400">00</div>
+                            <div class="text-[10px] sm:text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-1">Minit</div>
+                        </div>
+                        <div class="bg-white/80 dark:bg-slate-900/80 p-3 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm backdrop-blur-sm">
+                            <div id="heroSeconds" class="text-2xl sm:text-4xl font-extrabold text-pink-500">00</div>
+                            <div class="text-[10px] sm:text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-1">Saat</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Progress Bar -->
+                <div class="mt-6 pt-4 border-t border-slate-200/60 dark:border-slate-800/60">
+                    <div class="flex justify-between items-center text-xs mb-1.5">
+                        <span class="text-slate-500 dark:text-slate-400 font-medium">Perjalanan Masa Menghadapi Peperiksaan SPM 2027</span>
+                        <span id="heroPercentText" class="font-bold text-indigo-600 dark:text-indigo-400">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                        <div id="heroProgressBar" class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Events List Grid Section -->
+            <section class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-indigo-500"></i> Semua Tarikh Penting SPM 2027
+                    </h3>
+                    <span id="eventCountBadge" class="text-xs font-medium px-2.5 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                        4 Acara
+                    </span>
+                </div>
+
+                <div id="eventsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Dynamic cards populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Motivational Quote & Study Tips Widget -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2 glass-card p-6 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 text-indigo-500 font-semibold text-xs tracking-wider uppercase mb-2">
+                            <i class="fa-solid fa-quote-left"></i> Motivasi Calon SPM
+                        </div>
+                        <blockquote id="quoteText" class="text-base sm:text-lg font-semibold text-slate-800 dark:text-slate-100 leading-relaxed italic">
+                            "Kejayaan tidak datang daripada apa yang anda lakukan sekali-sekala, tetapi daripada apa yang anda lakukan secara konsisten."
+                        </blockquote>
+                    </div>
+                    <div class="mt-4 flex items-center justify-between border-t border-slate-100 dark:border-slate-800/80 pt-3">
+                        <span id="quoteAuthor" class="text-xs text-slate-500 dark:text-slate-400 font-medium">- Kata-kata Hikmat</span>
+                        <button onclick="newRandomQuote()" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 font-semibold">
+                            <i class="fa-solid fa-shuffle text-[10px]"></i> Tukar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 text-pink-500 font-semibold text-xs tracking-wider uppercase mb-2">
+                            <i class="fa-solid fa-lightbulb"></i> Tip Ulangkaji SPM
+                        </div>
+                        <p id="tipText" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                            Fokus pada latihan soalan-soalan tahun lepas (Past Year Papers) untuk membiasakan diri dengan format dan skema pemarkahan jawapan sebenar.
+                        </p>
+                    </div>
+                    <div class="mt-4 border-t border-slate-100 dark:border-slate-800/80 pt-3">
+                        <span class="text-[11px] text-slate-400 dark:text-slate-500">Kunci Sasaran Straight A+</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= TAB 2: KEPUTUSAN & SASARAN UJIAN (WITH ALL-IN-ONE SUMMARY) ================= -->
+        <div id="tabGrades" class="space-y-8 hidden">
+            
+            <!-- Header Banner -->
+            <section class="glass-card p-6 rounded-3xl border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <span class="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider">
+                        <i class="fa-solid fa-chart-pie"></i> Hub Rekod & Analisis Prestasi
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
+                        Keputusan Ujian & Sasaran SPM 2027
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                        Jadual ringkasan keseluruhan memaparkan pencapaian gred anda sepanjang Tingkatan 4 dan 5 berbanding sasaran Target SPM.
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="addNewSubjectPrompt()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold shadow-md transition flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Tambah Subjek Baharu
+                    </button>
+                </div>
+            </section>
+
+            <!-- 📊 ALL-IN-ONE OVERALL SUMMARY TABLE (DIRECTLY ON PAGE) -->
+            <section class="space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <h3 class="text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-table-cells text-indigo-500"></i> Ringkasan Keseluruhan Gred (All-In-One Summary)
+                    </h3>
+                    <span class="text-xs text-slate-500 dark:text-slate-400">
+                        *Gred dikira secara automatik daripada markah yang dimasukkan
+                    </span>
+                </div>
+
+                <!-- GPA Summary Cards Row -->
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-3" id="gpaSummaryCards">
+                    <!-- Populated via JS -->
+                </div>
+
+                <!-- Main Overview Comparison Table -->
+                <div class="glass-card rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left text-xs sm:text-sm border-collapse min-w-[700px]">
+                            <thead class="bg-slate-100/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 font-bold uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
+                                <tr>
+                                    <th class="p-3.5 sticky left-0 bg-slate-100 dark:bg-slate-800 z-10 w-44 shadow-sm">Subjek</th>
+                                    <th class="p-3.5 text-center bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-x border-slate-200 dark:border-slate-800">🎯 Target SPM</th>
+                                    <th class="p-3.5 text-center">📘 PPT T4</th>
+                                    <th class="p-3.5 text-center">📗 UAT T4</th>
+                                    <th class="p-3.5 text-center">📙 PPT T5</th>
+                                    <th class="p-3.5 text-center bg-amber-500/10 text-amber-700 dark:text-amber-400 border-l border-slate-200 dark:border-slate-800">🏆 Percubaan SPM</th>
+                                    <th class="p-3.5 text-center w-28">Status vs Target</th>
+                                </tr>
+                            </thead>
+                            <tbody id="summaryTableBody" class="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ✍️ GRADE ENTRY FORM & CATEGORY INPUT SECTION -->
+            <section class="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i class="fa-solid fa-pen-to-square text-indigo-500"></i> Borang Kemaskini Markah Mengikut Peperiksaan
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Pilih sesi peperiksaan di bawah untuk memasukkan atau menyunting markah subjek (0-100):</p>
+                    </div>
+
+                    <!-- Category Tabs Selector -->
+                    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
+                        <button onclick="selectExamCategory('target')" id="catBtn-target" class="exam-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition border bg-indigo-600 text-white border-indigo-600">
+                            🎯 Target SPM
+                        </button>
+                        <button onclick="selectExamCategory('ppt4')" id="catBtn-ppt4" class="exam-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition border bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-indigo-500">
+                            📘 PPT T4
+                        </button>
+                        <button onclick="selectExamCategory('pat4')" id="catBtn-pat4" class="exam-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition border bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-indigo-500">
+                            📗 UAT T4
+                        </button>
+                        <button onclick="selectExamCategory('ppt5')" id="catBtn-ppt5" class="exam-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition border bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-indigo-500">
+                            📙 PPT T5
+                        </button>
+                        <button onclick="selectExamCategory('trial')" id="catBtn-trial" class="exam-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition border bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-indigo-500">
+                            🏆 Trial SPM
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Grades Entry Table Card -->
+                <div class="glass-card rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                    <div class="p-3 bg-indigo-500/5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                        <span id="currentCategoryTitle" class="text-xs sm:text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                            🎯 Target SPM (Sasaran Akhir)
+                        </span>
+                        <span id="categorySubCount" class="text-xs text-slate-500">Isi markah di bawah</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs sm:text-sm">
+                            <thead class="bg-slate-100/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
+                                <tr>
+                                    <th class="p-3.5">Subjek</th>
+                                    <th class="p-3.5 text-center w-32">Markah (0-100)</th>
+                                    <th class="p-3.5 text-center w-28">Gred SPM</th>
+                                    <th class="p-3.5 text-center w-36">Catatan Gred</th>
+                                    <th class="p-3.5 text-center w-20">Tindakan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gradesTableBody" class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                                <!-- Populated dynamically via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SPM Grading Reference Chart Widget -->
+            <section class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-indigo-500"></i> Skala Dan Julat Gred Rasmi SPM
+                </h4>
+                <div class="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-10 gap-2 text-center text-xs">
+                    <div class="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 font-bold text-emerald-600 dark:text-emerald-400">
+                        <div>A+</div>
+                        <div class="text-[10px] opacity-80">90-100</div>
+                    </div>
+                    <div class="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 font-bold text-emerald-600 dark:text-emerald-400">
+                        <div>A</div>
+                        <div class="text-[10px] opacity-80">80-89</div>
+                    </div>
+                    <div class="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 font-bold text-emerald-600 dark:text-emerald-400">
+                        <div>A-</div>
+                        <div class="text-[10px] opacity-80">70-79</div>
+                    </div>
+                    <div class="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 font-bold text-blue-600 dark:text-blue-400">
+                        <div>B+</div>
+                        <div class="text-[10px] opacity-80">65-69</div>
+                    </div>
+                    <div class="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 font-bold text-blue-600 dark:text-blue-400">
+                        <div>B</div>
+                        <div class="text-[10px] opacity-80">60-64</div>
+                    </div>
+                    <div class="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 font-bold text-cyan-600 dark:text-cyan-400">
+                        <div>C+</div>
+                        <div class="text-[10px] opacity-80">55-59</div>
+                    </div>
+                    <div class="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 font-bold text-cyan-600 dark:text-cyan-400">
+                        <div>C</div>
+                        <div class="text-[10px] opacity-80">50-54</div>
+                    </div>
+                    <div class="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 font-bold text-amber-600 dark:text-amber-400">
+                        <div>D</div>
+                        <div class="text-[10px] opacity-80">45-49</div>
+                    </div>
+                    <div class="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 font-bold text-amber-600 dark:text-amber-400">
+                        <div>E</div>
+                        <div class="text-[10px] opacity-80">40-44</div>
+                    </div>
+                    <div class="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20 font-bold text-rose-600 dark:text-rose-400">
+                        <div>G</div>
+                        <div class="text-[10px] opacity-80">0-39</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
+        <p>© 2027 Portal Countdown & Grade Tracker SPM. Dibina khas untuk calon SPM 2027.</p>
+    </footer>
+
+    <!-- Modal Form for Adding/Editing Custom Countdown Events -->
+    <div id="eventModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <h3 id="modalHeaderTitle" class="font-bold text-lg text-slate-900 dark:text-white">Tambah Acara Baru</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="eventForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                <input type="hidden" id="eventId">
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Nama Peperiksaan / Acara</label>
+                    <input type="text" id="eventTitleInput" required placeholder="Contoh: Ujian Mac / SPM Sebenar" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Tarikh & Masa Mula</label>
+                    <input type="datetime-local" id="eventDateInput" required class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Catatan / Penerangan Singkat (Pilihan)</label>
+                    <textarea id="eventNoteInput" rows="2" placeholder="Contoh: Ujian lisan di sekolah..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition">
+                        Simpan Acara
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application JavaScript Logic -->
+    <script>
+        // Key SPM 2027 Event Dates
+        const DEFAULT_EVENTS = [
+            {
+                id: 'ppt-2027',
+                title: 'Ujian Pertengahan Tahun (PPT)',
+                date: '2027-06-01T08:00',
+                note: 'Pentaksiran liputan silabus Tingkatan 4 & sebahagian Tingkatan 5.'
+            },
+            {
+                id: 'trial-2027',
+                title: 'Peperiksaan Percubaan (Trial SPM)',
+                date: '2027-09-01T08:00',
+                note: 'Simulasi penting peringkat sekolah/negeri sebelum SPM sebenar.'
+            },
+            {
+                id: 'lisan-2027',
+                title: 'Ujian Bertutur SPM (BM & BI)',
+                date: '2027-10-01T08:00',
+                note: 'Ujian lisan Bahasa Melayu & Bahasa Inggeris di sekolah.'
+            },
+            {
+                id: 'spm-bertulis-2027',
+                title: 'Peperiksaan SPM (Bertulis)',
+                date: '2027-11-01T08:00',
+                note: 'Peperiksaan bertulis rasmi SPM bagi semua subjek teras & elektif.'
+            }
+        ];
+
+        // Standard Default SPM Subjects
+        const DEFAULT_SUBJECTS = [
+            { id: 'bm', name: 'Bahasa Melayu' },
+            { id: 'bi', name: 'Bahasa Inggeris' },
+            { id: 'mate', name: 'Matematik' },
+            { id: 'sej', name: 'Sejarah' },
+            { id: 'pi_pm', name: 'Pendidikan Islam / Moral' },
+            { id: 'sains_fizik', name: 'Sains / Fizik' },
+            { id: 'kimia', name: 'Kimia' },
+            { id: 'bio', name: 'Biologi' },
+            { id: 'addmath', name: 'Matematik Tambahan' }
+        ];
+
+        // Exam Category Titles
+        const CATEGORIES = [
+            { id: 'target', label: '🎯 Target SPM' },
+            { id: 'ppt4', label: '📘 PPT T4' },
+            { id: 'pat4', label: '📗 UAT T4' },
+            { id: 'ppt5', label: '📙 PPT T5' },
+            { id: 'trial', label: '🏆 Trial SPM' }
+        ];
+
+        const CATEGORY_NAMES = {
+            target: '🎯 Target SPM (Sasaran Akhir)',
+            ppt4: '📘 Ujian Pertengahan Tahun Tingkatan 4 (PPT T4)',
+            pat4: '📗 Ujian Akhir Tahun Tingkatan 4 (UAT T4)',
+            ppt5: '📙 Ujian Pertengahan Tahun Tingkatan 5 (PPT T5)',
+            trial: '🏆 Peperiksaan Percubaan SPM (Trial SPM)'
+        };
+
+        // Quotes Bank
+        const QUOTES = [
+            { text: "Kejayaan tidak datang daripada apa yang anda lakukan sekali-sekala, tetapi daripada apa yang anda lakukan secara konsisten.", author: "Marie Forleo" },
+            { text: "Masa depan bergantung kepada apa yang anda lakukan hari ini.", author: "Mahatma Gandhi" },
+            { text: "Tiada rahsia untuk berjaya. Ia adalah hasil persediaan, kerja keras, dan belajar daripada kegagalan.", author: "Colin Powell" },
+            { text: "Pelaburan dalam ilmu pengetahuan sentiasa membayar faedah yang terbaik.", author: "Benjamin Franklin" },
+            { text: "Usaha tangga kejayaan. Berikan yang terbaik untuk SPM 2027!", author: "Motivasi Pelajar" }
+        ];
+
+        // Tips Bank
+        const TIPS = [
+            "Fokus pada latihan soalan-soalan tahun lepas (Past Year Papers) untuk membiasakan diri dengan format peperiksaan.",
+            "Buat nota ringkas peta minda untuk subjek berfakta seperti Sejarah dan Sains.",
+            "Gunakan Teknik Pomodoro (25 minit belajar, 5 minit rehat) untuk kekal fokus tanpa keletihan mental.",
+            "Pastikan anda mendapat tidur yang cukup (7-8 jam) supaya memori jangka panjang dapat diproses dengan baik.",
+            "Jangan ragu untuk bertanya kepada guru atau rakan sekiranya masih tidak faham sesuatu topik."
+        ];
+
+
+        // Escape HTML (keselamatan: nama subjek/acara dimasukkan oleh pengguna)
+        function esc(s) {
+            return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        // Backup & Restore (data disimpan dalam browser, jadi backup penting)
+        function exportData() {
+            const payload = {
+                app: 'hub-spm-2027',
+                exportedAt: new Date().toISOString(),
+                events: events,
+                grades: gradesData
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'backup-hub-spm-' + new Date().toISOString().slice(0, 10) + '.json';
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+
+        function importData(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const d = JSON.parse(reader.result);
+                    if (!Array.isArray(d.events) || !d.grades || !Array.isArray(d.grades.subjects) || !d.grades.scores) {
+                        throw new Error('Format tidak sah');
+                    }
+                    if (!confirm('Data sedia ada akan diganti dengan backup ini. Teruskan?')) return;
+                    events = d.events;
+                    gradesData = d.grades;
+                    saveEvents();
+                    saveGradesData();
+                    renderEventsGrid();
+                    updateTimers();
+                    renderAllGradeTables();
+                    alert('Backup berjaya dipulihkan.');
+                } catch (err) {
+                    alert('Fail backup tidak sah atau rosak.');
+                }
+                e.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // Minta browser jangan padam data secara automatik
+        if (navigator.storage && navigator.storage.persist) {
+            navigator.storage.persist().catch(() => {});
+        }
+
+        // State Variables
+        let events = [];
+        let activeTab = 'countdown';
+        let activeCategory = 'target';
+        let gradesData = {
+            subjects: [...DEFAULT_SUBJECTS],
+            scores: {
+                target: {},
+                ppt4: {},
+                pat4: {},
+                ppt5: {},
+                trial: {}
+            }
+        };
+
+        // Initialize Application
+        window.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            loadEvents();
+            loadGradesData();
+            renderEventsGrid();
+            startCountdownLoop();
+            newRandomQuote();
+            renderAllGradeTables();
+        });
+
+        // Tab Navigation Switcher
+        function switchTab(tab) {
+            activeTab = tab;
+            const tabCountdown = document.getElementById('tabCountdown');
+            const tabGrades = document.getElementById('tabGrades');
+            const navCountdownBtn = document.getElementById('navCountdownBtn');
+            const navGradesBtn = document.getElementById('navGradesBtn');
+            const addEventHeaderBtn = document.getElementById('addEventHeaderBtn');
+
+            if (tab === 'countdown') {
+                tabCountdown.classList.remove('hidden');
+                tabGrades.classList.add('hidden');
+                navCountdownBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm";
+                navGradesBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400";
+                addEventHeaderBtn.classList.remove('hidden');
+            } else {
+                tabCountdown.classList.add('hidden');
+                tabGrades.classList.remove('hidden');
+                navGradesBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm";
+                navCountdownBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400";
+                addEventHeaderBtn.classList.add('hidden');
+                renderAllGradeTables();
+            }
+        }
+
+        // Grade Calculator Logic (SPM Scale)
+        function getSPMGrade(score) {
+            if (score === null || score === undefined || score === '' || isNaN(score)) {
+                return { grade: '—', points: 0, color: 'text-slate-400 dark:text-slate-600', label: 'Belum diisi' };
+            }
+            const num = Number(score);
+            if (num >= 90) return { grade: 'A+', points: 9, color: 'text-emerald-500 font-extrabold', label: 'Cemerlang Tertinggi' };
+            if (num >= 80) return { grade: 'A', points: 8, color: 'text-emerald-500 font-bold', label: 'Cemerlang Tinggi' };
+            if (num >= 70) return { grade: 'A-', points: 7, color: 'text-emerald-500 font-bold', label: 'Cemerlang' };
+            if (num >= 65) return { grade: 'B+', points: 6, color: 'text-blue-500 font-bold', label: 'Kepujian Tertinggi' };
+            if (num >= 60) return { grade: 'B', points: 5, color: 'text-blue-500 font-bold', label: 'Kepujian Tinggi' };
+            if (num >= 55) return { grade: 'C+', points: 4, color: 'text-cyan-500 font-bold', label: 'Kepujian Atas' };
+            if (num >= 50) return { grade: 'C', points: 3, color: 'text-cyan-500 font-bold', label: 'Kepujian' };
+            if (num >= 45) return { grade: 'D', points: 2, color: 'text-amber-500 font-bold', label: 'Lulus Subjek' };
+            if (num >= 40) return { grade: 'E', points: 1, color: 'text-amber-600 font-bold', label: 'Lulus Minimal' };
+            return { grade: 'G', points: 0, color: 'text-rose-500 font-bold', label: 'Gagal' };
+        }
+
+        // Exam Category Selection for Input Form
+        function selectExamCategory(catKey) {
+            activeCategory = catKey;
+
+            document.querySelectorAll('.exam-cat-btn').forEach(btn => {
+                btn.className = "exam-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition border bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-indigo-500";
+            });
+
+            const activeBtn = document.getElementById(`catBtn-${catKey}`);
+            if (activeBtn) {
+                activeBtn.className = "exam-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition border bg-indigo-600 text-white border-indigo-600 shadow-md";
+            }
+
+            document.getElementById('currentCategoryTitle').textContent = CATEGORY_NAMES[catKey] || 'Borang Markah';
+            renderInputGradesTable();
+        }
+
+        // Load & Save Grades Storage
+        function loadGradesData() {
+            const stored = localStorage.getItem('spm2027_grades');
+            if (stored) {
+                try {
+                    gradesData = JSON.parse(stored);
+                } catch (e) {
+                    initDefaultGrades();
+                }
+            } else {
+                initDefaultGrades();
+            }
+        }
+
+        function initDefaultGrades() {
+            gradesData = {
+                subjects: [...DEFAULT_SUBJECTS],
+                scores: { target: {}, ppt4: {}, pat4: {}, ppt5: {}, trial: {} }
+            };
+            saveGradesData();
+        }
+
+        function saveGradesData() {
+            localStorage.setItem('spm2027_grades', JSON.stringify(gradesData));
+        }
+
+        function handleScoreChange(subjectId, value) {
+            let score = value === '' ? '' : Math.min(100, Math.max(0, Number(value)));
+            if (!gradesData.scores[activeCategory]) {
+                gradesData.scores[activeCategory] = {};
+            }
+            gradesData.scores[activeCategory][subjectId] = score;
+            saveGradesData();
+            renderAllGradeTables();
+        }
+
+        function addNewSubjectPrompt() {
+            const name = prompt("Masukkan nama subjek baharu (Contoh: Prinsip Perakaunan / Bahasa Arab / Tasawwur Islam):");
+            if (name && name.trim()) {
+                const newSubId = 'sub_' + Date.now();
+                gradesData.subjects.push({ id: newSubId, name: name.trim() });
+                saveGradesData();
+                renderAllGradeTables();
+            }
+        }
+
+        function deleteSubject(subjectId) {
+            if (confirm("Adakah anda pasti mahu memadam subjek ini daripada senarai keputusan?")) {
+                gradesData.subjects = gradesData.subjects.filter(s => s.id !== subjectId);
+                Object.keys(gradesData.scores).forEach(cat => {
+                    delete gradesData.scores[cat][subjectId];
+                });
+                saveGradesData();
+                renderAllGradeTables();
+            }
+        }
+
+        function renderAllGradeTables() {
+            renderOverallSummaryTable();
+            renderInputGradesTable();
+        }
+
+        // 📊 RENDER ALL-IN-ONE OVERALL SUMMARY TABLE & GPA CARDS
+        function renderOverallSummaryTable() {
+            const tbody = document.getElementById('summaryTableBody');
+            const gpaContainer = document.getElementById('gpaSummaryCards');
+            if (!tbody || !gpaContainer) return;
+
+            tbody.innerHTML = '';
+            gpaContainer.innerHTML = '';
+
+            // Calculate GPAs per category
+            let categoryGPAs = {};
+            CATEGORIES.forEach(cat => {
+                let totalPts = 0;
+                let count = 0;
+                const scoresObj = gradesData.scores[cat.id] || {};
+                gradesData.subjects.forEach(sub => {
+                    const score = scoresObj[sub.id];
+                    if (score !== undefined && score !== '' && !isNaN(score)) {
+                        totalPts += getSPMGrade(score).points;
+                        count++;
+                    }
+                });
+                categoryGPAs[cat.id] = count > 0 ? (totalPts / count).toFixed(2) : '--';
+
+                // Render GPA Mini Card
+                const card = document.createElement('div');
+                card.className = "glass-card p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-center";
+                card.innerHTML = `
+                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">${cat.label}</div>
+                    <div class="text-base font-extrabold text-indigo-600 dark:text-indigo-400 mt-0.5">${categoryGPAs[cat.id]}</div>
+                    <div class="text-[9px] text-slate-400">${count}/${gradesData.subjects.length} subjek</div>
+                `;
+                gpaContainer.appendChild(card);
+            });
+
+            // Populate Main Summary Table Rows
+            gradesData.subjects.forEach(sub => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition";
+
+                // Target Grade
+                const targetScore = (gradesData.scores['target'] || {})[sub.id];
+                const targetObj = getSPMGrade(targetScore);
+
+                // Latest Trial / PPT5 Score for comparison status
+                const trialScore = (gradesData.scores['trial'] || {})[sub.id];
+                const ppt5Score = (gradesData.scores['ppt5'] || {})[sub.id];
+                const latestScore = trialScore !== undefined && trialScore !== '' ? trialScore : (ppt5Score !== undefined && ppt5Score !== '' ? ppt5Score : null);
+                
+                let statusBadge = `<span class="text-slate-400 text-xs">—</span>`;
+                if (targetScore !== undefined && targetScore !== '' && latestScore !== null) {
+                    const latestObj = getSPMGrade(latestScore);
+                    const diff = latestObj.points - targetObj.points;
+                    if (diff > 0) {
+                        statusBadge = `<span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold"><i class="fa-solid fa-arrow-up"></i> +${diff}</span>`;
+                    } else if (diff < 0) {
+                        statusBadge = `<span class="px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[10px] font-bold"><i class="fa-solid fa-arrow-down"></i> ${diff}</span>`;
+                    } else {
+                        statusBadge = `<span class="px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold"><i class="fa-solid fa-check"></i> Capai</span>`;
+                    }
+                }
+
+                tr.innerHTML = `
+                    <td class="p-3.5 sticky left-0 bg-white dark:bg-slate-900 font-bold text-slate-900 dark:text-white shadow-sm border-r border-slate-100 dark:border-slate-800">
+                        ${esc(sub.name)}
+                    </td>
+                    <td class="p-3.5 text-center bg-indigo-50/30 dark:bg-indigo-950/20 border-x border-slate-200 dark:border-slate-800 ${targetObj.color}">
+                        ${targetObj.grade}
+                    </td>
+                    <td class="p-3.5 text-center ${getSPMGrade((gradesData.scores['ppt4'] || {})[sub.id]).color}">
+                        ${getSPMGrade((gradesData.scores['ppt4'] || {})[sub.id]).grade}
+                    </td>
+                    <td class="p-3.5 text-center ${getSPMGrade((gradesData.scores['pat4'] || {})[sub.id]).color}">
+                        ${getSPMGrade((gradesData.scores['pat4'] || {})[sub.id]).grade}
+                    </td>
+                    <td class="p-3.5 text-center ${getSPMGrade((gradesData.scores['ppt5'] || {})[sub.id]).color}">
+                        ${getSPMGrade((gradesData.scores['ppt5'] || {})[sub.id]).grade}
+                    </td>
+                    <td class="p-3.5 text-center bg-amber-50/30 dark:bg-amber-950/20 border-l border-slate-200 dark:border-slate-800 ${getSPMGrade((gradesData.scores['trial'] || {})[sub.id]).color}">
+                        ${getSPMGrade((gradesData.scores['trial'] || {})[sub.id]).grade}
+                    </td>
+                    <td class="p-3.5 text-center">
+                        ${statusBadge}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ✍️ RENDER INPUT FORM TABLE FOR SPECIFIC EXAM
+        function renderInputGradesTable() {
+            const tbody = document.getElementById('gradesTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const currentScores = gradesData.scores[activeCategory] || {};
+
+            gradesData.subjects.forEach(sub => {
+                const val = currentScores[sub.id] !== undefined ? currentScores[sub.id] : '';
+                const gradeObj = getSPMGrade(val);
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition";
+                tr.innerHTML = `
+                    <td class="p-3.5 font-semibold text-slate-800 dark:text-slate-200">
+                        ${esc(sub.name)}
+                    </td>
+                    <td class="p-3.5 text-center">
+                        <input type="number" min="0" max="100" placeholder="0-100" 
+                            value="${val}" 
+                            onchange="handleScoreChange('${sub.id}', this.value)"
+                            class="w-20 px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-center font-bold text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </td>
+                    <td class="p-3.5 text-center text-base ${gradeObj.color}">
+                        ${gradeObj.grade}
+                    </td>
+                    <td class="p-3.5 text-center text-xs text-slate-500 dark:text-slate-400">
+                        ${gradeObj.label}
+                    </td>
+                    <td class="p-3.5 text-center">
+                        <button onclick="deleteSubject('${sub.id}')" title="Padam Subjek" class="text-slate-400 hover:text-rose-500 p-1 transition">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Dynamic Reset Action based on Tab
+        function handleResetAction() {
+            if (activeTab === 'countdown') {
+                resetDefaultEvents();
+            } else {
+                if (confirm("Adakah anda pasti mahu set semula semua keputusan & sasaran gred kepada asal?")) {
+                    initDefaultGrades();
+                    renderAllGradeTables();
+                }
+            }
+        }
+
+        // Theme Toggle Handler
+        function initTheme() {
+            if (localStorage.theme === 'light') {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('themeIcon').className = 'fa-solid fa-sun text-amber-500';
+            } else {
+                document.documentElement.classList.add('dark');
+                document.getElementById('themeIcon').className = 'fa-solid fa-moon';
+            }
+        }
+
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+                document.getElementById('themeIcon').className = 'fa-solid fa-sun text-amber-500';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+                document.getElementById('themeIcon').className = 'fa-solid fa-moon';
+            }
+        }
+
+        // Data Storage Handlers for Countdown
+        function loadEvents() {
+            const stored = localStorage.getItem('spm2027_events');
+            if (stored) {
+                try {
+                    events = JSON.parse(stored);
+                } catch (e) {
+                    events = [...DEFAULT_EVENTS];
+                }
+            } else {
+                events = [...DEFAULT_EVENTS];
+            }
+            saveEvents();
+        }
+
+        function saveEvents() {
+            localStorage.setItem('spm2027_events', JSON.stringify(events));
+            const badge = document.getElementById('eventCountBadge');
+            if (badge) badge.textContent = `${events.length} Acara`;
+        }
+
+        function resetDefaultEvents() {
+            if (confirm("Adakah anda pasti untuk set semula tarikh peperiksaan kepada asal?")) {
+                events = [...DEFAULT_EVENTS];
+                saveEvents();
+                renderEventsGrid();
+                updateTimers();
+            }
+        }
+
+        // Render Events List Cards
+        function renderEventsGrid() {
+            const grid = document.getElementById('eventsGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const sortedEvents = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            sortedEvents.forEach(evt => {
+                const card = document.createElement('div');
+                card.className = "glass-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between transition-all hover:border-indigo-400 dark:hover:border-indigo-600 relative overflow-hidden group";
+                card.id = `card-${evt.id}`;
+
+                const dateObj = new Date(evt.date);
+                const formattedDate = dateObj.toLocaleDateString('ms-MY', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+
+                card.innerHTML = `
+                    <div class="space-y-2">
+                        <div class="flex items-start justify-between gap-2">
+                            <span id="badge-${evt.id}" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                                Mengira...
+                            </span>
+                            <div class="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition">
+                                <button onclick="editEvent('${evt.id}')" title="Sunting" class="p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-xs">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="deleteEvent('${evt.id}')" title="Padam" class="p-1 text-slate-400 hover:text-pink-500 text-xs">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white leading-snug line-clamp-2">${esc(evt.title)}</h4>
+                        <p class="text-xs text-indigo-600 dark:text-indigo-400 font-medium flex items-center gap-1">
+                            <i class="fa-regular fa-clock"></i> ${formattedDate}
+                        </p>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+                        <div class="grid grid-cols-4 gap-1 text-center bg-slate-50 dark:bg-slate-900/60 p-2 rounded-xl border border-slate-100 dark:border-slate-800">
+                            <div>
+                                <span id="days-${evt.id}" class="block text-xs font-extrabold text-slate-800 dark:text-slate-100">0</span>
+                                <span class="text-[8px] text-slate-400 uppercase font-medium">Hari</span>
+                            </div>
+                            <div>
+                                <span id="hours-${evt.id}" class="block text-xs font-extrabold text-slate-800 dark:text-slate-100">0</span>
+                                <span class="text-[8px] text-slate-400 uppercase font-medium">Jam</span>
+                            </div>
+                            <div>
+                                <span id="mins-${evt.id}" class="block text-xs font-extrabold text-slate-800 dark:text-slate-100">0</span>
+                                <span class="text-[8px] text-slate-400 uppercase font-medium">Min</span>
+                            </div>
+                            <div>
+                                <span id="secs-${evt.id}" class="block text-xs font-extrabold text-pink-500">0</span>
+                                <span class="text-[8px] text-slate-400 uppercase font-medium">Saat</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Live Countdown Calculation Loop
+        function startCountdownLoop() {
+            updateTimers();
+            setInterval(updateTimers, 1000);
+        }
+
+        function updateTimers() {
+            const now = new Date().getTime();
+
+            const sortedEvents = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
+            const upcomingEvents = sortedEvents.filter(e => new Date(e.date).getTime() > now);
+
+            let heroTarget = upcomingEvents.length > 0 ? upcomingEvents[0] : sortedEvents[sortedEvents.length - 1];
+
+            if (heroTarget) {
+                const targetTime = new Date(heroTarget.date).getTime();
+                const diff = targetTime - now;
+
+                const heroTitle = document.getElementById('heroTitle');
+                const heroNote = document.getElementById('heroNote');
+                const heroDateStr = document.getElementById('heroDateStr');
+
+                if (heroTitle) heroTitle.textContent = heroTarget.title;
+                if (heroNote) heroNote.textContent = heroTarget.note || 'Persediaan rapi untuk keputusan cemerlang!';
+                
+                if (heroDateStr) {
+                    const dateObj = new Date(heroTarget.date);
+                    heroDateStr.querySelector('span').textContent = dateObj.toLocaleDateString('ms-MY', {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    });
+                }
+
+                if (diff > 0) {
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+                    document.getElementById('heroDays').textContent = String(days).padStart(2, '0');
+                    document.getElementById('heroHours').textContent = String(hours).padStart(2, '0');
+                    document.getElementById('heroMinutes').textContent = String(mins).padStart(2, '0');
+                    document.getElementById('heroSeconds').textContent = String(secs).padStart(2, '0');
+
+                    const yearStart = new Date('2027-01-01T00:00:00').getTime();
+                    const totalDuration = targetTime - yearStart;
+                    const elapsed = now - yearStart;
+                    let percentage = Math.min(Math.max(Math.floor((elapsed / totalDuration) * 100), 0), 100);
+                    if (isNaN(percentage)) percentage = 0;
+
+                    document.getElementById('heroProgressBar').style.width = `${percentage}%`;
+                    document.getElementById('heroPercentText').textContent = `${percentage}% Masa Berlalu`;
+                } else {
+                    document.getElementById('heroDays').textContent = '00';
+                    document.getElementById('heroHours').textContent = '00';
+                    document.getElementById('heroMinutes').textContent = '00';
+                    document.getElementById('heroSeconds').textContent = '00';
+                    document.getElementById('heroProgressBar').style.width = '100%';
+                    document.getElementById('heroPercentText').textContent = 'Peperiksaan Sedang / Telah Berlangsung!';
+                }
+            }
+
+            events.forEach(evt => {
+                const evtTime = new Date(evt.date).getTime();
+                const diff = evtTime - now;
+
+                const daysEl = document.getElementById(`days-${evt.id}`);
+                const hoursEl = document.getElementById(`hours-${evt.id}`);
+                const minsEl = document.getElementById(`mins-${evt.id}`);
+                const secsEl = document.getElementById(`secs-${evt.id}`);
+                const badgeEl = document.getElementById(`badge-${evt.id}`);
+
+                if (!daysEl) return;
+
+                if (diff > 0) {
+                    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+                    daysEl.textContent = d;
+                    hoursEl.textContent = h;
+                    minsEl.textContent = m;
+                    secsEl.textContent = s;
+
+                    badgeEl.textContent = 'Akan Datang';
+                    badgeEl.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800';
+                } else if (diff > -86400000) {
+                    daysEl.textContent = 0;
+                    hoursEl.textContent = 0;
+                    minsEl.textContent = 0;
+                    secsEl.textContent = 0;
+
+                    badgeEl.textContent = 'Berlangsung';
+                    badgeEl.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border border-amber-200 dark:border-amber-800 animate-pulse';
+                } else {
+                    daysEl.textContent = 0;
+                    hoursEl.textContent = 0;
+                    minsEl.textContent = 0;
+                    secsEl.textContent = 0;
+
+                    badgeEl.textContent = 'Selesai';
+                    badgeEl.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800';
+                }
+            });
+        }
+
+        // Modal Form Handlers
+        function openModal(editId = null) {
+            const modal = document.getElementById('eventModal');
+            const form = document.getElementById('eventForm');
+            const headerTitle = document.getElementById('modalHeaderTitle');
+
+            form.reset();
+            document.getElementById('eventId').value = '';
+
+            if (editId) {
+                const target = events.find(e => e.id === editId);
+                if (target) {
+                    headerTitle.textContent = 'Kemaskini Tarikh Acara';
+                    document.getElementById('eventId').value = target.id;
+                    document.getElementById('eventTitleInput').value = target.title;
+                    document.getElementById('eventDateInput').value = target.date;
+                    document.getElementById('eventNoteInput').value = target.note || '';
+                }
+            } else {
+                headerTitle.textContent = 'Tambah Acara Baru';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('eventModal').classList.add('hidden');
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('eventId').value;
+            const title = document.getElementById('eventTitleInput').value.trim();
+            const date = document.getElementById('eventDateInput').value;
+            const note = document.getElementById('eventNoteInput').value.trim();
+
+            if (!title || !date) return;
+
+            if (id) {
+                const index = events.findIndex(evt => evt.id === id);
+                if (index !== -1) {
+                    events[index] = { id, title, date, note };
+                }
+            } else {
+                const newId = 'custom-' + Date.now();
+                events.push({ id: newId, title, date, note });
+            }
+
+            saveEvents();
+            renderEventsGrid();
+            updateTimers();
+            closeModal();
+        }
+
+        function editEvent(id) {
+            openModal(id);
+        }
+
+        function deleteEvent(id) {
+            if (confirm("Adakah anda pasti mahu memadam acara ini?")) {
+                events = events.filter(e => e.id !== id);
+                saveEvents();
+                renderEventsGrid();
+                updateTimers();
+            }
+        }
+
+        // Random Quote & Tip Generator
+        function newRandomQuote() {
+            const randomQ = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+            const randomT = TIPS[Math.floor(Math.random() * TIPS.length)];
+
+            const quoteText = document.getElementById('quoteText');
+            const quoteAuthor = document.getElementById('quoteAuthor');
+            const tipText = document.getElementById('tipText');
+
+            if (quoteText) quoteText.textContent = `"${randomQ.text}"`;
+            if (quoteAuthor) quoteAuthor.textContent = `- ${randomQ.author}`;
+            if (tipText) tipText.textContent = randomT;
+        }
+    </script>
+</body>
+</html>
