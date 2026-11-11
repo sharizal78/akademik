@@ -76,10 +76,6 @@
             border-radius: 4px;
         }
     </style>
-    <!-- Firebase (sync data antara peranti) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
 
@@ -111,10 +107,6 @@
             </div>
 
             <div class="flex items-center space-x-2">
-                <!-- Cloud Sync Login -->
-                <button id="cloudBtn" onclick="cloudToggle()" class="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xs font-semibold flex items-center gap-1.5">
-                    <i class="fa-solid fa-cloud"></i><span id="cloudLabel" class="hidden sm:inline">Sync</span>
-                </button>
                 <!-- Add Custom Event Button (Countdown Tab) -->
                 <button id="addEventHeaderBtn" onclick="openModal()" class="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-sm shadow-indigo-500/30">
                     <i class="fa-solid fa-plus text-xs"></i>
@@ -125,15 +117,6 @@
                 <button onclick="handleResetAction()" title="Set Semula Data" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xs">
                     <i class="fa-solid fa-rotate-left"></i>
                 </button>
-
-                <!-- Backup: Export / Import -->
-                <button onclick="exportData()" title="Simpan Backup (muat turun fail)" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xs">
-                    <i class="fa-solid fa-download"></i>
-                </button>
-                <button onclick="document.getElementById('importFile').click()" title="Pulihkan Backup (upload fail)" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xs">
-                    <i class="fa-solid fa-upload"></i>
-                </button>
-                <input type="file" id="importFile" accept="application/json,.json" class="hidden" onchange="importData(event)">
 
                 <!-- Dark Light Theme Toggle -->
                 <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xs">
@@ -547,160 +530,6 @@
             "Jangan ragu untuk bertanya kepada guru atau rakan sekiranya masih tidak faham sesuatu topik."
         ];
 
-
-        // Escape HTML (keselamatan: nama subjek/acara dimasukkan oleh pengguna)
-        function esc(s) {
-            return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-        }
-
-        // Backup & Restore (data disimpan dalam browser, jadi backup penting)
-        function exportData() {
-            const payload = {
-                app: 'hub-spm-2027',
-                exportedAt: new Date().toISOString(),
-                events: events,
-                grades: gradesData
-            };
-            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'backup-hub-spm-' + new Date().toISOString().slice(0, 10) + '.json';
-            a.click();
-            URL.revokeObjectURL(a.href);
-        }
-
-        function importData(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = () => {
-                try {
-                    const d = JSON.parse(reader.result);
-                    if (!Array.isArray(d.events) || !d.grades || !Array.isArray(d.grades.subjects) || !d.grades.scores) {
-                        throw new Error('Format tidak sah');
-                    }
-                    if (!confirm('Data sedia ada akan diganti dengan backup ini. Teruskan?')) return;
-                    events = d.events;
-                    gradesData = d.grades;
-                    saveEvents();
-                    saveGradesData();
-                    renderEventsGrid();
-                    updateTimers();
-                    renderAllGradeTables();
-                    alert('Backup berjaya dipulihkan.');
-                } catch (err) {
-                    alert('Fail backup tidak sah atau rosak.');
-                }
-                e.target.value = '';
-            };
-            reader.readAsText(file);
-        }
-
-        // Minta browser jangan padam data secara automatik
-        if (navigator.storage && navigator.storage.persist) {
-            navigator.storage.persist().catch(() => {});
-        }
-
-
-        // ========= FIREBASE CLOUD SYNC =========
-        // Tampal kod firebaseConfig anda di sini (lihat langkah setup)
-        const FIREBASE_CONFIG = {
-            apiKey: "AIzaSyC1npsJZEcbXHvBK8TdZCZvOliwAdLeDOs",
-            authDomain: "spm2027-41bdc.firebaseapp.com",
-            projectId: "spm2027-41bdc",
-            storageBucket: "spm2027-41bdc.firebasestorage.app",
-            messagingSenderId: "324414834312",
-            appId: "1:324414834312:web:db856fa87fc84a61cf413d"
-        };
-
-        let cloudUser = null, cloudRef = null, cloudUnsub = null, cloudAuth = null;
-        let applyingRemote = false, pushTimer = null;
-
-        function cloudConfigured() {
-            return FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith('ISI') && typeof firebase !== 'undefined';
-        }
-
-        function updateCloudUI(state) {
-            const btn = document.getElementById('cloudBtn');
-            const lbl = document.getElementById('cloudLabel');
-            if (!btn || !lbl) return;
-            if (!cloudConfigured()) {
-                lbl.textContent = 'Sync belum aktif';
-                btn.title = 'Firebase belum disetup. Data hanya disimpan dalam browser ini.';
-            } else if (!cloudUser) {
-                lbl.textContent = 'Log Masuk Google';
-                btn.title = 'Log masuk untuk sync data antara peranti';
-            } else {
-                lbl.textContent = state === 'saving' ? 'Menyimpan...' : 'Sync ✓';
-                btn.title = 'Log masuk sebagai ' + (cloudUser.email || '') + ' (klik untuk log keluar)';
-            }
-        }
-
-        function initCloud() {
-            updateCloudUI();
-            if (!cloudConfigured()) return;
-            firebase.initializeApp(FIREBASE_CONFIG);
-            cloudAuth = firebase.auth();
-            const db = firebase.firestore();
-            cloudAuth.onAuthStateChanged(user => {
-                cloudUser = user;
-                if (cloudUnsub) { cloudUnsub(); cloudUnsub = null; }
-                cloudRef = null;
-                updateCloudUI();
-                if (!user) return;
-                cloudRef = db.collection('users').doc(user.uid);
-                cloudUnsub = cloudRef.onSnapshot(snap => {
-                    if (snap.metadata.hasPendingWrites) return;
-                    if (!snap.exists) { cloudPush(); return; } // akaun baru: hantar data sedia ada ke cloud
-                    try {
-                        const d = snap.data();
-                        applyingRemote = true;
-                        events = JSON.parse(d.events);
-                        gradesData = JSON.parse(d.grades);
-                        localStorage.setItem('spm2027_events', JSON.stringify(events));
-                        localStorage.setItem('spm2027_grades', JSON.stringify(gradesData));
-                        const badge = document.getElementById('eventCountBadge');
-                        if (badge) badge.textContent = `${events.length} Acara`;
-                        renderEventsGrid();
-                        updateTimers();
-                        renderAllGradeTables();
-                    } catch (e) {
-                        console.error('Data cloud tidak sah', e);
-                    } finally {
-                        applyingRemote = false;
-                    }
-                    updateCloudUI();
-                }, err => { console.error(err); alert('Ralat sync: ' + err.message); });
-            });
-        }
-
-        function cloudPush() {
-            if (!cloudRef || applyingRemote) return;
-            updateCloudUI('saving');
-            clearTimeout(pushTimer);
-            pushTimer = setTimeout(() => {
-                cloudRef.set({
-                    events: JSON.stringify(events),
-                    grades: JSON.stringify(gradesData),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                }).then(() => updateCloudUI())
-                  .catch(e => { console.error(e); alert('Gagal simpan ke cloud: ' + e.message); });
-            }, 400);
-        }
-
-        function cloudToggle() {
-            if (!cloudConfigured()) {
-                alert('Sync belum diaktifkan. Tampal firebaseConfig dalam fail index.html dahulu.');
-                return;
-            }
-            if (cloudUser) {
-                if (confirm('Log keluar? Data kekal dalam browser ini dan dalam cloud.')) cloudAuth.signOut();
-            } else {
-                cloudAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-                    .catch(e => alert('Log masuk gagal: ' + e.message));
-            }
-        }
-
         // State Variables
         let events = [];
         let activeTab = 'countdown';
@@ -725,7 +554,6 @@
             startCountdownLoop();
             newRandomQuote();
             renderAllGradeTables();
-            initCloud();
         });
 
         // Tab Navigation Switcher
@@ -812,7 +640,6 @@
 
         function saveGradesData() {
             localStorage.setItem('spm2027_grades', JSON.stringify(gradesData));
-            cloudPush();
         }
 
         function handleScoreChange(subjectId, value) {
@@ -915,7 +742,7 @@
 
                 tr.innerHTML = `
                     <td class="p-3.5 sticky left-0 bg-white dark:bg-slate-900 font-bold text-slate-900 dark:text-white shadow-sm border-r border-slate-100 dark:border-slate-800">
-                        ${esc(sub.name)}
+                        ${sub.name}
                     </td>
                     <td class="p-3.5 text-center bg-indigo-50/30 dark:bg-indigo-950/20 border-x border-slate-200 dark:border-slate-800 ${targetObj.color}">
                         ${targetObj.grade}
@@ -956,7 +783,7 @@
                 tr.className = "hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition";
                 tr.innerHTML = `
                     <td class="p-3.5 font-semibold text-slate-800 dark:text-slate-200">
-                        ${esc(sub.name)}
+                        ${sub.name}
                     </td>
                     <td class="p-3.5 text-center">
                         <input type="number" min="0" max="100" placeholder="0-100" 
@@ -1032,7 +859,6 @@
 
         function saveEvents() {
             localStorage.setItem('spm2027_events', JSON.stringify(events));
-            cloudPush();
             const badge = document.getElementById('eventCountBadge');
             if (badge) badge.textContent = `${events.length} Acara`;
         }
@@ -1082,7 +908,7 @@
                             </div>
                         </div>
 
-                        <h4 class="font-bold text-sm text-slate-900 dark:text-white leading-snug line-clamp-2">${esc(evt.title)}</h4>
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white leading-snug line-clamp-2">${evt.title}</h4>
                         <p class="text-xs text-indigo-600 dark:text-indigo-400 font-medium flex items-center gap-1">
                             <i class="fa-regular fa-clock"></i> ${formattedDate}
                         </p>
