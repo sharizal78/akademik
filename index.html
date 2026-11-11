@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hub SPM 2027 - Countdown & Rekod Keputusan</title>
+    <title>Apps SPM 2027 (Apps by Sharizal)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -76,6 +76,10 @@
             border-radius: 4px;
         }
     </style>
+    <!-- Firebase (sync data antara peranti) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
 
@@ -83,30 +87,34 @@
     <header class="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
                     <i class="fa-solid fa-graduation-cap text-xl"></i>
                 </div>
                 <div>
                     <h1 class="font-bold text-base sm:text-lg leading-tight flex items-center gap-2">
-                        Hub SPM <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-extrabold border border-indigo-200 dark:border-indigo-800">2027</span>
+                        Apps SPM <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-extrabold border border-indigo-200 dark:border-indigo-800">2027</span>
                     </h1>
-                    <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">Countdown & Tracker Keputusan SPM</p>
+                    <p class="text-[11px] sm:text-xs text-emerald-600 dark:text-emerald-400 font-bold">Apps by Sharizal</p>
                 </div>
             </div>
 
-            <!-- Tab Switcher Navigation -->
-            <div class="flex items-center space-x-1 sm:space-x-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
-                <button id="navCountdownBtn" onclick="switchTab('countdown')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm">
+            <!-- Tab Switcher Navigation (Green when unselected, Red when selected) -->
+            <div class="flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                <button id="navCountdownBtn" onclick="switchTab('countdown')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-rose-600 text-white shadow-md shadow-rose-600/30">
                     <i class="fa-solid fa-stopwatch"></i>
                     <span>Countdown</span>
                 </button>
-                <button id="navGradesBtn" onclick="switchTab('grades')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400">
+                <button id="navGradesBtn" onclick="switchTab('grades')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white">
                     <i class="fa-solid fa-chart-line"></i>
                     <span>Keputusan & Sasaran</span>
                 </button>
             </div>
 
             <div class="flex items-center space-x-2">
+                <!-- Cloud Sync Login -->
+                <button id="cloudBtn" onclick="cloudToggle()" class="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xs font-semibold flex items-center gap-1.5">
+                    <i class="fa-solid fa-cloud"></i><span id="cloudLabel" class="hidden sm:inline">Sync</span>
+                </button>
                 <!-- Add Custom Event Button (Countdown Tab) -->
                 <button id="addEventHeaderBtn" onclick="openModal()" class="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-sm shadow-indigo-500/30">
                     <i class="fa-solid fa-plus text-xs"></i>
@@ -117,6 +125,15 @@
                 <button onclick="handleResetAction()" title="Set Semula Data" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xs">
                     <i class="fa-solid fa-rotate-left"></i>
                 </button>
+
+                <!-- Backup: Export / Import -->
+                <button onclick="exportData()" title="Simpan Backup (muat turun fail)" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xs">
+                    <i class="fa-solid fa-download"></i>
+                </button>
+                <button onclick="document.getElementById('importFile').click()" title="Pulihkan Backup (upload fail)" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xs">
+                    <i class="fa-solid fa-upload"></i>
+                </button>
+                <input type="file" id="importFile" accept="application/json,.json" class="hidden" onchange="importData(event)">
 
                 <!-- Dark Light Theme Toggle -->
                 <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xs">
@@ -196,7 +213,7 @@
                 </div>
 
                 <div id="eventsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- Dynamic cards populated by JavaScript -->
+                    <!-- Dynamic cards with distinct pastel colors populated by JavaScript -->
                 </div>
             </section>
 
@@ -409,7 +426,7 @@
 
     <!-- Footer -->
     <footer class="border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
-        <p>© 2027 Portal Countdown & Grade Tracker SPM. Dibina khas untuk calon SPM 2027.</p>
+        <p>© 2027 Apps SPM 2027 (Apps by Sharizal). Dibina khas untuk calon SPM 2027.</p>
     </footer>
 
     <!-- Modal Form for Adding/Editing Custom Countdown Events -->
@@ -460,26 +477,40 @@
                 id: 'ppt-2027',
                 title: 'Ujian Pertengahan Tahun (PPT)',
                 date: '2027-06-01T08:00',
-                note: 'Pentaksiran liputan silabus Tingkatan 4 & sebahagian Tingkatan 5.'
+                note: 'Pentaksiran liputan silabus Tingkatan 4 & sebahagian Tingkatan 5.',
+                cardStyle: 'bg-sky-50/90 dark:bg-sky-950/40 border-sky-200 dark:border-sky-800 text-sky-900 dark:text-sky-200'
             },
             {
                 id: 'trial-2027',
                 title: 'Peperiksaan Percubaan (Trial SPM)',
                 date: '2027-09-01T08:00',
-                note: 'Simulasi penting peringkat sekolah/negeri sebelum SPM sebenar.'
+                note: 'Simulasi penting peringkat sekolah/negeri sebelum SPM sebenar.',
+                cardStyle: 'bg-amber-50/90 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200'
             },
             {
                 id: 'lisan-2027',
                 title: 'Ujian Bertutur SPM (BM & BI)',
                 date: '2027-10-01T08:00',
-                note: 'Ujian lisan Bahasa Melayu & Bahasa Inggeris di sekolah.'
+                note: 'Ujian lisan Bahasa Melayu & Bahasa Inggeris di sekolah.',
+                cardStyle: 'bg-purple-50/90 dark:bg-purple-950/40 border-purple-200 dark:border-purple-800 text-purple-900 dark:text-purple-200'
             },
             {
                 id: 'spm-bertulis-2027',
                 title: 'Peperiksaan SPM (Bertulis)',
                 date: '2027-11-01T08:00',
-                note: 'Peperiksaan bertulis rasmi SPM bagi semua subjek teras & elektif.'
+                note: 'Peperiksaan bertulis rasmi SPM bagi semua subjek teras & elektif.',
+                cardStyle: 'bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
             }
+        ];
+
+        // Soft Color Palette array for custom added events
+        const SOFT_PALETTES = [
+            'bg-sky-50/90 dark:bg-sky-950/40 border-sky-200 dark:border-sky-800 text-sky-900 dark:text-sky-200',
+            'bg-amber-50/90 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200',
+            'bg-purple-50/90 dark:bg-purple-950/40 border-purple-200 dark:border-purple-800 text-purple-900 dark:text-purple-200',
+            'bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200',
+            'bg-pink-50/90 dark:bg-pink-950/40 border-pink-200 dark:border-pink-800 text-pink-900 dark:text-pink-200',
+            'bg-teal-50/90 dark:bg-teal-950/40 border-teal-200 dark:border-teal-800 text-teal-900 dark:text-teal-200'
         ];
 
         // Standard Default SPM Subjects
@@ -488,8 +519,8 @@
             { id: 'bi', name: 'Bahasa Inggeris' },
             { id: 'mate', name: 'Matematik' },
             { id: 'sej', name: 'Sejarah' },
-            { id: 'pi_pm', name: 'Pendidikan Islam / Moral' },
-            { id: 'sains_fizik', name: 'Sains / Fizik' },
+            { id: 'pi_pm', name: 'Pendidikan Islam' },
+            { id: 'sains_fizik', name: 'Fizik' },
             { id: 'kimia', name: 'Kimia' },
             { id: 'bio', name: 'Biologi' },
             { id: 'addmath', name: 'Matematik Tambahan' }
@@ -530,6 +561,158 @@
             "Jangan ragu untuk bertanya kepada guru atau rakan sekiranya masih tidak faham sesuatu topik."
         ];
 
+
+        // Escape HTML
+        function esc(s) {
+            return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        // Backup & Restore
+        function exportData() {
+            const payload = {
+                app: 'apps-spm-2027-sharizal',
+                exportedAt: new Date().toISOString(),
+                events: events,
+                grades: gradesData
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'backup-apps-spm-' + new Date().toISOString().slice(0, 10) + '.json';
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+
+        function importData(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const d = JSON.parse(reader.result);
+                    if (!Array.isArray(d.events) || !d.grades || !Array.isArray(d.grades.subjects) || !d.grades.scores) {
+                        throw new Error('Format tidak sah');
+                    }
+                    if (!confirm('Data sedia ada akan diganti dengan backup ini. Teruskan?')) return;
+                    events = d.events;
+                    gradesData = d.grades;
+                    saveEvents();
+                    saveGradesData();
+                    renderEventsGrid();
+                    updateTimers();
+                    renderAllGradeTables();
+                    alert('Backup berjaya dipulihkan.');
+                } catch (err) {
+                    alert('Fail backup tidak sah atau rosak.');
+                }
+                e.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        if (navigator.storage && navigator.storage.persist) {
+            navigator.storage.persist().catch(() => {});
+        }
+
+
+        // ========= FIREBASE CLOUD SYNC =========
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyC1npsJZEcbXHvBK8TdZCZvOliwAdLeDOs",
+            authDomain: "spm2027-41bdc.firebaseapp.com",
+            projectId: "spm2027-41bdc",
+            storageBucket: "spm2027-41bdc.firebasestorage.app",
+            messagingSenderId: "324414834312",
+            appId: "1:324414834312:web:db856fa87fc84a61cf413d"
+        };
+
+        let cloudUser = null, cloudRef = null, cloudUnsub = null, cloudAuth = null;
+        let applyingRemote = false, pushTimer = null;
+
+        function cloudConfigured() {
+            return FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith('ISI') && typeof firebase !== 'undefined';
+        }
+
+        function updateCloudUI(state) {
+            const btn = document.getElementById('cloudBtn');
+            const lbl = document.getElementById('cloudLabel');
+            if (!btn || !lbl) return;
+            if (!cloudConfigured()) {
+                lbl.textContent = 'Sync belum aktif';
+                btn.title = 'Firebase belum disetup. Data hanya disimpan dalam browser ini.';
+            } else if (!cloudUser) {
+                lbl.textContent = 'Log Masuk Google';
+                btn.title = 'Log masuk untuk sync data antara peranti';
+            } else {
+                lbl.textContent = state === 'saving' ? 'Menyimpan...' : 'Sync ✓';
+                btn.title = 'Log masuk sebagai ' + (cloudUser.email || '') + ' (klik untuk log keluar)';
+            }
+        }
+
+        function initCloud() {
+            updateCloudUI();
+            if (!cloudConfigured()) return;
+            firebase.initializeApp(FIREBASE_CONFIG);
+            cloudAuth = firebase.auth();
+            const db = firebase.firestore();
+            cloudAuth.onAuthStateChanged(user => {
+                cloudUser = user;
+                if (cloudUnsub) { cloudUnsub(); cloudUnsub = null; }
+                cloudRef = null;
+                updateCloudUI();
+                if (!user) return;
+                cloudRef = db.collection('users').doc(user.uid);
+                cloudUnsub = cloudRef.onSnapshot(snap => {
+                    if (snap.metadata.hasPendingWrites) return;
+                    if (!snap.exists) { cloudPush(); return; }
+                    try {
+                        const d = snap.data();
+                        applyingRemote = true;
+                        events = JSON.parse(d.events);
+                        gradesData = JSON.parse(d.grades);
+                        localStorage.setItem('spm2027_events', JSON.stringify(events));
+                        localStorage.setItem('spm2027_grades', JSON.stringify(gradesData));
+                        const badge = document.getElementById('eventCountBadge');
+                        if (badge) badge.textContent = `${events.length} Acara`;
+                        renderEventsGrid();
+                        updateTimers();
+                        renderAllGradeTables();
+                    } catch (e) {
+                        console.error('Data cloud tidak sah', e);
+                    } finally {
+                        applyingRemote = false;
+                    }
+                    updateCloudUI();
+                }, err => { console.error(err); alert('Ralat sync: ' + err.message); });
+            });
+        }
+
+        function cloudPush() {
+            if (!cloudRef || applyingRemote) return;
+            updateCloudUI('saving');
+            clearTimeout(pushTimer);
+            pushTimer = setTimeout(() => {
+                cloudRef.set({
+                    events: JSON.stringify(events),
+                    grades: JSON.stringify(gradesData),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => updateCloudUI())
+                  .catch(e => { console.error(e); alert('Gagal simpan ke cloud: ' + e.message); });
+            }, 400);
+        }
+
+        function cloudToggle() {
+            if (!cloudConfigured()) {
+                alert('Sync belum diaktifkan. Tampal firebaseConfig dalam fail index.html dahulu.');
+                return;
+            }
+            if (cloudUser) {
+                if (confirm('Log keluar? Data kekal dalam browser ini dan dalam cloud.')) cloudAuth.signOut();
+            } else {
+                cloudAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+                    .catch(e => alert('Log masuk gagal: ' + e.message));
+            }
+        }
+
         // State Variables
         let events = [];
         let activeTab = 'countdown';
@@ -554,9 +737,10 @@
             startCountdownLoop();
             newRandomQuote();
             renderAllGradeTables();
+            initCloud();
         });
 
-        // Tab Navigation Switcher
+        // Tab Navigation Switcher (Red when selected, Green when unselected)
         function switchTab(tab) {
             activeTab = tab;
             const tabCountdown = document.getElementById('tabCountdown');
@@ -568,14 +752,20 @@
             if (tab === 'countdown') {
                 tabCountdown.classList.remove('hidden');
                 tabGrades.classList.add('hidden');
-                navCountdownBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm";
-                navGradesBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400";
+                
+                // Countdown Selected (Red), Grades Unselected (Green)
+                navCountdownBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-rose-600 text-white shadow-md shadow-rose-600/30 hover:bg-rose-700";
+                navGradesBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white";
+                
                 addEventHeaderBtn.classList.remove('hidden');
             } else {
                 tabCountdown.classList.add('hidden');
                 tabGrades.classList.remove('hidden');
-                navGradesBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm";
-                navCountdownBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400";
+                
+                // Grades Selected (Red), Countdown Unselected (Green)
+                navGradesBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-rose-600 text-white shadow-md shadow-rose-600/30 hover:bg-rose-700";
+                navCountdownBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white";
+                
                 addEventHeaderBtn.classList.add('hidden');
                 renderAllGradeTables();
             }
@@ -640,6 +830,7 @@
 
         function saveGradesData() {
             localStorage.setItem('spm2027_grades', JSON.stringify(gradesData));
+            cloudPush();
         }
 
         function handleScoreChange(subjectId, value) {
@@ -678,7 +869,7 @@
             renderInputGradesTable();
         }
 
-        // 📊 RENDER ALL-IN-ONE OVERALL SUMMARY TABLE & GPA CARDS
+        // RENDER ALL-IN-ONE OVERALL SUMMARY TABLE & GPA CARDS
         function renderOverallSummaryTable() {
             const tbody = document.getElementById('summaryTableBody');
             const gpaContainer = document.getElementById('gpaSummaryCards');
@@ -742,7 +933,7 @@
 
                 tr.innerHTML = `
                     <td class="p-3.5 sticky left-0 bg-white dark:bg-slate-900 font-bold text-slate-900 dark:text-white shadow-sm border-r border-slate-100 dark:border-slate-800">
-                        ${sub.name}
+                        ${esc(sub.name)}
                     </td>
                     <td class="p-3.5 text-center bg-indigo-50/30 dark:bg-indigo-950/20 border-x border-slate-200 dark:border-slate-800 ${targetObj.color}">
                         ${targetObj.grade}
@@ -767,7 +958,7 @@
             });
         }
 
-        // ✍️ RENDER INPUT FORM TABLE FOR SPECIFIC EXAM
+        // RENDER INPUT FORM TABLE FOR SPECIFIC EXAM
         function renderInputGradesTable() {
             const tbody = document.getElementById('gradesTableBody');
             if (!tbody) return;
@@ -783,7 +974,7 @@
                 tr.className = "hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition";
                 tr.innerHTML = `
                     <td class="p-3.5 font-semibold text-slate-800 dark:text-slate-200">
-                        ${sub.name}
+                        ${esc(sub.name)}
                     </td>
                     <td class="p-3.5 text-center">
                         <input type="number" min="0" max="100" placeholder="0-100" 
@@ -859,6 +1050,7 @@
 
         function saveEvents() {
             localStorage.setItem('spm2027_events', JSON.stringify(events));
+            cloudPush();
             const badge = document.getElementById('eventCountBadge');
             if (badge) badge.textContent = `${events.length} Acara`;
         }
@@ -872,7 +1064,7 @@
             }
         }
 
-        // Render Events List Cards
+        // Render Events List Cards with distinct soft pastel colors
         function renderEventsGrid() {
             const grid = document.getElementById('eventsGrid');
             if (!grid) return;
@@ -880,9 +1072,13 @@
 
             const sortedEvents = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
 
-            sortedEvents.forEach(evt => {
+            sortedEvents.forEach((evt, idx) => {
                 const card = document.createElement('div');
-                card.className = "glass-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between transition-all hover:border-indigo-400 dark:hover:border-indigo-600 relative overflow-hidden group";
+                
+                // Get soft color style for card
+                const styleClass = evt.cardStyle || SOFT_PALETTES[idx % SOFT_PALETTES.length];
+                
+                card.className = `p-5 rounded-2xl border flex flex-col justify-between transition-all hover:scale-[1.02] shadow-sm relative overflow-hidden group ${styleClass}`;
                 card.id = `card-${evt.id}`;
 
                 const dateObj = new Date(evt.date);
@@ -895,42 +1091,42 @@
                 card.innerHTML = `
                     <div class="space-y-2">
                         <div class="flex items-start justify-between gap-2">
-                            <span id="badge-${evt.id}" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                            <span id="badge-${evt.id}" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/70 dark:bg-slate-900/60 backdrop-blur-sm text-slate-700 dark:text-slate-300">
                                 Mengira...
                             </span>
                             <div class="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition">
-                                <button onclick="editEvent('${evt.id}')" title="Sunting" class="p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-xs">
+                                <button onclick="editEvent('${evt.id}')" title="Sunting" class="p-1 text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 text-xs">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
-                                <button onclick="deleteEvent('${evt.id}')" title="Padam" class="p-1 text-slate-400 hover:text-pink-500 text-xs">
+                                <button onclick="deleteEvent('${evt.id}')" title="Padam" class="p-1 text-slate-500 hover:text-rose-500 text-xs">
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <h4 class="font-bold text-sm text-slate-900 dark:text-white leading-snug line-clamp-2">${evt.title}</h4>
-                        <p class="text-xs text-indigo-600 dark:text-indigo-400 font-medium flex items-center gap-1">
+                        <h4 class="font-bold text-sm leading-snug line-clamp-2">${esc(evt.title)}</h4>
+                        <p class="text-xs font-medium flex items-center gap-1 opacity-90">
                             <i class="fa-regular fa-clock"></i> ${formattedDate}
                         </p>
                     </div>
 
-                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80">
-                        <div class="grid grid-cols-4 gap-1 text-center bg-slate-50 dark:bg-slate-900/60 p-2 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <div class="mt-4 pt-3 border-t border-black/5 dark:border-white/10">
+                        <div class="grid grid-cols-4 gap-1 text-center bg-white/70 dark:bg-slate-900/70 p-2 rounded-xl border border-black/5 dark:border-white/5 backdrop-blur-sm">
                             <div>
-                                <span id="days-${evt.id}" class="block text-xs font-extrabold text-slate-800 dark:text-slate-100">0</span>
-                                <span class="text-[8px] text-slate-400 uppercase font-medium">Hari</span>
+                                <span id="days-${evt.id}" class="block text-xs font-extrabold text-slate-900 dark:text-white">0</span>
+                                <span class="text-[8px] text-slate-500 dark:text-slate-400 uppercase font-medium">Hari</span>
                             </div>
                             <div>
-                                <span id="hours-${evt.id}" class="block text-xs font-extrabold text-slate-800 dark:text-slate-100">0</span>
-                                <span class="text-[8px] text-slate-400 uppercase font-medium">Jam</span>
+                                <span id="hours-${evt.id}" class="block text-xs font-extrabold text-slate-900 dark:text-white">0</span>
+                                <span class="text-[8px] text-slate-500 dark:text-slate-400 uppercase font-medium">Jam</span>
                             </div>
                             <div>
-                                <span id="mins-${evt.id}" class="block text-xs font-extrabold text-slate-800 dark:text-slate-100">0</span>
-                                <span class="text-[8px] text-slate-400 uppercase font-medium">Min</span>
+                                <span id="mins-${evt.id}" class="block text-xs font-extrabold text-slate-900 dark:text-white">0</span>
+                                <span class="text-[8px] text-slate-500 dark:text-slate-400 uppercase font-medium">Min</span>
                             </div>
                             <div>
-                                <span id="secs-${evt.id}" class="block text-xs font-extrabold text-pink-500">0</span>
-                                <span class="text-[8px] text-slate-400 uppercase font-medium">Saat</span>
+                                <span id="secs-${evt.id}" class="block text-xs font-extrabold text-rose-500">0</span>
+                                <span class="text-[8px] text-slate-500 dark:text-slate-400 uppercase font-medium">Saat</span>
                             </div>
                         </div>
                     </div>
@@ -1027,7 +1223,7 @@
                     secsEl.textContent = s;
 
                     badgeEl.textContent = 'Akan Datang';
-                    badgeEl.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800';
+                    badgeEl.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/80 dark:bg-slate-900/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
                 } else if (diff > -86400000) {
                     daysEl.textContent = 0;
                     hoursEl.textContent = 0;
@@ -1035,7 +1231,7 @@
                     secsEl.textContent = 0;
 
                     badgeEl.textContent = 'Berlangsung';
-                    badgeEl.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border border-amber-200 dark:border-amber-800 animate-pulse';
+                    badgeEl.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-700 animate-pulse';
                 } else {
                     daysEl.textContent = 0;
                     hoursEl.textContent = 0;
@@ -1043,7 +1239,7 @@
                     secsEl.textContent = 0;
 
                     badgeEl.textContent = 'Selesai';
-                    badgeEl.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800';
+                    badgeEl.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700';
                 }
             });
         }
@@ -1089,11 +1285,12 @@
             if (id) {
                 const index = events.findIndex(evt => evt.id === id);
                 if (index !== -1) {
-                    events[index] = { id, title, date, note };
+                    events[index] = { ...events[index], title, date, note };
                 }
             } else {
                 const newId = 'custom-' + Date.now();
-                events.push({ id: newId, title, date, note });
+                const randomStyle = SOFT_PALETTES[events.length % SOFT_PALETTES.length];
+                events.push({ id: newId, title, date, note, cardStyle: randomStyle });
             }
 
             saveEvents();
