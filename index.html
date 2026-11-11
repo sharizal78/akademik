@@ -99,14 +99,18 @@
             </div>
 
             <!-- Tab Switcher Navigation (Green when unselected, Red when selected) -->
-            <div class="flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
-                <button id="navCountdownBtn" onclick="switchTab('countdown')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-rose-600 text-white shadow-md shadow-rose-600/30">
+            <div class="flex items-center space-x-1.5 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                <button id="navCountdownBtn" onclick="switchTab('countdown')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-rose-600 text-white shadow-md shadow-rose-600/30">
                     <i class="fa-solid fa-stopwatch"></i>
                     <span>Countdown</span>
                 </button>
-                <button id="navGradesBtn" onclick="switchTab('grades')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white">
+                <button id="navGradesBtn" onclick="switchTab('grades')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white">
                     <i class="fa-solid fa-chart-line"></i>
-                    <span>Keputusan & Sasaran</span>
+                    <span>Keputusan</span>
+                </button>
+                <button id="navTodoBtn" onclick="switchTab('todo')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>To-Do List</span>
                 </button>
             </div>
 
@@ -118,7 +122,7 @@
                 <!-- Add Custom Event Button (Countdown Tab) -->
                 <button id="addEventHeaderBtn" onclick="openModal()" class="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-sm shadow-indigo-500/30">
                     <i class="fa-solid fa-plus text-xs"></i>
-                    <span class="hidden sm:inline">Tambah Tarikh</span>
+                    <span class="hidden sm:inline">Tambah Ujian</span>
                 </button>
                 
                 <!-- Reset Defaults Button -->
@@ -252,7 +256,7 @@
             </section>
         </div>
 
-        <!-- ================= TAB 2: KEPUTUSAN & SASARAN UJIAN (WITH ALL-IN-ONE SUMMARY) ================= -->
+        <!-- ================= TAB 2: KEPUTUSAN & SASARAN UJIAN ================= -->
         <div id="tabGrades" class="space-y-8 hidden">
             
             <!-- Header Banner -->
@@ -276,7 +280,7 @@
                 </div>
             </section>
 
-            <!-- 📊 ALL-IN-ONE OVERALL SUMMARY TABLE (DIRECTLY ON PAGE) -->
+            <!-- 📊 ALL-IN-ONE OVERALL SUMMARY TABLE -->
             <section class="space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <h3 class="text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
@@ -422,6 +426,45 @@
             </section>
         </div>
 
+        <!-- ================= TAB 3: TO-DO LIST ULANGKAJI (NEW) ================= -->
+        <div id="tabTodo" class="space-y-6 hidden">
+            <!-- Header Banner -->
+            <section class="glass-card p-6 rounded-3xl border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <span class="px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider">
+                        <i class="fa-solid fa-list-check"></i> Pengurusan Tugasan Belajar
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
+                        Senarai Semak Persediaan (To-Do List)
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                        Tandakan tugasan ulangkaji harian atau mingguan yang telah diselesaikan untuk kekal berdisiplin.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Add Task Input Form -->
+            <section class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <form onsubmit="handleAddTask(event)" class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="todoInput" required placeholder="Contoh: Siapkan 2 set past year Add Math / Hafal bab sejarah..." class="flex-grow px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition flex items-center justify-center gap-2 shadow-md">
+                        <i class="fa-solid fa-plus"></i> Tambah Tugasan
+                    </button>
+                </form>
+            </section>
+
+            <!-- Task List Container -->
+            <section class="space-y-3">
+                <div class="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider px-1">
+                    <span>Senarai Tugasan Ulangkaji</span>
+                    <span id="todoStats">0 / 0 Selesai</span>
+                </div>
+                <div id="todoListContainer" class="space-y-2">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </section>
+        </div>
+
     </main>
 
     <!-- Footer -->
@@ -503,7 +546,6 @@
             }
         ];
 
-        // Soft Color Palette array for custom added events
         const SOFT_PALETTES = [
             'bg-sky-50/90 dark:bg-sky-950/40 border-sky-200 dark:border-sky-800 text-sky-900 dark:text-sky-200',
             'bg-amber-50/90 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200',
@@ -513,7 +555,6 @@
             'bg-teal-50/90 dark:bg-teal-950/40 border-teal-200 dark:border-teal-800 text-teal-900 dark:text-teal-200'
         ];
 
-        // Standard Default SPM Subjects
         const DEFAULT_SUBJECTS = [
             { id: 'bm', name: 'Bahasa Melayu' },
             { id: 'bi', name: 'Bahasa Inggeris' },
@@ -526,7 +567,6 @@
             { id: 'addmath', name: 'Matematik Tambahan' }
         ];
 
-        // Exam Category Titles
         const CATEGORIES = [
             { id: 'target', label: '🎯 Target SPM' },
             { id: 'ppt4', label: '📘 PPT T4' },
@@ -543,7 +583,6 @@
             trial: '🏆 Peperiksaan Percubaan SPM (Trial SPM)'
         };
 
-        // Quotes Bank
         const QUOTES = [
             { text: "Kejayaan tidak datang daripada apa yang anda lakukan sekali-sekala, tetapi daripada apa yang anda lakukan secara konsisten.", author: "Marie Forleo" },
             { text: "Masa depan bergantung kepada apa yang anda lakukan hari ini.", author: "Mahatma Gandhi" },
@@ -552,7 +591,6 @@
             { text: "Usaha tangga kejayaan. Berikan yang terbaik untuk SPM 2027!", author: "Motivasi Pelajar" }
         ];
 
-        // Tips Bank
         const TIPS = [
             "Fokus pada latihan soalan-soalan tahun lepas (Past Year Papers) untuk membiasakan diri dengan format peperiksaan.",
             "Buat nota ringkas peta minda untuk subjek berfakta seperti Sejarah dan Sains.",
@@ -561,19 +599,17 @@
             "Jangan ragu untuk bertanya kepada guru atau rakan sekiranya masih tidak faham sesuatu topik."
         ];
 
-
-        // Escape HTML
         function esc(s) {
             return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         }
 
-        // Backup & Restore
         function exportData() {
             const payload = {
                 app: 'apps-spm-2027-sharizal',
                 exportedAt: new Date().toISOString(),
                 events: events,
-                grades: gradesData
+                grades: gradesData,
+                todos: todoList
             };
             const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
             const a = document.createElement('a');
@@ -596,11 +632,14 @@
                     if (!confirm('Data sedia ada akan diganti dengan backup ini. Teruskan?')) return;
                     events = d.events;
                     gradesData = d.grades;
+                    todoList = Array.isArray(d.todos) ? d.todos : [];
                     saveEvents();
                     saveGradesData();
+                    saveTodos();
                     renderEventsGrid();
                     updateTimers();
                     renderAllGradeTables();
+                    renderTodoList();
                     alert('Backup berjaya dipulihkan.');
                 } catch (err) {
                     alert('Fail backup tidak sah atau rosak.');
@@ -613,7 +652,6 @@
         if (navigator.storage && navigator.storage.persist) {
             navigator.storage.persist().catch(() => {});
         }
-
 
         // ========= FIREBASE CLOUD SYNC =========
         const FIREBASE_CONFIG = {
@@ -669,13 +707,16 @@
                         applyingRemote = true;
                         events = JSON.parse(d.events);
                         gradesData = JSON.parse(d.grades);
+                        todoList = d.todos ? JSON.parse(d.todos) : [];
                         localStorage.setItem('spm2027_events', JSON.stringify(events));
                         localStorage.setItem('spm2027_grades', JSON.stringify(gradesData));
+                        localStorage.setItem('spm2027_todos', JSON.stringify(todoList));
                         const badge = document.getElementById('eventCountBadge');
                         if (badge) badge.textContent = `${events.length} Ujian`;
                         renderEventsGrid();
                         updateTimers();
                         renderAllGradeTables();
+                        renderTodoList();
                     } catch (e) {
                         console.error('Data cloud tidak sah', e);
                     } finally {
@@ -694,6 +735,7 @@
                 cloudRef.set({
                     events: JSON.stringify(events),
                     grades: JSON.stringify(gradesData),
+                    todos: JSON.stringify(todoList),
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 }).then(() => updateCloudUI())
                   .catch(e => { console.error(e); alert('Gagal simpan ke cloud: ' + e.message); });
@@ -719,24 +761,21 @@
         let activeCategory = 'target';
         let gradesData = {
             subjects: [...DEFAULT_SUBJECTS],
-            scores: {
-                target: {},
-                ppt4: {},
-                pat4: {},
-                ppt5: {},
-                trial: {}
-            }
+            scores: { target: {}, ppt4: {}, pat4: {}, ppt5: {}, trial: {} }
         };
+        let todoList = [];
 
         // Initialize Application
         window.addEventListener('DOMContentLoaded', () => {
             initTheme();
             loadEvents();
             loadGradesData();
+            loadTodos();
             renderEventsGrid();
             startCountdownLoop();
             newRandomQuote();
             renderAllGradeTables();
+            renderTodoList();
             initCloud();
         });
 
@@ -745,30 +784,119 @@
             activeTab = tab;
             const tabCountdown = document.getElementById('tabCountdown');
             const tabGrades = document.getElementById('tabGrades');
+            const tabTodo = document.getElementById('tabTodo');
+            
             const navCountdownBtn = document.getElementById('navCountdownBtn');
             const navGradesBtn = document.getElementById('navGradesBtn');
+            const navTodoBtn = document.getElementById('navTodoBtn');
             const addEventHeaderBtn = document.getElementById('addEventHeaderBtn');
+
+            // Reset all to Green
+            navCountdownBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white";
+            navGradesBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white";
+            navTodoBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white";
+
+            tabCountdown.classList.add('hidden');
+            tabGrades.classList.add('hidden');
+            tabTodo.classList.add('hidden');
 
             if (tab === 'countdown') {
                 tabCountdown.classList.remove('hidden');
-                tabGrades.classList.add('hidden');
-                
-                // Countdown Selected (Red), Grades Unselected (Green)
-                navCountdownBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-rose-600 text-white shadow-md shadow-rose-600/30 hover:bg-rose-700";
-                navGradesBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white";
-                
+                navCountdownBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-rose-600 text-white shadow-md shadow-rose-600/30 hover:bg-rose-700";
                 addEventHeaderBtn.classList.remove('hidden');
-            } else {
-                tabCountdown.classList.add('hidden');
+            } else if (tab === 'grades') {
                 tabGrades.classList.remove('hidden');
-                
-                // Grades Selected (Red), Countdown Unselected (Green)
-                navGradesBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-rose-600 text-white shadow-md shadow-rose-600/30 hover:bg-rose-700";
-                navCountdownBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white";
-                
+                navGradesBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-rose-600 text-white shadow-md shadow-rose-600/30 hover:bg-rose-700";
                 addEventHeaderBtn.classList.add('hidden');
                 renderAllGradeTables();
+            } else if (tab === 'todo') {
+                tabTodo.classList.remove('hidden');
+                navTodoBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-rose-600 text-white shadow-md shadow-rose-600/30 hover:bg-rose-700";
+                addEventHeaderBtn.classList.add('hidden');
+                renderTodoList();
             }
+        }
+
+        // To-Do List Logic
+        function loadTodos() {
+            const stored = localStorage.getItem('spm2027_todos');
+            if (stored) {
+                try { todoList = JSON.parse(stored); } catch (e) { todoList = []; }
+            } else {
+                todoList = [
+                    { id: 1, text: 'Siapkan 2 set past year Add Math', completed: false },
+                    { id: 2, text: 'Hafal bab sejarah Tingkatan 4', completed: true }
+                ];
+                saveTodos();
+            }
+        }
+
+        function saveTodos() {
+            localStorage.setItem('spm2027_todos', JSON.stringify(todoList));
+            cloudPush();
+        }
+
+        function handleAddTask(e) {
+            e.preventDefault();
+            const input = document.getElementById('todoInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            todoList.unshift({ id: Date.now(), text, completed: false });
+            input.value = '';
+            saveTodos();
+            renderTodoList();
+        }
+
+        function toggleTodo(id) {
+            const item = todoList.find(t => t.id === id);
+            if (item) {
+                item.completed = !item.completed;
+                saveTodos();
+                renderTodoList();
+            }
+        }
+
+        function deleteTodo(id) {
+            todoList = todoList.filter(t => t.id !== id);
+            saveTodos();
+            renderTodoList();
+        }
+
+        function renderTodoList() {
+            const container = document.getElementById('todoListContainer');
+            const stats = document.getElementById('todoStats');
+            if (!container || !stats) return;
+
+            container.innerHTML = '';
+            const completedCount = todoList.filter(t => t.completed).length;
+            stats.textContent = `${completedCount} / ${todoList.length} Selesai`;
+
+            if (todoList.length === 0) {
+                container.innerHTML = `
+                    <div class="glass-card p-6 rounded-2xl text-center text-slate-400 text-xs">
+                        Tiada tugasan dalam senarai. Masukkan tugasan di atas untuk mula belajar!
+                    </div>
+                `;
+                return;
+            }
+
+            todoList.forEach(task => {
+                const div = document.createElement('div');
+                div.className = `glass-card p-3.5 rounded-xl border flex items-center justify-between gap-3 transition ${task.completed ? 'opacity-60 bg-emerald-50/20 border-emerald-500/20' : 'border-slate-200 dark:border-slate-800'}`;
+                div.innerHTML = `
+                    <label class="flex items-center gap-3 cursor-pointer flex-grow">
+                        <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTodo(${task.id})" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                        <span class="text-xs sm:text-sm font-medium ${task.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-100'}">
+                            ${esc(task.text)}
+                        </span>
+                    </label>
+                    <button onclick="deleteTodo(${task.id})" title="Padam Tugasan" class="text-slate-400 hover:text-rose-500 p-1.5 transition">
+                        <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                `;
+                container.appendChild(div);
+            });
         }
 
         // Grade Calculator Logic (SPM Scale)
@@ -878,35 +1006,36 @@
             tbody.innerHTML = '';
             gpaContainer.innerHTML = '';
 
-            // Calculate GPAs per category
+            // Calculate GPAs per category with A+, A, A- merged as 'A'
             let categoryGPAs = {};
             CATEGORIES.forEach(cat => {
-                let totalPts = 0;
                 let count = 0;
                 const scoresObj = gradesData.scores[cat.id] || {};
+                
+                const gc = { A: 0, 'B+': 0, B: 0, 'C+': 0, C: 0, D: 0, E: 0, G: 0 };
                 gradesData.subjects.forEach(sub => {
-                    const score = scoresObj[sub.id];
-                    if (score !== undefined && score !== '' && !isNaN(score)) {
-                        totalPts += getSPMGrade(score).points;
+                    const v = scoresObj[sub.id];
+                    if (v !== undefined && v !== '' && !isNaN(v)) {
+                        const g = getSPMGrade(v).grade; // A+, A, A-, B+, etc.
+                        if (g === 'A+' || g === 'A' || g === 'A-') {
+                            gc.A++;
+                        } else if (gc[g] !== undefined) {
+                            gc[g]++;
+                        }
                         count++;
                     }
                 });
-                // Papar sebagai bilangan gred, cth: 3A 1B (A+/A/A- = A, B+/B = B, C+/C = C)
-                const gc = { A: 0, B: 0, C: 0, D: 0, E: 0, G: 0 };
-                gradesData.subjects.forEach(sub => {
-                    const v = scoresObj[sub.id];
-                    if (v !== undefined && v !== '' && !isNaN(v)) gc[getSPMGrade(v).grade.charAt(0)]++;
-                });
+
                 const gcText = Object.keys(gc).filter(k => gc[k] > 0).map(k => gc[k] + k).join(' ');
-                categoryGPAs[cat.id] = count > 0 ? gcText : '--';
+                categoryGPAs[cat.id] = count > 0 ? gcText : 'Belum diisi';
 
                 // Render GPA Mini Card
                 const card = document.createElement('div');
                 card.className = "glass-card p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-center";
                 card.innerHTML = `
                     <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">${cat.label}</div>
-                    <div class="text-base font-extrabold text-indigo-600 dark:text-indigo-400 mt-0.5">${categoryGPAs[cat.id]}</div>
-                    <div class="text-[9px] text-slate-400">${count}/${gradesData.subjects.length} subjek</div>
+                    <div class="text-xs sm:text-sm font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">${categoryGPAs[cat.id]}</div>
+                    <div class="text-[9px] text-slate-400 mt-0.5">${count}/${gradesData.subjects.length} subjek</div>
                 `;
                 gpaContainer.appendChild(card);
             });
@@ -1009,10 +1138,16 @@
         function handleResetAction() {
             if (activeTab === 'countdown') {
                 resetDefaultEvents();
-            } else {
+            } else if (activeTab === 'grades') {
                 if (confirm("Adakah anda pasti mahu set semula semua keputusan & sasaran gred kepada asal?")) {
                     initDefaultGrades();
                     renderAllGradeTables();
+                }
+            } else if (activeTab === 'todo') {
+                if (confirm("Padam semua tugasan dalam senarai?")) {
+                    todoList = [];
+                    saveTodos();
+                    renderTodoList();
                 }
             }
         }
@@ -1081,8 +1216,6 @@
 
             sortedEvents.forEach((evt, idx) => {
                 const card = document.createElement('div');
-                
-                // Get soft color style for card
                 const styleClass = evt.cardStyle || SOFT_PALETTES[idx % SOFT_PALETTES.length];
                 
                 card.className = `p-5 rounded-2xl border flex flex-col justify-between transition-all hover:scale-[1.02] shadow-sm relative overflow-hidden group ${styleClass}`;
