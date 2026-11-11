@@ -94,7 +94,7 @@
                     <h1 class="font-bold text-base sm:text-lg leading-tight flex items-center gap-2">
                         Apps SPM <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-extrabold border border-indigo-200 dark:border-indigo-800">2027</span>
                     </h1>
-                    <p class="text-[11px] sm:text-xs text-emerald-600 dark:text-emerald-400 font-bold">Apps by Sharizal</p>
+                    <p class="text-[11px] sm:text-xs text-emerald-600 dark:text-emerald-400 font-bold">by Sharizal</p>
                 </div>
             </div>
 
@@ -155,7 +155,7 @@
                     <div class="space-y-3 max-w-xl">
                         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-semibold uppercase tracking-wider">
                             <span class="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
-                            Acara Terdekat Akan Datang
+                            Ujian Terdekat Akan Datang
                         </div>
                         <h2 id="heroTitle" class="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                             --
@@ -208,7 +208,7 @@
                         <i class="fa-solid fa-list-check text-indigo-500"></i> Semua Tarikh Penting SPM 2027
                     </h3>
                     <span id="eventCountBadge" class="text-xs font-medium px-2.5 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                        4 Acara
+                        4 Ujian
                     </span>
                 </div>
 
@@ -426,14 +426,14 @@
 
     <!-- Footer -->
     <footer class="border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
-        <p>© 2027 Apps SPM 2027 (Apps by Sharizal). Dibina khas untuk calon SPM 2027.</p>
+        <p>© 2027 Apps SPM 2027 (by Sharizal). Dibina khas untuk calon SPM 2027.</p>
     </footer>
 
     <!-- Modal Form for Adding/Editing Custom Countdown Events -->
     <div id="eventModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden">
         <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-                <h3 id="modalHeaderTitle" class="font-bold text-lg text-slate-900 dark:text-white">Tambah Acara Baru</h3>
+                <h3 id="modalHeaderTitle" class="font-bold text-lg text-slate-900 dark:text-white">Tambah Ujian Baru</h3>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
@@ -443,7 +443,7 @@
                 <input type="hidden" id="eventId">
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Nama Peperiksaan / Acara</label>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Nama Peperiksaan / Ujian</label>
                     <input type="text" id="eventTitleInput" required placeholder="Contoh: Ujian Mac / SPM Sebenar" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
@@ -462,7 +462,7 @@
                         Batal
                     </button>
                     <button type="submit" class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition">
-                        Simpan Acara
+                        Simpan Ujian
                     </button>
                 </div>
             </form>
@@ -672,7 +672,7 @@
                         localStorage.setItem('spm2027_events', JSON.stringify(events));
                         localStorage.setItem('spm2027_grades', JSON.stringify(gradesData));
                         const badge = document.getElementById('eventCountBadge');
-                        if (badge) badge.textContent = `${events.length} Acara`;
+                        if (badge) badge.textContent = `${events.length} Ujian`;
                         renderEventsGrid();
                         updateTimers();
                         renderAllGradeTables();
@@ -891,7 +891,14 @@
                         count++;
                     }
                 });
-                categoryGPAs[cat.id] = count > 0 ? (totalPts / count).toFixed(2) : '--';
+                // Papar sebagai bilangan gred, cth: 3A 1B (A+/A/A- = A, B+/B = B, C+/C = C)
+                const gc = { A: 0, B: 0, C: 0, D: 0, E: 0, G: 0 };
+                gradesData.subjects.forEach(sub => {
+                    const v = scoresObj[sub.id];
+                    if (v !== undefined && v !== '' && !isNaN(v)) gc[getSPMGrade(v).grade.charAt(0)]++;
+                });
+                const gcText = Object.keys(gc).filter(k => gc[k] > 0).map(k => gc[k] + k).join(' ');
+                categoryGPAs[cat.id] = count > 0 ? gcText : '--';
 
                 // Render GPA Mini Card
                 const card = document.createElement('div');
@@ -1052,7 +1059,7 @@
             localStorage.setItem('spm2027_events', JSON.stringify(events));
             cloudPush();
             const badge = document.getElementById('eventCountBadge');
-            if (badge) badge.textContent = `${events.length} Acara`;
+            if (badge) badge.textContent = `${events.length} Ujian`;
         }
 
         function resetDefaultEvents() {
@@ -1256,14 +1263,14 @@
             if (editId) {
                 const target = events.find(e => e.id === editId);
                 if (target) {
-                    headerTitle.textContent = 'Kemaskini Tarikh Acara';
+                    headerTitle.textContent = 'Kemaskini Tarikh Ujian';
                     document.getElementById('eventId').value = target.id;
                     document.getElementById('eventTitleInput').value = target.title;
                     document.getElementById('eventDateInput').value = target.date;
                     document.getElementById('eventNoteInput').value = target.note || '';
                 }
             } else {
-                headerTitle.textContent = 'Tambah Acara Baru';
+                headerTitle.textContent = 'Tambah Ujian Baru';
             }
 
             modal.classList.remove('hidden');
@@ -1304,7 +1311,7 @@
         }
 
         function deleteEvent(id) {
-            if (confirm("Adakah anda pasti mahu memadam acara ini?")) {
+            if (confirm("Adakah anda pasti mahu memadam ujian ini?")) {
                 events = events.filter(e => e.id !== id);
                 saveEvents();
                 renderEventsGrid();
