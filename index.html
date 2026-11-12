@@ -48,7 +48,7 @@
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h1 class="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-white">Apps Pelajar Cemerlang Keluarga</h1>
+                            <h1 class="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-white">Apps Pelajar Cemerlang</h1>
                             <span id="sync-badge" onclick="cloudToggle()" title="Klik untuk log masuk Google / log keluar (sync antara PC)" class="cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                 <span id="sync-text">Log Masuk Google</span>
@@ -164,9 +164,9 @@
             </div>
 
             <!-- Quick Summary Cards & Motivation -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 gap-4">
                 <!-- Quote Card -->
-                <div class="md:col-span-2 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
@@ -181,27 +181,6 @@
                     <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
                         <i data-lucide="lightbulb" class="w-4 h-4 text-amber-500 shrink-0"></i>
                         <span id="study-tip-text">Tips: Buat latihan topikal sekurang-kurangnya 30 minit setiap malam.</span>
-                    </div>
-                </div>
-
-                <!-- Quick Progress Overview -->
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-                    <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                        <i data-lucide="bar-chart-3" class="w-4 h-4 text-emerald-500"></i> Ringkasan Pantas
-                    </h3>
-                    <div class="space-y-3">
-                        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 flex items-center justify-between">
-                            <span class="text-xs font-medium text-slate-600 dark:text-slate-300">Tugasan Selesai</span>
-                            <span id="summary-todo-count" class="text-sm font-black text-emerald-600 dark:text-emerald-400">0 / 0</span>
-                        </div>
-                        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 flex items-center justify-between">
-                            <span class="text-xs font-medium text-slate-600 dark:text-slate-300">Rekod Peperiksaan</span>
-                            <span id="summary-exam-count" class="text-sm font-black text-indigo-600 dark:text-indigo-400">0 Ujian</span>
-                        </div>
-                        <div id="special-widget-preview" class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-800/50 flex items-center justify-between">
-                            <span id="special-widget-label" class="text-xs font-semibold text-amber-800 dark:text-amber-300">Status Pencapaian</span>
-                            <span id="special-widget-value" class="text-sm font-black text-amber-600 dark:text-amber-400">Cemerlang</span>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -230,11 +209,11 @@
                 </div>
             </div>
 
-<!-- Ringkasan Keseluruhan Gred (All-In-One Summary) - ikut index -->
+<!-- <span id="summary-title-main">Ringkasan Keseluruhan Gred (All-In-One Summary)</span> - ikut index -->
             <section class="space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <h3 class="text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                        <i data-lucide="table-2" class="w-5 h-5 text-indigo-500"></i> Ringkasan Keseluruhan Gred (All-In-One Summary)
+                        <i data-lucide="table-2" class="w-5 h-5 text-indigo-500"></i> <span id="summary-title-main">Ringkasan Keseluruhan Gred (All-In-One Summary)</span>
                     </h3>
                     <span class="text-xs text-slate-500 dark:text-slate-400">*Gred dikira secara automatik daripada markah yang dimasukkan</span>
                 </div>
@@ -242,6 +221,22 @@
                 <div class="glass-card rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs sm:text-sm border-collapse min-w-[600px]" id="summary-comparison-table"></table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ringkasan KAFA / UPKK (Raisha sahaja) -->
+            <section id="summary-block-kafa" class="space-y-4 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <h3 class="text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i data-lucide="table-2" class="w-5 h-5 text-indigo-500"></i> <span id="summary-title-kafa">Ringkasan Keputusan KAFA / UPKK</span>
+                    </h3>
+                    <span class="text-xs text-slate-500 dark:text-slate-400">*Gred dikira secara automatik daripada markah yang dimasukkan</span>
+                </div>
+                <div id="gpaSummaryCards2" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"></div>
+                <div class="glass-card rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs sm:text-sm border-collapse min-w-[600px]" id="summary-comparison-table2"></table>
                     </div>
                 </div>
             </section>
@@ -259,10 +254,6 @@
                 </div>
             </div>
 
-            <!-- Active Exam Stats Bar -->
-            <div id="exam-stats-bar" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <!-- Rendered dynamically -->
-            </div>
 
             <!-- Subject Marks & Grades Table -->
             <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
@@ -327,12 +318,14 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Special Tracker (Hafazan UPKK for Raisha / Star Rewards for Aisyah / Study Focus for Secondary) -->
+                <!-- Right Column: Tracker Hafazan (semua pelajar) + Papan Bintang (Aisyah) -->
                 <div id="todo-side-col" class="lg:col-span-5 space-y-6">
                     <!-- Dynamic Special Widget -->
                     <div id="special-tracker-card" class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
                         <!-- Rendered dynamically per profile -->
                     </div>
+                    <!-- Tracker Hafazan (semua pelajar) -->
+                    <div id="hafazan-tracker-card" class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4"></div>
                 </div>
             </div>
         </section>
@@ -865,6 +858,21 @@
             return [{ id: 'main-' + cfg.id, title: title || cfg.defaultExamTitle, date: (date || cfg.defaultTargetDate) + 'T08:00', note: '', cardStyle: SOFT_PALETTES[0] }];
         }
 
+        // Tugasan & hafazan asal Raisha Husna - diduplikasi kepada semua pelajar
+        const SHARED_TODOS = [
+            { id: 9001, text: 'Latihan sifir 6, 7, 8 dan 9', tag: 'Latihan', done: false },
+            { id: 9002, text: 'Latihan ejaan Jawi & Khat buku aktiviti KAFA', tag: 'Kerja Sekolah', done: false }
+        ];
+        const SHARED_HAFAZAN = [
+            { id: 'h1', title: 'Surah Al-Insyirah & Ad-Dhuha', type: 'Surah Lazim', status: 'belum' },
+            { id: 'h2', title: 'Surah At-Tin & Al-Alaq', type: 'Surah Lazim', status: 'belum' },
+            { id: 'h3', title: 'Surah Al-Qadr & Al-Bayyinah', type: 'Surah Lazim', status: 'belum' },
+            { id: 'h4', title: 'Surah Az-Zalzalah & Al-Adiyat', type: 'Surah Lazim', status: 'belum' },
+            { id: 'h5', title: 'Doa Qunut & Doa Selepas Solat', type: 'Doa UPKK', status: 'belum' },
+            { id: 'h6', title: 'Doa Masuk & Keluar Masjid / Tandas', type: 'Doa UPKK', status: 'belum' },
+            { id: 'h7', title: 'Doa Menuntut Ilmu & Penerang Hati', type: 'Doa UPKK', status: 'belum' }
+        ];
+
         function createDefaultProfileData(cfg) {
             const baseSubjects = JSON.parse(JSON.stringify(cfg.defaultExams[0].subjects));
             const exams = cfg.defaultExams.map((ex, idx) => ({
@@ -880,8 +888,11 @@
                 events: defaultEventsFor(cfg),
                 selectedExamId: exams[0].id,
                 exams: exams,
-                todos: JSON.parse(JSON.stringify(cfg.defaultTodos)),
-                hafazan: cfg.defaultHafazan ? JSON.parse(JSON.stringify(cfg.defaultHafazan)) : [],
+                todos: JSON.parse(JSON.stringify(cfg.defaultTodos)).concat(
+                    cfg.id === 'd4' ? [] : JSON.parse(JSON.stringify(SHARED_TODOS))
+                ),
+                hafazan: JSON.parse(JSON.stringify(cfg.defaultHafazan || SHARED_HAFAZAN)),
+                sharedDupV1: true,
                 bonusStars: cfg.isKidMode ? 12 : 0
             };
         }
@@ -901,6 +912,19 @@
                             mergedExams.push(defEx);
                         }
                     });
+                    // Migrasi sekali: duplikasi tugasan & hafazan Raisha kepada data tersimpan pelajar lain
+                    if (!sp.sharedDupV1) {
+                        if (pid !== 'd4') {
+                            const have = new Set((sp.todos || []).map(t => t.text));
+                            sp.todos = (sp.todos || []).concat(
+                                JSON.parse(JSON.stringify(SHARED_TODOS)).filter(t => !have.has(t.text))
+                            );
+                        }
+                        if (!sp.hafazan || !sp.hafazan.length) {
+                            sp.hafazan = JSON.parse(JSON.stringify(cfg.defaultHafazan || SHARED_HAFAZAN));
+                        }
+                        sp.sharedDupV1 = true;
+                    }
                     result.profiles[pid] = {
                         ...def,
                         ...sp,
@@ -1171,7 +1195,7 @@
 
             // Update Todo label dynamically
             const cfg = PROFILES_CONFIG[activeProfileId];
-            document.getElementById('tab-todo-label').textContent = cfg.id === 'd4' ? 'To-Do & Hafazan' : (cfg.isKidMode ? 'Misi & Bintang' : 'To-Do List');
+            document.getElementById('tab-todo-label').textContent = cfg.isKidMode ? 'Misi, Bintang & Hafazan' : 'To-Do & Hafazan';
 
             // Show/Hide Sections
             document.getElementById('section-countdown').classList.toggle('hidden', activeTab !== 'countdown');
@@ -1193,29 +1217,6 @@
             const qObj = cfg.quotes[currentQuoteIdx % cfg.quotes.length];
             document.getElementById('quote-text').textContent = `"${qObj.q}"`;
             document.getElementById('study-tip-text').textContent = `Tips: ${qObj.tip}`;
-
-            // Quick Stats
-            const totalTodos = pData.todos.length;
-            const doneTodos = pData.todos.filter(t => t.done).length;
-            document.getElementById('summary-todo-count').textContent = `${doneTodos} / ${totalTodos}`;
-            document.getElementById('summary-exam-count').textContent = `${pData.exams.length} Kategori`;
-
-            if (cfg.id === 'd4') {
-                const hafazDone = (pData.hafazan || []).filter(h => h.status === 'hafaz').length;
-                const hafazTotal = (pData.hafazan || []).length;
-                document.getElementById('special-widget-label').textContent = 'Hafazan UPKK';
-                document.getElementById('special-widget-value').textContent = `${hafazDone}/${hafazTotal} Surah/Doa`;
-            } else if (cfg.isKidMode) {
-                const stars = (doneTodos * 2) + (pData.bonusStars || 0);
-                document.getElementById('special-widget-label').textContent = 'Koleksi Bintang Aisyah';
-                document.getElementById('special-widget-value').textContent = `${stars} ⭐`;
-            } else {
-                const firstExam = pData.exams[0];
-                const validMarks = firstExam ? firstExam.subjects.filter(s => s.mark !== '' && !isNaN(s.mark)).map(s => Number(s.mark)) : [];
-                const avg = validMarks.length ? (validMarks.reduce((a, b) => a + b, 0) / validMarks.length).toFixed(1) + '%' : '-';
-                document.getElementById('special-widget-label').textContent = `Purata ${firstExam ? firstExam.name : 'Sasaran'}`;
-                document.getElementById('special-widget-value').textContent = avg;
-            }
         }
 
         function nextQuote() {
@@ -1424,32 +1425,6 @@
             const currentExam = pData.exams.find(e => e.id === pData.selectedExamId) || pData.exams[0];
             document.getElementById('current-exam-heading').textContent = `Keputusan: ${currentExam.name}`;
 
-            // Stats Bar
-            const validSubjects = currentExam.subjects.filter(s => s.mark !== '' && !isNaN(s.mark));
-            const totalMarks = validSubjects.reduce((sum, s) => sum + Number(s.mark), 0);
-            const avgMark = validSubjects.length ? (totalMarks / validSubjects.length).toFixed(1) : '0.0';
-            const aCount = validSubjects.filter(s => calculateGrade(s.mark, cfg.gradeSystem).grade.startsWith('A')).length;
-            const tp6Count = validSubjects.filter(s => s.tp === 'TP6' || s.tp === 'TP5').length;
-
-            document.getElementById('exam-stats-bar').innerHTML = `
-                <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
-                    <div class="text-[11px] font-bold text-slate-400 uppercase">Purata Markah</div>
-                    <div class="text-xl font-black text-indigo-600 dark:text-indigo-400 mt-1">${avgMark}%</div>
-                </div>
-                <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
-                    <div class="text-[11px] font-bold text-slate-400 uppercase">Jumlah Gred A</div>
-                    <div class="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">${aCount} / ${currentExam.subjects.length}</div>
-                </div>
-                <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
-                    <div class="text-[11px] font-bold text-slate-400 uppercase">${cfg.showTP ? 'TP5 & TP6' : 'Subjek Diisi'}</div>
-                    <div class="text-xl font-black text-amber-500 mt-1">${cfg.showTP ? `${tp6Count} Subjek` : `${validSubjects.length} Subjek`}</div>
-                </div>
-                <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
-                    <div class="text-[11px] font-bold text-slate-400 uppercase">Jumlah Markah</div>
-                    <div class="text-xl font-black text-slate-800 dark:text-white mt-1">${totalMarks}</div>
-                </div>
-            `;
-
             // Table Header TP column visibility
             document.getElementById('th-tp-or-star').textContent = cfg.isKidMode ? 'Tahap (TP) & Bintang' : (cfg.showTP ? 'Tahap Penguasaan (TP)' : 'Status');
 
@@ -1618,9 +1593,29 @@
         function renderCrossYearComparisonTable() {
             const cfg = PROFILES_CONFIG[activeProfileId];
             const pData = appState.profiles[activeProfileId];
-            const table = document.getElementById('summary-comparison-table');
-            const cardsBox = document.getElementById('gpaSummaryCards');
-            const exams = pData.exams;
+            const kafaBlock = document.getElementById('summary-block-kafa');
+            const isKafa = s => /KAFA|UPKK/i.test(s.cat || '');
+            if (cfg.id === 'd4') {
+                // Raisha: SK (sekolah pagi) dan KAFA/UPKK adalah dua sekolah berbeza -> ringkasan berasingan
+                const skExams = pData.exams
+                    .filter(ex => ex.id !== 'kafa_exam')
+                    .map(ex => ({ ...ex, subjects: ex.subjects.filter(s => !isKafa(s)) }));
+                const kafaExams = pData.exams
+                    .filter((ex, i) => i === 0 || ex.id === 'kafa_exam' || ex.subjects.some(isKafa))
+                    .map(ex => ({ ...ex, subjects: ex.subjects.filter(isKafa) }));
+                document.getElementById('summary-title-main').textContent = 'Ringkasan Keputusan Sekolah Kebangsaan (SK)';
+                document.getElementById('summary-title-kafa').textContent = 'Ringkasan Keputusan KAFA / UPKK';
+                kafaBlock.classList.remove('hidden');
+                renderSummaryBlock(cfg, skExams, document.getElementById('gpaSummaryCards'), document.getElementById('summary-comparison-table'));
+                renderSummaryBlock(cfg, kafaExams, document.getElementById('gpaSummaryCards2'), document.getElementById('summary-comparison-table2'));
+            } else {
+                document.getElementById('summary-title-main').textContent = 'Ringkasan Keseluruhan Gred (All-In-One Summary)';
+                kafaBlock.classList.add('hidden');
+                renderSummaryBlock(cfg, pData.exams, document.getElementById('gpaSummaryCards'), document.getElementById('summary-comparison-table'));
+            }
+        }
+
+        function renderSummaryBlock(cfg, exams, cardsBox, table) {
             const mergeA = g => (g === 'A+' || g === 'A' || g === 'A-') ? 'A' : g;   // A+, A, A- dirangkum sebagai A
             const ORDER = ['A', 'B+', 'B', 'C+', 'C', 'D', 'E', 'F', 'G'];
             const RANK = ['G', 'F', 'E', 'D', 'C', 'C+', 'B', 'B+', 'A-', 'A', 'A+'];
@@ -1773,48 +1768,11 @@
             const cfg = PROFILES_CONFIG[activeProfileId];
             const pData = appState.profiles[activeProfileId];
             const card = document.getElementById('special-tracker-card');
+            const hCard = document.getElementById('hafazan-tracker-card');
 
-            if (cfg.id === 'd4') {
-                // Tracker Hafazan Surah Lazim & Doa UPKK untuk Raisha Husna
-                const list = pData.hafazan || [];
-                const hafazCount = list.filter(h => h.status === 'hafaz').length;
-                card.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                                <i data-lucide="book-open-check" class="w-5 h-5 text-orange-500"></i>
-                                <span>Tracker Hafazan Surah & Doa UPKK</span>
-                            </h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Klik status untuk kemaskini hafazan Raisha.</p>
-                        </div>
-                        <span class="px-2.5 py-1 rounded-full text-xs font-black bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300">${hafazCount}/${list.length}</span>
-                    </div>
-                    <div class="flex gap-2">
-                        <input type="text" id="new-hafazan-input" placeholder="Tambah Surah / Doa UPKK..." class="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
-                        <button onclick="addHafazanItem()" class="px-3 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold">Tambah</button>
-                    </div>
-                    <div class="space-y-2 max-h-[380px] overflow-y-auto pr-1">
-                        ${list.map((h, i) => {
-                            const badge = h.status === 'hafaz'
-                                ? { label: 'Sudah Hafaz ✓', cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' }
-                                : (h.status === 'proses'
-                                    ? { label: 'Sedang Hafaz', cls: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300' }
-                                    : { label: 'Belum Mula', cls: 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300' });
-                            return `
-                                <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700/60">
-                                    <div>
-                                        <div class="text-xs font-bold text-slate-800 dark:text-slate-100">${h.title}</div>
-                                        <div class="text-[10px] text-slate-400">${h.type}</div>
-                                    </div>
-                                    <button onclick="cycleHafazanStatus(${i})" class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition ${badge.cls}">
-                                        ${badge.label}
-                                    </button>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                `;
-            } else if (cfg.isKidMode) {
+            // Papan Bintang (Aisyah sahaja)
+            if (cfg.isKidMode) {
+                card.classList.remove('hidden');
                 // Papan Bintang Ganjaran Ceria untuk Aisyah Najihah (Tahun 1)
                 const doneTodos = pData.todos.filter(t => t.done).length;
                 const bonus = pData.bonusStars || 0;
@@ -1838,36 +1796,53 @@
                     </div>
                 `;
             } else {
-                // Fokus Belajar & Pecahan Subjek untuk Izzati, Ammar, Hanna
-                const firstExam = pData.exams[0];
-                const totalSubj = firstExam ? firstExam.subjects.length : 0;
-                const targetA = firstExam ? firstExam.subjects.filter(s => Number(s.mark) >= 80).length : 0;
-                card.innerHTML = `
-                    <div class="space-y-3">
-                        <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                            <i data-lucide="target" class="w-5 h-5 text-indigo-500"></i>
-                            <span>Sasaran Kecemerlangan ${cfg.shortName}</span>
-                        </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Ringkasan sasaran subjek cemerlang (80 markah ke atas) berdasarkan ${firstExam ? firstExam.name : 'Sasaran Utama'}.</p>
-                        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/70 space-y-2">
-                            <div class="flex justify-between text-xs font-bold">
-                                <span>Sasaran Gred A (≥80%)</span>
-                                <span class="text-indigo-600 dark:text-indigo-400">${targetA} daripada ${totalSubj} Subjek</span>
-                            </div>
-                            <div class="w-full h-2.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-full" style="width: ${totalSubj ? Math.round((targetA / totalSubj) * 100) : 0}%"></div>
-                            </div>
+                card.innerHTML = '';
+                card.classList.add('hidden');
+            }
+
+            // Tracker Hafazan (semua pelajar)
+            const list = pData.hafazan || [];
+            const hafazCount = list.filter(h => h.status === 'hafaz').length;
+                hCard.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                                <i data-lucide="book-open-check" class="w-5 h-5 text-orange-500"></i>
+                                <span>Tracker Hafazan Surah & Doa</span>
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Klik status untuk kemaskini hafazan ${cfg.shortName}.</p>
                         </div>
-                        <div class="p-3.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200/60 dark:border-indigo-800/50 text-xs text-indigo-900 dark:text-indigo-200 leading-relaxed">
-                            <span class="font-extrabold">Peringatan Penting:</span> Pastikan setiap keputusan peperiksaan baharu direkodkan dalam tab <span class="font-bold">Keputusan</span> supaya graf perbandingan sentiasa dikemaskini.
-                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-black bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300">${hafazCount}/${list.length}</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-hafazan-input" placeholder="Tambah Surah / Doa..." class="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+                        <button onclick="addHafazanItem()" class="px-3 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold">Tambah</button>
+                    </div>
+                    <div class="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+                        ${list.map((h, i) => {
+                            const badge = h.status === 'hafaz'
+                                ? { label: 'Sudah Hafaz ✓', cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' }
+                                : (h.status === 'proses'
+                                    ? { label: 'Sedang Hafaz', cls: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300' }
+                                    : { label: 'Belum Mula', cls: 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300' });
+                            return `
+                                <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700/60">
+                                    <div>
+                                        <div class="text-xs font-bold text-slate-800 dark:text-slate-100">${h.title}</div>
+                                        <div class="text-[10px] text-slate-400">${h.type}</div>
+                                    </div>
+                                    <button onclick="cycleHafazanStatus(${i})" class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition ${badge.cls}">
+                                        ${badge.label}
+                                    </button>
+                                </div>
+                            `;
+                        }).join('')}
                     </div>
                 `;
-            }
         }
 
         function cycleHafazanStatus(idx) {
-            const list = appState.profiles.d4.hafazan;
+            const list = appState.profiles[activeProfileId].hafazan;
             const order = ['belum', 'proses', 'hafaz'];
             const next = order[(order.indexOf(list[idx].status) + 1) % order.length];
             list[idx].status = next;
@@ -1880,10 +1855,11 @@
             const inp = document.getElementById('new-hafazan-input');
             const title = inp.value.trim();
             if (!title) return;
-            appState.profiles.d4.hafazan.push({
+            appState.profiles[activeProfileId].hafazan = appState.profiles[activeProfileId].hafazan || [];
+            appState.profiles[activeProfileId].hafazan.push({
                 id: 'h_' + Date.now(),
                 title,
-                type: 'Surah / Doa UPKK',
+                type: 'Surah / Doa',
                 status: 'proses'
             });
             inp.value = '';
