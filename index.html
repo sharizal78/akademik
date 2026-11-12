@@ -48,10 +48,10 @@
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h1 class="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-white">Apps Pelajar Cemerlang </h1>
-                            <span id="sync-badge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                            <h1 class="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-white">Apps Pelajar Cemerlang Keluarga</h1>
+                            <span id="sync-badge" onclick="cloudToggle()" title="Klik untuk log masuk Google / log keluar (sync antara PC)" class="cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                <span id="sync-text">Cloud Sync</span>
+                                <span id="sync-text">Log Masuk Google</span>
                             </span>
                         </div>
                         <p class="text-xs text-slate-500 dark:text-slate-400">by Sharizal • <span id="active-profile-subtitle" class="font-semibold text-indigo-600 dark:text-indigo-400">Nurul Izzati (Calon SPM 2027)</span></p>
@@ -755,39 +755,82 @@
         let db = null;
         let firebaseEnabled = false;
 
-        // Inisialisasi Firebase secara selamat (menggunakan konfigurasi projek sedia ada jika ada)
+        // Firebase Cloud Sync (projek sama dengan index.html: spm2027-41bdc, log masuk Google)
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyC1npsJZEcbXHvBK8TdZCZvOliwAdLeDOs",
+            authDomain: "spm2027-41bdc.firebaseapp.com",
+            projectId: "spm2027-41bdc",
+            storageBucket: "spm2027-41bdc.firebasestorage.app",
+            messagingSenderId: "324414834312",
+            appId: "1:324414834312:web:db856fa87fc84a61cf413d"
+        };
+        let cloudUser = null, cloudRef = null, cloudUnsub = null, cloudAuth = null;
+        let applyingRemote = false, pushTimer = null;
+
         function initFirebaseSync() {
+            if (typeof firebase === 'undefined') { updateSyncBadge('Offline (tiada Firebase)'); return; }
             try {
-                const firebaseConfig = {
-                    apiKey: "AIzaSyDummyKeyForSharizalFamilyApp",
-                    authDomain: "sharizal-family-app.firebaseapp.com",
-                    projectId: "sharizal-family-app",
-                    storageBucket: "sharizal-family-app.appspot.com",
-                    messagingSenderId: "100000000000",
-                    appId: "1:100000000000:web:abcdef123456"
-                };
-                if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-                    firebase.initializeApp(firebaseConfig);
-                    db = firebase.firestore();
-                    firebaseEnabled = true;
-                    updateSyncBadge('Cloud Ready', 'emerald');
-                    // Cuba muat turun data terkini jika tersedia dalam Firestore
-                    db.collection('family_academic').doc('sharizal_main').get().then((doc) => {
-                        if (doc.exists && doc.data().payload) {
-                            const remoteData = JSON.parse(doc.data().payload);
-                            if (remoteData && remoteData.profiles) {
-                                appState = mergeWithDefaults(remoteData);
-                                saveToLocalOnly();
-                                renderAll();
-                                updateSyncBadge('Synced', 'emerald');
-                            }
+                if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+                cloudAuth = firebase.auth();
+                db = firebase.firestore();
+                firebaseEnabled = true;
+                updateSyncBadge('Log Masuk Google');
+                cloudAuth.onAuthStateChanged(user => {
+                    cloudUser = user;
+                    if (cloudUnsub) { cloudUnsub(); cloudUnsub = null; }
+                    cloudRef = null;
+                    if (!user) { updateSyncBadge('Log Masuk Google'); return; }
+                    updateSyncBadge('Menyambung...');
+                    cloudRef = db.collection('users').doc(user.uid);
+                    cloudUnsub = cloudRef.onSnapshot(snap => {
+                        if (snap.metadata.hasPendingWrites) return;
+                        const d = snap.exists ? snap.data() : null;
+                        if (!d || !d.family) { cloudPush(); return; }   // belum ada data keluarga di cloud: hantar data peranti ini
+                        try {
+                            applyingRemote = true;
+                            appState = mergeWithDefaults(JSON.parse(d.family));
+                            saveToLocalOnly();
+                            renderAll();
+                            updateSyncBadge('Sync ✓');
+                        } catch (e) {
+                            console.error('Data cloud tidak sah', e);
+                        } finally {
+                            applyingRemote = false;
                         }
-                    }).catch(() => {
-                        updateSyncBadge('Local + AutoSync', 'amber');
+                    }, err => {
+                        console.error(err);
+                        updateSyncBadge('Ralat sync');
+                        alert('Ralat sync: ' + err.message);
                     });
-                }
+                });
             } catch (e) {
-                updateSyncBadge('Offline Mode', 'slate');
+                console.error(e);
+                updateSyncBadge('Offline Mode');
+            }
+        }
+
+        function cloudPush() {
+            if (!cloudRef || applyingRemote) return;
+            updateSyncBadge('Menyimpan...');
+            clearTimeout(pushTimer);
+            pushTimer = setTimeout(() => {
+                // merge:true supaya data index.html dalam dokumen yang sama tidak terpadam
+                cloudRef.set({
+                    family: JSON.stringify(appState),
+                    familyUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true })
+                  .then(() => updateSyncBadge('Sync ✓'))
+                  .catch(e => { console.error(e); updateSyncBadge('Gagal sync'); alert('Gagal simpan ke cloud: ' + e.message); });
+            }, 400);
+        }
+
+        function cloudToggle() {
+            if (!cloudAuth) { alert('Firebase tidak dapat dimuatkan. Semak sambungan internet.'); return; }
+            if (cloudUser) {
+                if (confirm('Log keluar? Data kekal dalam browser ini dan dalam cloud.')) cloudAuth.signOut();
+            } else {
+                cloudAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+                    .catch(e => alert('Log masuk gagal: ' + e.message));
             }
         }
 
@@ -890,16 +933,7 @@
 
         function saveState(showFeedback = false) {
             saveToLocalOnly();
-            if (firebaseEnabled && db) {
-                db.collection('family_academic').doc('sharizal_main').set({
-                    payload: JSON.stringify(appState),
-                    updatedAt: new Date().toISOString()
-                }).then(() => {
-                    updateSyncBadge('Cloud Synced', 'emerald');
-                }).catch(() => {
-                    updateSyncBadge('Local Saved', 'amber');
-                });
-            }
+            cloudPush();
             if (showFeedback) showToast('Data berjaya disimpan!');
         }
 
@@ -932,7 +966,7 @@
             const savedDefault = localStorage.getItem(DEFAULT_USER_KEY);
             const label = document.getElementById('default-pc-label');
             if (savedDefault === activeProfileId) {
-                label.textContent = 'Default PC Aktif ✓';
+                label.textContent = 'Sync ✓';
             } else {
                 label.textContent = 'Jadikan Default PC Ini';
             }
