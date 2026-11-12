@@ -917,8 +917,11 @@
                     // Pastikan kategori peperiksaan baharu yang diminta turut wujud
                     const existingIds = new Set((sp.exams || []).map(e => e.id));
                     const mergedExams = [...(sp.exams || [])];
+                    const deletedIds = new Set(sp.deletedExamIds || []);
+                    // Data lama (sebelum penjejakan padam): ujian asal yang tiada dianggap sudah dipadam, bukan baharu
+                    const isLegacy = sp.exams && !sp.examsSeenV1;
                     def.exams.forEach(defEx => {
-                        if (!existingIds.has(defEx.id)) {
+                        if (!existingIds.has(defEx.id) && !deletedIds.has(defEx.id) && !isLegacy) {
                             mergedExams.push(defEx);
                         }
                     });
@@ -939,6 +942,8 @@
                         ...def,
                         ...sp,
                         exams: mergedExams.length ? mergedExams : def.exams,
+                        examsSeenV1: true,
+                        deletedExamIds: [...deletedIds],
                         events: (sp.events && sp.events.length) ? sp.events : defaultEventsFor(cfg, sp.examTitle, sp.targetDate)
                     };
                 } else {
@@ -1594,6 +1599,7 @@
                 showToast('Sekurang-kurangnya 1 kategori ujian mesti dikekalkan.');
                 return;
             }
+            pData.deletedExamIds = Array.from(new Set([...(pData.deletedExamIds || []), pData.selectedExamId]));
             pData.exams = pData.exams.filter(e => e.id !== pData.selectedExamId);
             pData.selectedExamId = pData.exams[0].id;
             saveState(true);
