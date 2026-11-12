@@ -209,7 +209,7 @@
                 </div>
             </div>
 
-<!-- <span id="summary-title-main">Ringkasan Keseluruhan Gred (All-In-One Summary)</span> - ikut index -->
+<!-- Ringkasan Keseluruhan Gred (All-In-One Summary) - ikut index -->
             <section class="space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <h3 class="text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
@@ -1882,9 +1882,14 @@
                                         <div class="text-xs font-bold text-slate-800 dark:text-slate-100">${h.title}</div>
                                         <div class="text-[10px] text-slate-400">${h.type}</div>
                                     </div>
-                                    <button onclick="cycleHafazanStatus(${i})" class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition ${badge.cls}">
-                                        ${badge.label}
-                                    </button>
+                                    <div class="flex items-center gap-1.5 shrink-0">
+                                        <button onclick="cycleHafazanStatus(${i})" class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition ${badge.cls}">
+                                            ${badge.label}
+                                        </button>
+                                        <button onclick="deleteHafazanItem(${i})" title="Padam" class="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition">
+                                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             `;
                         }).join('')}
@@ -1897,6 +1902,16 @@
             const order = ['belum', 'proses', 'hafaz'];
             const next = order[(order.indexOf(list[idx].status) + 1) % order.length];
             list[idx].status = next;
+            saveState(true);
+            renderTodoSection();
+            renderHeroAndOverview();
+        }
+
+        function deleteHafazanItem(idx) {
+            const list = appState.profiles[activeProfileId].hafazan || [];
+            if (!list[idx]) return;
+            if (!confirm(`Padam "${list[idx].title}" daripada senarai hafazan?`)) return;
+            list.splice(idx, 1);
             saveState(true);
             renderTodoSection();
             renderHeroAndOverview();
