@@ -245,9 +245,19 @@
             <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Pilih Peperiksaan / Tahun:</span>
-                    <button onclick="deleteCurrentExam()" id="btn-delete-exam" class="text-xs text-rose-500 hover:text-rose-600 font-semibold flex items-center gap-1">
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <div class="inline-flex items-center rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+                            <button onclick="moveCurrentExam(-1)" id="btn-move-exam-left" title="Alih ujian ini ke hadapan (kiri)" class="px-2 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1 disabled:opacity-30 disabled:cursor-not-allowed">
+                                <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Ke Hadapan</span>
+                            </button>
+                            <button onclick="moveCurrentExam(1)" id="btn-move-exam-right" title="Alih ujian ini ke belakang (kanan)" class="px-2 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1 border-l border-slate-200 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed">
+                                <span class="hidden sm:inline">Ke Belakang</span> <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                        <button onclick="deleteCurrentExam()" id="btn-delete-exam" class="text-xs text-rose-500 hover:text-rose-600 font-semibold flex items-center gap-1">
                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Padam Ujian Ini
                     </button>
+                    </div>
                 </div>
                 <div id="exam-tabs-container" class="flex flex-wrap gap-2">
                     <!-- Rendered dynamically -->
@@ -1422,6 +1432,18 @@
                 `;
             }).join('');
 
+            // Status butang alih ujian
+            (function () {
+                const exs = pData.exams;
+                const si = exs.findIndex(e => e.id === pData.selectedExamId);
+                const lock = si < 0 || isTargetExam(exs[si], si);
+                const minIdx = (exs.length && isTargetExam(exs[0], 0)) ? 1 : 0;
+                const L = document.getElementById('btn-move-exam-left');
+                const R = document.getElementById('btn-move-exam-right');
+                if (L) L.disabled = lock || si <= minIdx;
+                if (R) R.disabled = lock || si >= exs.length - 1;
+            })();
+
             const currentExam = pData.exams.find(e => e.id === pData.selectedExamId) || pData.exams[0];
             document.getElementById('current-exam-heading').textContent = `Keputusan: ${currentExam.name}`;
 
@@ -1540,6 +1562,29 @@
             pData.selectedExamId = newId;
             saveState(true);
             closeAddExamModal();
+            renderGradesSection();
+        }
+
+        // Alih ujian terpilih ke hadapan (-1) atau ke belakang (+1) dalam senarai Pilih Peperiksaan / Tahun
+        function isTargetExam(ex, idx) {
+            return idx === 0 && /target|sasaran/i.test(ex.name);
+        }
+
+        function moveCurrentExam(dir) {
+            const pData = appState.profiles[activeProfileId];
+            const exams = pData.exams;
+            const idx = exams.findIndex(e => e.id === pData.selectedExamId);
+            if (idx < 0) return;
+            if (isTargetExam(exams[idx], idx)) {
+                showToast('Kategori Target kekal di kedudukan pertama sebagai asas perbandingan.');
+                return;
+            }
+            const minIdx = (exams.length && isTargetExam(exams[0], 0)) ? 1 : 0;
+            const newIdx = idx + dir;
+            if (newIdx < minIdx || newIdx >= exams.length) return;
+            const [moved] = exams.splice(idx, 1);
+            exams.splice(newIdx, 0, moved);
+            saveState(true);
             renderGradesSection();
         }
 
