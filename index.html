@@ -365,6 +365,29 @@
         </div>
     </div>
 
+    <!-- DELETE TODO MASTER PIN MODAL -->
+    <div id="delete-todo-pin-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-5 fade-in">
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
+                    <i data-lucide="trash-2" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-lg font-black text-slate-900 dark:text-white">Master PIN Ibu Bapa</h3>
+                <p id="delete-todo-modal-desc" class="text-xs text-slate-500 dark:text-slate-400">Masukkan Master PIN Ibu Bapa (4-digit) untuk memadam tugasan ini.</p>
+            </div>
+
+            <div class="space-y-3">
+                <input type="password" id="delete-todo-pin-input" maxlength="4" inputmode="numeric" placeholder="••••" class="w-full text-center text-2xl tracking-[0.6em] font-black py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500">
+                <p id="delete-todo-pin-error" class="text-xs text-center text-rose-500 font-semibold hidden">Master PIN salah! Hanya Ibu Bapa dibenarkan memadam tugasan.</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="closeDeleteTodoPinModal()" class="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 transition">Batal</button>
+                <button onclick="confirmDeleteTodoWithPin()" class="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition">Padam Tugasan</button>
+            </div>
+        </div>
+    </div>
+
     <!-- RESET / MASTER PIN MODAL -->
     <div id="reset-pin-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
         <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 fade-in">
@@ -1780,7 +1803,7 @@
                                 </div>
                             </div>
                         </label>
-                        <button onclick="deleteTodoItem(${idx})" title="Padam Tugasan" class="p-1.5 text-slate-400 hover:text-rose-500 transition shrink-0">
+                        <button onclick="deleteTodoItem(${idx})" title="Padam Tugasan (Perlu Master PIN Ibu Bapa)" class="p-1.5 text-slate-400 hover:text-rose-500 transition shrink-0">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                         </button>
                     </div>
@@ -1836,12 +1859,52 @@
             renderHeroAndOverview();
         }
 
+        let pendingDeleteTodoIdx = null;
+
         function deleteTodoItem(idx) {
-            appState.profiles[activeProfileId].todos.splice(idx, 1);
-            saveState(true);
-            renderTodoSection();
-            renderHeroAndOverview();
+            const pData = appState.profiles[activeProfileId];
+            const item = pData.todos[idx];
+            if (!item) return;
+
+            pendingDeleteTodoIdx = idx;
+            const cfg = PROFILES_CONFIG[activeProfileId];
+            document.getElementById('delete-todo-modal-desc').textContent = `Masukkan Master PIN Ibu Bapa (4-digit) untuk memadam tugasan "${item.text}" (${cfg.shortName}).`;
+            const input = document.getElementById('delete-todo-pin-input');
+            input.value = '';
+            document.getElementById('delete-todo-pin-error').classList.add('hidden');
+            const modal = document.getElementById('delete-todo-pin-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+            setTimeout(() => input.focus(), 100);
         }
+
+        function closeDeleteTodoPinModal() {
+            const modal = document.getElementById('delete-todo-pin-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            pendingDeleteTodoIdx = null;
+        }
+
+        function confirmDeleteTodoWithPin() {
+            const entered = document.getElementById('delete-todo-pin-input').value.trim();
+            if (entered === MASTER_PIN) {
+                if (pendingDeleteTodoIdx !== null) {
+                    appState.profiles[activeProfileId].todos.splice(pendingDeleteTodoIdx, 1);
+                    saveState(true);
+                    renderTodoSection();
+                    renderHeroAndOverview();
+                    showToast('Tugasan berjaya dipadam!');
+                }
+                closeDeleteTodoPinModal();
+            } else {
+                document.getElementById('delete-todo-pin-error').classList.remove('hidden');
+            }
+        }
+
+        document.getElementById('delete-todo-pin-input').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') confirmDeleteTodoWithPin();
+        });
 
         function renderSpecialSideTracker() {
             const cfg = PROFILES_CONFIG[activeProfileId];
