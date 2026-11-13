@@ -281,6 +281,10 @@
                 </div>
             </div>
 
+
+            <!-- Kalkulator Merit (Nurul Izzati sahaja) -->
+            <div id="merit-section" class="hidden bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"></div>
+
                     </section>
 
         <!-- TAB 3: TO-DO LIST / HAFAZAN UPKK / BINTANG TAHUN 1 -->
@@ -1775,6 +1779,109 @@
             }
 
             renderCrossYearComparisonTable();
+            renderMeritCalculator();
+            lucide.createIcons();
+        }
+
+
+        // =========================================================================
+        // KALKULATOR MERIT (Nurul Izzati)
+        // Wajib 40% | Pilihan 30% (2 terbaik) | Tambahan 10% (2 terbaik)
+        // Jumlah Merit = ((Jumlah / 80) x 90) + 10 (ko-kurikulum)
+        // =========================================================================
+        const MERIT_KOKO = 10;
+        const GRADE_POINTS = { 'A+': 18, 'A': 16, 'A-': 14, 'B+': 12, 'B': 10, 'C+': 8, 'C': 6, 'D': 4, 'E': 2, 'G': 0 };
+        const MERIT_WAJIB = ['Bahasa Melayu', 'Bahasa Inggeris', 'Matematik', 'Sejarah'];
+        const MERIT_PILIHAN = ['Fizik', 'Kimia', 'Biologi', 'Matematik Tambahan'];
+        const MERIT_PI = 'Pendidikan Islam';
+
+        function computeMerit(exam) {
+            const key = n => String(n || '').trim().toLowerCase();
+            const get = n => {
+                const s = (exam.subjects || []).find(x => key(x.name) === key(n));
+                const ok = s && s.mark !== '' && s.mark !== null && s.mark !== undefined && !isNaN(s.mark);
+                const grade = ok ? calculateGrade(s.mark, 'SPM').grade : '-';
+                return { name: n, mark: ok ? Number(s.mark) : null, grade, pts: ok ? GRADE_POINTS[grade] : 0 };
+            };
+            const sum = a => a.reduce((t, x) => t + x.pts, 0);
+            const byPts = (a, b) => (b.pts - a.pts) || ((b.mark ?? -1) - (a.mark ?? -1));
+
+            const wajib = MERIT_WAJIB.map(get);
+            const pilihan = MERIT_PILIHAN.map(get);
+            const pilSorted = [...pilihan].sort(byPts);
+            const pilTop = pilSorted.slice(0, 2);
+            const tamPool = [get(MERIT_PI), ...pilSorted.slice(2)].sort(byPts);
+            const tamTop = tamPool.slice(0, 2);
+
+            const ptsW = sum(wajib), ptsP = sum(pilTop), ptsT = sum(tamTop);
+            const sWajib = ptsW / (4 * 18) * 40;
+            const sPil = ptsP / (2 * 18) * 30;
+            const sTam = ptsT / (2 * 18) * 10;
+            const jumlah = sWajib + sPil + sTam;
+            const akademik = jumlah / 80 * 90;
+            const incomplete = [...wajib, ...pilTop, ...tamTop].some(x => x.mark === null);
+            return { wajib, pilihan, pilTop, tamPool, tamTop, ptsW, ptsP, ptsT, sWajib, sPil, sTam, jumlah, akademik, total: akademik + MERIT_KOKO, incomplete };
+        }
+
+        function renderMeritCalculator() {
+            const box = document.getElementById('merit-section');
+            if (!box) return;
+            if (activeProfileId !== 'spm' || isKafaModeActive()) { box.classList.add('hidden'); return; }
+            const ctx = getExamContext();
+            const exam = ctx.exams.find(e => e.id === ctx.getSelectedId()) || ctx.exams[0];
+            if (!exam) { box.classList.add('hidden'); return; }
+            box.classList.remove('hidden');
+
+            const r = computeMerit(exam);
+            const f = n => (Math.round(n * 100) / 100).toFixed(2);
+
+            const chip = (x, chosen) => `
+                <div class="flex items-center justify-between gap-2 px-3 py-1.5 rounded-lg text-xs ${chosen
+                    ? 'bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold'
+                    : 'bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500'}">
+                    <span>${chosen ? '✓ ' : ''}${escEv(x.name)}</span>
+                    <span class="font-black whitespace-nowrap">${x.mark === null ? '-' : x.mark} · ${x.grade} · ${x.pts}</span>
+                </div>`;
+            const card = (title, weight, list, chosen, pts, maxPts, score, max, note) => `
+                <div class="rounded-xl border border-slate-200 dark:border-slate-800 p-3 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-200">${title} <span class="text-slate-400 font-semibold">(${weight})</span></span>
+                        <span class="text-sm font-black text-indigo-600 dark:text-indigo-400">${f(score)} <span class="text-[10px] text-slate-400 font-semibold">/ ${max}</span></span>
+                    </div>
+                    <div class="space-y-1.5">${list.map(x => chip(x, chosen.includes(x))).join('')}</div>
+                    <p class="text-[10px] text-slate-400">Mata gred dikira: ${pts}/${maxPts}. ${note}</p>
+                </div>`;
+            const box2 = (label, big, small) => `
+                <div class="rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-3 text-center">
+                    <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500">${label}</div>
+                    <div class="text-xl font-black text-slate-800 dark:text-white mt-1">${big} <span class="text-xs text-slate-400">${small}</span></div>
+                </div>`;
+
+            box.innerHTML = `
+                <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                    <h3 class="font-extrabold text-sm sm:text-base text-slate-800 dark:text-white flex items-center gap-2">
+                        <i data-lucide="calculator" class="w-5 h-5 text-indigo-500"></i> Kalkulator Merit: ${escEv(exam.name)}
+                    </h3>
+                    <span class="text-xs text-slate-500 dark:text-slate-400">Ikut ujian yang dipilih di atas. Paparan: markah · gred · mata gred.</span>
+                </div>
+                <div class="p-4 space-y-4">
+                    ${r.incomplete ? `<div class="text-xs px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200">Ada subjek yang belum ada markah (dikira 0 mata). Isi markah di jadual atas untuk keputusan tepat.</div>` : ''}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        ${card('Subjek Wajib', '40%', r.wajib, r.wajib, r.ptsW, 72, r.sWajib, 40, 'BM, BI, Matematik, Sejarah.')}
+                        ${card('Subjek Pilihan', '30%', r.pilihan, r.pilTop, r.ptsP, 36, r.sPil, 30, '2 terbaik daripada 4 subjek.')}
+                        ${card('Subjek Tambahan', '10%', r.tamPool, r.tamTop, r.ptsT, 36, r.sTam, 10, '2 terbaik: Pendidikan Islam + 2 subjek pilihan tak terpilih.')}
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 items-stretch">
+                        ${box2('Jumlah (Wajib + Pilihan + Tambahan)', f(r.jumlah), '/ 80')}
+                        ${box2('(Jumlah / 80) x 90', f(r.akademik), '/ 90')}
+                        ${box2('Ko-kurikulum', MERIT_KOKO, '/ 10')}
+                        <div class="rounded-xl bg-gradient-to-br from-indigo-600 to-emerald-600 text-white p-3 text-center shadow">
+                            <div class="text-[10px] uppercase tracking-wider font-bold opacity-90">Jumlah Merit</div>
+                            <div class="text-3xl font-black mt-0.5">${f(r.total)}</div>
+                            <div class="text-[10px] opacity-80">/ 100</div>
+                        </div>
+                    </div>
+                </div>`;
             lucide.createIcons();
         }
 
