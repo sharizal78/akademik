@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apps Akademik & Countdown Keluarga v6 - by Sharizal</title>
+    <title>Apps Akademik & Countdown Keluarga v7 - by Sharizal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -384,6 +384,38 @@
             <div class="grid grid-cols-2 gap-2">
                 <button onclick="closeDeleteTodoPinModal()" class="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 transition">Batal</button>
                 <button onclick="confirmDeleteTodoWithPin()" class="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition">Padam Tugasan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT TODO MODAL -->
+    <div id="edit-todo-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 fade-in">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="pencil" class="w-5 h-5 text-indigo-500"></i>
+                    <span>Sunting Nama & Kategori Tugasan</span>
+                </h3>
+                <button onclick="closeEditTodoModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold mb-1">Nama Tugasan / Latihan</label>
+                    <input type="text" id="edit-todo-text-input" placeholder="Masukkan nama tugasan..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold mb-1">Kategori</label>
+                    <select id="edit-todo-tag-input" class="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-semibold">
+                        <option value="Ulangkaji">Ulangkaji</option>
+                        <option value="Latihan">Latihan</option>
+                        <option value="Kerja Sekolah">Kerja Sekolah</option>
+                        <option value="Membaca / Hafazan">Membaca / Hafazan</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeEditTodoModal()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold">Batal</button>
+                <button onclick="saveEditTodoModal()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold">Simpan Perubahan</button>
             </div>
         </div>
     </div>
@@ -1837,7 +1869,7 @@
                         <label class="flex items-start sm:items-center gap-3 cursor-pointer flex-1 min-w-0">
                             <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleTodoItem(${idx})" class="mt-0.5 sm:mt-0 w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 shrink-0">
                             <div class="min-w-0 flex-1">
-                                <div class="text-xs sm:text-sm font-semibold break-words ${item.done ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-100'}">${item.text}</div>
+                                <div class="text-xs sm:text-sm font-semibold break-words ${item.done ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-100'}">${escEv(item.text)}</div>
                                 <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
                                     <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">${item.tag}</span>
                                     <span class="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded bg-indigo-50/80 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 border border-indigo-200/70 dark:border-indigo-800/60">
@@ -1847,9 +1879,14 @@
                                 </div>
                             </div>
                         </label>
-                        <button onclick="deleteTodoItem(${idx})" title="${item.tag === 'Latihan' ? 'Padam Tugasan (Perlu Master PIN Ibu Bapa)' : 'Padam Tugasan'}" class="p-1.5 text-slate-400 hover:text-rose-500 transition shrink-0">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
+                        <div class="flex items-center gap-1 shrink-0">
+                            <button onclick="openEditTodoModal(${idx})" title="Sunting Nama Tugasan" class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition">
+                                <i data-lucide="pencil" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteTodoItem(${idx})" title="${item.tag === 'Latihan' ? 'Padam Tugasan (Perlu Master PIN Ibu Bapa)' : 'Padam Tugasan'}" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
                     </div>
                 `}).join('');
             }
@@ -1902,6 +1939,62 @@
             renderTodoSection();
             renderHeroAndOverview();
         }
+
+        let editingTodoIdx = null;
+
+        function openEditTodoModal(idx) {
+            const pData = appState.profiles[activeProfileId];
+            const item = pData.todos[idx];
+            if (!item) return;
+            editingTodoIdx = idx;
+            const textInp = document.getElementById('edit-todo-text-input');
+            const tagInp = document.getElementById('edit-todo-tag-input');
+            textInp.value = item.text || '';
+            // Jika tag sedia ada tidak tersenarai dalam pilihan default, tambah secara dinamik supaya tidak hilang
+            if (!Array.from(tagInp.options).some(opt => opt.value === item.tag)) {
+                const opt = document.createElement('option');
+                opt.value = item.tag;
+                opt.textContent = item.tag;
+                tagInp.appendChild(opt);
+            }
+            tagInp.value = item.tag || 'Ulangkaji';
+            const modal = document.getElementById('edit-todo-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+            setTimeout(() => { textInp.focus(); textInp.select(); }, 100);
+        }
+
+        function closeEditTodoModal() {
+            const modal = document.getElementById('edit-todo-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            editingTodoIdx = null;
+        }
+
+        function saveEditTodoModal() {
+            if (editingTodoIdx === null) return;
+            const newText = document.getElementById('edit-todo-text-input').value.trim();
+            const newTag = document.getElementById('edit-todo-tag-input').value;
+            if (!newText) {
+                showToast('Nama tugasan tidak boleh kosong!');
+                return;
+            }
+            const pData = appState.profiles[activeProfileId];
+            const item = pData.todos[editingTodoIdx];
+            if (item) {
+                item.text = newText;
+                item.tag = newTag;
+                saveState(true);
+                renderTodoSection();
+                showToast('Nama tugasan berjaya dikemaskini!');
+            }
+            closeEditTodoModal();
+        }
+
+        document.getElementById('edit-todo-text-input').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') saveEditTodoModal();
+        });
 
         let pendingDeleteTodoIdx = null;
 
