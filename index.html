@@ -91,15 +91,20 @@
             </div>
 
             <!-- Navigation Tabs (Nipis & Padat) -->
-            <nav class="pt-1 border-t border-slate-200/70 dark:border-slate-800/70 grid grid-cols-3 gap-1.5 sm:gap-2.5">
+            <nav id="main-nav-tabs" class="pt-1 border-t border-slate-200/70 dark:border-slate-800/70 grid grid-cols-3 gap-1.5 sm:gap-2.5">
                 <button id="tab-btn-countdown" onclick="switchTab('countdown')" class="flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-bold text-xs transition-all shadow-sm">
                     <i data-lucide="timer" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     <span>Countdown</span>
                 </button>
                 <button id="tab-btn-grades" onclick="switchTab('grades')" class="flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-bold text-xs transition-all">
                     <i data-lucide="award" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-                    <span>Keputusan</span>
+                    <span id="tab-grades-label">Keputusan</span>
                     <i id="lock-icon-grades" data-lucide="lock" class="w-3 h-3 opacity-80"></i>
+                </button>
+                <button id="tab-btn-kafa" onclick="switchTab('kafa')" class="hidden items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-bold text-xs transition-all">
+                    <i data-lucide="book-open" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                    <span>Keputusan KAFA</span>
+                    <i id="lock-icon-kafa" data-lucide="lock" class="w-3 h-3 opacity-80"></i>
                 </button>
                 <button id="tab-btn-todo" onclick="switchTab('todo')" class="flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-bold text-xs transition-all">
                     <i data-lucide="check-square" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
@@ -192,8 +197,8 @@
             <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                        <i data-lucide="award" class="w-5 h-5 text-indigo-500"></i>
-                        <span>Rekod Keputusan & Sasaran Peperiksaan</span>
+                        <i id="grades-header-icon" data-lucide="award" class="w-5 h-5 text-indigo-500"></i>
+                        <span id="grades-header-title">Rekod Keputusan & Sasaran Peperiksaan</span>
                     </h2>
                     <p id="grades-subtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Rekod lengkap peperiksaan mengikut tahun dan tahap pengajian.</p>
                 </div>
@@ -225,21 +230,7 @@
                 </div>
             </section>
 
-            <!-- Ringkasan KAFA / UPKK (Raisha sahaja) -->
-            <section id="summary-block-kafa" class="space-y-4 hidden">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <h3 class="text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                        <i data-lucide="table-2" class="w-5 h-5 text-indigo-500"></i> <span id="summary-title-kafa">Ringkasan Keputusan KAFA / UPKK</span>
-                    </h3>
-                    <span class="text-xs text-slate-500 dark:text-slate-400">*Gred dikira secara automatik daripada markah yang dimasukkan</span>
-                </div>
-                <div id="gpaSummaryCards2" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"></div>
-                <div class="glass-card rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs sm:text-sm border-collapse min-w-[600px]" id="summary-comparison-table2"></table>
-                    </div>
-                </div>
-            </section>
+
 
             <!-- Year/Exam Category Selector Pills -->
             <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
@@ -717,29 +708,42 @@
                 ],
                 defaultExams: [
                     {
-                        id: 'target_d4_upkk',
-                        name: 'Target D4/UPKK',
+                        id: 'target_d4_sk',
+                        name: 'Target Sekolah (SK)',
                         subjects: [
                             { name: 'Bahasa Melayu', cat: 'Akademik SK', mark: 88, tp: 'TP6' },
                             { name: 'Bahasa Inggeris', cat: 'Akademik SK', mark: 85, tp: 'TP5' },
                             { name: 'Matematik', cat: 'Akademik SK', mark: 86, tp: 'TP5' },
                             { name: 'Sains', cat: 'Akademik SK', mark: 85, tp: 'TP5' },
                             { name: 'Sejarah', cat: 'Akademik SK', mark: 88, tp: 'TP6' },
-                            { name: 'Pendidikan Islam', cat: 'Akademik SK', mark: 92, tp: 'TP6' },
-                            { name: 'Aqidah', cat: 'KAFA / UPKK', mark: 92, tp: 'TP6' },
-                            { name: 'Ibadah', cat: 'KAFA / UPKK', mark: 90, tp: 'TP6' },
-                            { name: 'Adab', cat: 'KAFA / UPKK', mark: 94, tp: 'TP6' },
-                            { name: 'Jawi & Khat', cat: 'KAFA / UPKK', mark: 90, tp: 'TP6' },
-                            { name: 'Lughatul Quran', cat: 'KAFA / UPKK', mark: 88, tp: 'TP5' },
-                            { name: 'Tilawah Al-Quran', cat: 'KAFA / UPKK', mark: 90, tp: 'TP6' }
+                            { name: 'Pendidikan Islam', cat: 'Akademik SK', mark: 92, tp: 'TP6' }
                         ]
                     },
                     { id: 'uat_d1', name: 'UAT D1', subjects: [] },
                     { id: 'uat_d2', name: 'UAT D2', subjects: [] },
                     { id: 'uat_d3', name: 'UAT D3', subjects: [] },
                     { id: 'ppt_d4', name: 'PPT D4', subjects: [] },
-                    { id: 'uasa_d4', name: 'UASA D4', subjects: [] },
-                    { id: 'kafa_exam', name: 'Peperiksaan KAFA (UPKK/Pertengahan/Akhir)', subjects: [] }
+                    { id: 'uasa_d4', name: 'UASA D4', subjects: [] }
+                ],
+                defaultKafaExams: [
+                    {
+                        id: 'target_kafa_upkk',
+                        name: 'Target KAFA / UPKK',
+                        subjects: [
+                            { name: 'Aqidah', cat: 'KAFA / UPKK', mark: 92, tp: 'TP6' },
+                            { name: 'Ibadah', cat: 'KAFA / UPKK', mark: 90, tp: 'TP6' },
+                            { name: 'Sirah', cat: 'KAFA / UPKK', mark: 90, tp: 'TP6' },
+                            { name: 'Adab', cat: 'KAFA / UPKK', mark: 94, tp: 'TP6' },
+                            { name: 'Jawi & Khat', cat: 'KAFA / UPKK', mark: 90, tp: 'TP6' },
+                            { name: 'Lughatul Quran', cat: 'KAFA / UPKK', mark: 88, tp: 'TP5' },
+                            { name: 'Tilawah Al-Quran', cat: 'KAFA / UPKK', mark: 90, tp: 'TP6' },
+                            { name: 'Amali Solat & Penghayatan Cara Hidup Islam', cat: 'KAFA / UPKK', mark: 95, tp: 'TP6' }
+                        ]
+                    },
+                    { id: 'kafa_ppt_d4', name: 'Pertengahan Tahun KAFA D4', subjects: [] },
+                    { id: 'kafa_pat_d4', name: 'Akhir Tahun KAFA D4', subjects: [] },
+                    { id: 'kafa_trial_upkk', name: 'Percubaan UPKK', subjects: [] },
+                    { id: 'kafa_upkk', name: 'UPKK Sebenar', subjects: [] }
                 ],
                 defaultTodos: [
                     { id: 1, text: 'Latihan sifir 6, 7, 8 dan 9', tag: 'Latihan', done: true },
@@ -807,7 +811,7 @@
         };
         let activeProfileId = 'spm';
         let activeTab = 'countdown';
-        let unlockedTabs = { grades: false, todo: false }; // Dikunci setiap sesi apabila tukar profil
+        let unlockedTabs = { grades: false, kafa: false, todo: false }; // Dikunci setiap sesi apabila tukar profil
         let pendingTabAfterPin = null;
         let currentQuoteIdx = 0;
         let db = null;
@@ -946,6 +950,18 @@
                 subjects: idx === 0 ? baseSubjects : JSON.parse(JSON.stringify(baseSubjects)).map(s => ({ ...s, mark: '', tp: 'TP5' }))
             }));
 
+            let kafaExams = [];
+            let selectedKafaExamId = null;
+            if (cfg.defaultKafaExams && cfg.defaultKafaExams.length) {
+                const baseKafaSubjects = JSON.parse(JSON.stringify(cfg.defaultKafaExams[0].subjects));
+                kafaExams = cfg.defaultKafaExams.map((ex, idx) => ({
+                    id: ex.id,
+                    name: ex.name,
+                    subjects: idx === 0 ? baseKafaSubjects : JSON.parse(JSON.stringify(baseKafaSubjects)).map(s => ({ ...s, mark: '', tp: 'TP5' }))
+                }));
+                selectedKafaExamId = kafaExams[0].id;
+            }
+
             return {
                 pin: cfg.defaultPin,
                 examTitle: cfg.defaultExamTitle,
@@ -953,6 +969,9 @@
                 events: defaultEventsFor(cfg),
                 selectedExamId: exams[0].id,
                 exams: exams,
+                selectedKafaExamId: selectedKafaExamId,
+                kafaExams: kafaExams,
+                kafaSplitV1: true,
                 todos: JSON.parse(JSON.stringify(cfg.defaultTodos)).concat(
                     cfg.id === 'd4' ? [] : JSON.parse(JSON.stringify(SHARED_TODOS))
                 ),
@@ -993,10 +1012,74 @@
                         }
                         sp.sharedDupV1 = true;
                     }
+                    let finalExams = mergedExams.length ? mergedExams : def.exams;
+                    let finalKafaExams = sp.kafaExams || def.kafaExams || [];
+                    let finalSelectedExamId = sp.selectedExamId || finalExams[0].id;
+                    let finalSelectedKafaExamId = sp.selectedKafaExamId || (finalKafaExams[0] ? finalKafaExams[0].id : null);
+
+                    // Migrasi sekali untuk Raisha Husna (d4): asingkan subjek & peperiksaan SK vs KAFA/UPKK
+                    if (pid === 'd4' && !sp.kafaSplitV1) {
+                        const isKafaSubj = s => /KAFA|UPKK/i.test(s.cat || '');
+                        const skOnlyExams = [];
+                        const kafaOnlyExams = [];
+
+                        finalExams.forEach(ex => {
+                            if (ex.id === 'kafa_exam' || /^kafa_/i.test(ex.id)) {
+                                kafaOnlyExams.push({
+                                    ...ex,
+                                    subjects: (ex.subjects || []).filter(isKafaSubj)
+                                });
+                            } else if (ex.id === 'target_d4_upkk' || ex.id === 'target_d4_sk') {
+                                skOnlyExams.push({
+                                    ...ex,
+                                    id: 'target_d4_sk',
+                                    name: 'Target Sekolah (SK)',
+                                    subjects: (ex.subjects || []).filter(s => !isKafaSubj(s))
+                                });
+                                const kafaFromTarget = (ex.subjects || []).filter(isKafaSubj);
+                                kafaOnlyExams.push({
+                                    id: 'target_kafa_upkk',
+                                    name: 'Target KAFA / UPKK',
+                                    subjects: kafaFromTarget.length ? kafaFromTarget : def.kafaExams[0].subjects
+                                });
+                            } else {
+                                skOnlyExams.push({
+                                    ...ex,
+                                    subjects: (ex.subjects || []).filter(s => !isKafaSubj(s))
+                                });
+                                const kafaSubjs = (ex.subjects || []).filter(isKafaSubj);
+                                if (kafaSubjs.some(s => s.mark !== '' && s.mark !== null && s.mark !== undefined)) {
+                                    kafaOnlyExams.push({
+                                        id: 'kafa_' + ex.id,
+                                        name: ex.name + ' (KAFA)',
+                                        subjects: kafaSubjs
+                                    });
+                                }
+                            }
+                        });
+
+                        // Pastikan kategori KAFA default turut ada jika belum wujud
+                        const kafaIds = new Set(kafaOnlyExams.map(e => e.id));
+                        def.kafaExams.forEach(dk => {
+                            if (!kafaIds.has(dk.id) && dk.id !== 'kafa_exam') {
+                                kafaOnlyExams.push(dk);
+                            }
+                        });
+
+                        finalExams = skOnlyExams.length ? skOnlyExams : def.exams;
+                        finalKafaExams = kafaOnlyExams.length ? kafaOnlyExams : def.kafaExams;
+                        finalSelectedExamId = finalExams[0].id;
+                        finalSelectedKafaExamId = finalKafaExams[0].id;
+                    }
+
                     result.profiles[pid] = {
                         ...def,
                         ...sp,
-                        exams: mergedExams.length ? mergedExams : def.exams,
+                        exams: finalExams,
+                        selectedExamId: finalSelectedExamId,
+                        kafaExams: finalKafaExams,
+                        selectedKafaExamId: finalSelectedKafaExamId,
+                        kafaSplitV1: true,
                         examsSeenV1: true,
                         deletedExamIds: [...deletedIds],
                         events: (sp.events && sp.events.length) ? sp.events : defaultEventsFor(cfg, sp.examTitle, sp.targetDate)
@@ -1070,7 +1153,7 @@
             if (!PROFILES_CONFIG[pid]) return;
             activeProfileId = pid;
             // Kunci semula tab sensitif apabila bertukar anak
-            unlockedTabs = { grades: false, todo: false };
+            unlockedTabs = { grades: false, kafa: false, todo: false };
             currentQuoteIdx = 0;
 
             // Kemaskini URL tanpa reload halaman
@@ -1168,6 +1251,7 @@
             const userPin = appState.profiles[activeProfileId].pin;
             if (entered === userPin || entered === MASTER_PIN) {
                 unlockedTabs.grades = true;
+                unlockedTabs.kafa = true;
                 unlockedTabs.todo = true;
                 const target = pendingTabAfterPin || 'grades';
                 closePinModal();
@@ -1239,9 +1323,26 @@
         }
 
         function renderTabVisibility() {
+            const cfg = PROFILES_CONFIG[activeProfileId];
+            const isRaisha = cfg.id === 'd4';
+
+            // Jika bukan Raisha dan activeTab ialah 'kafa', fallback ke 'grades'
+            if (!isRaisha && activeTab === 'kafa') {
+                activeTab = 'grades';
+            }
+
+            // Susun grid navigasi: 4 tab untuk Raisha (Countdown, Keputusan Sekolah, Keputusan KAFA, To-Do & Hafazan), 3 tab untuk anak lain
+            const navEl = document.getElementById('main-nav-tabs');
+            if (navEl) {
+                navEl.className = isRaisha
+                    ? 'pt-1 border-t border-slate-200/70 dark:border-slate-800/70 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2.5'
+                    : 'pt-1 border-t border-slate-200/70 dark:border-slate-800/70 grid grid-cols-3 gap-1.5 sm:gap-2.5';
+            }
+
             // Peraturan Khas: Countdown = Merah bila dipilih, Hijau bila tidak dipilih
             const btnCd = document.getElementById('tab-btn-countdown');
             const btnGr = document.getElementById('tab-btn-grades');
+            const btnKf = document.getElementById('tab-btn-kafa');
             const btnTd = document.getElementById('tab-btn-todo');
 
             if (activeTab === 'countdown') {
@@ -1252,22 +1353,41 @@
 
             const inactiveStd = 'flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-bold text-xs transition-all bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700';
             const activeStd = 'flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-extrabold text-xs transition-all shadow-sm bg-indigo-600 text-white';
+            const activeKafa = 'flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-extrabold text-xs transition-all shadow-sm bg-amber-600 text-white';
 
             btnGr.className = activeTab === 'grades' ? activeStd : inactiveStd;
             btnTd.className = activeTab === 'todo' ? activeStd : inactiveStd;
 
+            // Label tab Keputusan: untuk Raisha jadi "Keputusan Sekolah"
+            document.getElementById('tab-grades-label').textContent = isRaisha ? 'Keputusan Sekolah' : 'Keputusan';
+
+            // Butang Keputusan KAFA (khas untuk Raisha sahaja)
+            if (isRaisha) {
+                btnKf.className = (activeTab === 'kafa' ? activeKafa : inactiveStd).replace('flex ', 'flex ');
+                btnKf.classList.remove('hidden');
+                btnKf.classList.add('flex');
+            } else {
+                btnKf.classList.add('hidden');
+                btnKf.classList.remove('flex');
+            }
+
             // Update lock icons
             document.getElementById('lock-icon-grades').style.display = unlockedTabs.grades ? 'none' : 'inline-block';
+            document.getElementById('lock-icon-kafa').style.display = unlockedTabs.kafa ? 'none' : 'inline-block';
             document.getElementById('lock-icon-todo').style.display = unlockedTabs.todo ? 'none' : 'inline-block';
 
             // Update Todo label dynamically
-            const cfg = PROFILES_CONFIG[activeProfileId];
-            document.getElementById('tab-todo-label').textContent = cfg.isKidMode ? 'Misi, Bintang & Hafazan' : (cfg.id === 'd4' ? 'To-Do & Hafazan' : 'To-Do List');
+            document.getElementById('tab-todo-label').textContent = cfg.isKidMode ? 'Misi, Bintang & Hafazan' : (isRaisha ? 'To-Do & Hafazan' : 'To-Do List');
 
-            // Show/Hide Sections
+            // Show/Hide Sections (section-grades digunakan untuk kedua-dua 'grades' dan 'kafa')
+            const isGradesOrKafa = (activeTab === 'grades' || activeTab === 'kafa');
             document.getElementById('section-countdown').classList.toggle('hidden', activeTab !== 'countdown');
-            document.getElementById('section-grades').classList.toggle('hidden', activeTab !== 'grades');
+            document.getElementById('section-grades').classList.toggle('hidden', !isGradesOrKafa);
             document.getElementById('section-todo').classList.toggle('hidden', activeTab !== 'todo');
+
+            if (isGradesOrKafa && unlockedTabs[activeTab]) {
+                renderGradesSection();
+            }
         }
 
         function renderHeroAndOverview() {
@@ -1451,36 +1571,82 @@
         }
 
         // =========================================================================
-        // 7. GRADES & CROSS-YEAR EXAMS SECTION
+        // 7. GRADES & CROSS-YEAR EXAMS SECTION (SEKOLAH & KAFA BERASINGAN UNTUK RAISHA)
         // =========================================================================
+        function isKafaModeActive() {
+            return activeProfileId === 'd4' && activeTab === 'kafa';
+        }
+
+        function getExamContext() {
+            const pData = appState.profiles[activeProfileId];
+            if (isKafaModeActive()) {
+                if (!pData.kafaExams || !pData.kafaExams.length) {
+                    pData.kafaExams = JSON.parse(JSON.stringify(PROFILES_CONFIG.d4.defaultKafaExams));
+                }
+                return {
+                    isKafa: true,
+                    exams: pData.kafaExams,
+                    getSelectedId: () => pData.selectedKafaExamId,
+                    setSelectedId: (id) => { pData.selectedKafaExamId = id; },
+                    setExams: (arr) => { pData.kafaExams = arr; }
+                };
+            }
+            return {
+                isKafa: false,
+                exams: pData.exams,
+                getSelectedId: () => pData.selectedExamId,
+                setSelectedId: (id) => { pData.selectedExamId = id; },
+                setExams: (arr) => { pData.exams = arr; }
+            };
+        }
+
         function renderGradesSection() {
             const cfg = PROFILES_CONFIG[activeProfileId];
-            const pData = appState.profiles[activeProfileId];
+            const ctx = getExamContext();
+            const examsList = ctx.exams;
 
-            if (!pData.exams.some(e => e.id === pData.selectedExamId)) {
-                pData.selectedExamId = pData.exams[0]?.id;
+            if (!examsList.some(e => e.id === ctx.getSelectedId())) {
+                ctx.setSelectedId(examsList[0]?.id);
             }
 
-            // Subtitle custom mengikut anak
-            if (cfg.id === 't3') {
-                document.getElementById('grades-subtitle').textContent = 'Rekod lengkap Tingkatan 1, Tingkatan 2 & Tingkatan 3 (Gred Menengah Rendah & TP1-TP6).';
+            const headerTitleEl = document.getElementById('grades-header-title');
+            const headerIconEl = document.getElementById('grades-header-icon');
+
+            // Tajuk & Subtitle custom mengikut anak dan mod (Sekolah vs KAFA)
+            if (cfg.id === 'd4' && ctx.isKafa) {
+                headerTitleEl.textContent = 'Rekod Keputusan & Sasaran KAFA / UPKK';
+                if (headerIconEl) headerIconEl.className = 'w-5 h-5 text-amber-500';
+                document.getElementById('grades-subtitle').textContent = 'Rekod lengkap peperiksaan Sekolah KAFA, Pertengahan/Akhir Tahun & Persediaan UPKK.';
             } else if (cfg.id === 'd4') {
-                document.getElementById('grades-subtitle').textContent = 'Rekod lengkap dari Darjah 1 hingga Darjah 4 serta Peperiksaan KAFA / UPKK.';
+                headerTitleEl.textContent = 'Rekod Keputusan & Sasaran Sekolah Kebangsaan (SK)';
+                if (headerIconEl) headerIconEl.className = 'w-5 h-5 text-indigo-500';
+                document.getElementById('grades-subtitle').textContent = 'Rekod lengkap peperiksaan Sekolah Kebangsaan dari Darjah 1 hingga Darjah 4.';
+            } else if (cfg.id === 't3') {
+                headerTitleEl.textContent = 'Rekod Keputusan & Sasaran Peperiksaan';
+                if (headerIconEl) headerIconEl.className = 'w-5 h-5 text-indigo-500';
+                document.getElementById('grades-subtitle').textContent = 'Rekod lengkap Tingkatan 1, Tingkatan 2 & Tingkatan 3 (Gred Menengah Rendah & TP1-TP6).';
             } else if (cfg.id === 'd1') {
+                headerTitleEl.textContent = 'Rekod Keputusan & Sasaran Peperiksaan';
+                if (headerIconEl) headerIconEl.className = 'w-5 h-5 text-indigo-500';
                 document.getElementById('grades-subtitle').textContent = 'Rekod pentaksiran Tahun 1 dengan Tahap Penguasaan (TP1-TP6) & Bintang Ganjaran!';
             } else {
+                headerTitleEl.textContent = 'Rekod Keputusan & Sasaran Peperiksaan';
+                if (headerIconEl) headerIconEl.className = 'w-5 h-5 text-indigo-500';
                 document.getElementById('grades-subtitle').textContent = `Rekod keputusan dan sasaran untuk ${cfg.name} (${cfg.level}).`;
             }
 
             // Render Exam Selector Pills
+            const activePillCls = ctx.isKafa
+                ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
+                : 'bg-indigo-600 text-white border-indigo-600 shadow-sm';
             const tabsContainer = document.getElementById('exam-tabs-container');
-            tabsContainer.innerHTML = pData.exams.map(ex => {
-                const isSel = ex.id === pData.selectedExamId;
+            tabsContainer.innerHTML = examsList.map(ex => {
+                const isSel = ex.id === ctx.getSelectedId();
                 const filledCount = ex.subjects.filter(s => s.mark !== '' && s.mark !== null).length;
                 return `
                     <button onclick="selectExamCategory('${ex.id}')" class="px-3.5 py-2 rounded-xl text-xs font-bold border transition flex items-center gap-2 ${
                         isSel
-                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                        ? activePillCls
                         : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
                     }">
                         <span>${ex.name}</span>
@@ -1491,8 +1657,8 @@
 
             // Status butang alih ujian
             (function () {
-                const exs = pData.exams;
-                const si = exs.findIndex(e => e.id === pData.selectedExamId);
+                const exs = examsList;
+                const si = exs.findIndex(e => e.id === ctx.getSelectedId());
                 const lock = si < 0 || isTargetExam(exs[si], si);
                 const minIdx = (exs.length && isTargetExam(exs[0], 0)) ? 1 : 0;
                 const L = document.getElementById('btn-move-exam-left');
@@ -1501,7 +1667,7 @@
                 if (R) R.disabled = lock || si >= exs.length - 1;
             })();
 
-            const currentExam = pData.exams.find(e => e.id === pData.selectedExamId) || pData.exams[0];
+            const currentExam = examsList.find(e => e.id === ctx.getSelectedId()) || examsList[0];
             document.getElementById('current-exam-heading').textContent = `Keputusan: ${currentExam.name}`;
 
             // Table Header TP column visibility
@@ -1555,14 +1721,15 @@
         }
 
         function selectExamCategory(examId) {
-            appState.profiles[activeProfileId].selectedExamId = examId;
+            const ctx = getExamContext();
+            ctx.setSelectedId(examId);
             saveState(false);
             renderGradesSection();
         }
 
         function updateSubjectMark(subjIdx, val) {
-            const pData = appState.profiles[activeProfileId];
-            const currentExam = pData.exams.find(e => e.id === pData.selectedExamId);
+            const ctx = getExamContext();
+            const currentExam = ctx.exams.find(e => e.id === ctx.getSelectedId());
             if (!currentExam) return;
             if (val === '') {
                 currentExam.subjects[subjIdx].mark = '';
@@ -1576,8 +1743,8 @@
         }
 
         function updateSubjectTP(subjIdx, tpVal) {
-            const pData = appState.profiles[activeProfileId];
-            const currentExam = pData.exams.find(e => e.id === pData.selectedExamId);
+            const ctx = getExamContext();
+            const currentExam = ctx.exams.find(e => e.id === ctx.getSelectedId());
             if (!currentExam) return;
             currentExam.subjects[subjIdx].tp = tpVal;
             saveState(true);
@@ -1585,8 +1752,8 @@
         }
 
         function deleteSubject(subjIdx) {
-            const pData = appState.profiles[activeProfileId];
-            const currentExam = pData.exams.find(e => e.id === pData.selectedExamId);
+            const ctx = getExamContext();
+            const currentExam = ctx.exams.find(e => e.id === ctx.getSelectedId());
             if (!currentExam) return;
             currentExam.subjects.splice(subjIdx, 1);
             saveState(true);
@@ -1610,13 +1777,13 @@
             const name = document.getElementById('new-exam-name').value.trim();
             if (!name) return;
             const copySubj = document.getElementById('copy-subjects-checkbox').checked;
-            const pData = appState.profiles[activeProfileId];
-            const baseSubj = (copySubj && pData.exams[0])
-                ? pData.exams[0].subjects.map(s => ({ name: s.name, cat: s.cat, mark: '', tp: 'TP5' }))
+            const ctx = getExamContext();
+            const baseSubj = (copySubj && ctx.exams[0])
+                ? ctx.exams[0].subjects.map(s => ({ name: s.name, cat: s.cat, mark: '', tp: 'TP5' }))
                 : [];
-            const newId = 'exam_' + Date.now();
-            pData.exams.push({ id: newId, name: name, subjects: baseSubj });
-            pData.selectedExamId = newId;
+            const newId = (ctx.isKafa ? 'kafa_exam_' : 'exam_') + Date.now();
+            ctx.exams.push({ id: newId, name: name, subjects: baseSubj });
+            ctx.setSelectedId(newId);
             saveState(true);
             closeAddExamModal();
             renderGradesSection();
@@ -1628,9 +1795,9 @@
         }
 
         function moveCurrentExam(dir) {
-            const pData = appState.profiles[activeProfileId];
-            const exams = pData.exams;
-            const idx = exams.findIndex(e => e.id === pData.selectedExamId);
+            const ctx = getExamContext();
+            const exams = ctx.exams;
+            const idx = exams.findIndex(e => e.id === ctx.getSelectedId());
             if (idx < 0) return;
             if (isTargetExam(exams[idx], idx)) {
                 showToast('Kategori Target kekal di kedudukan pertama sebagai asas perbandingan.');
@@ -1647,19 +1814,30 @@
 
         function deleteCurrentExam() {
             const pData = appState.profiles[activeProfileId];
-            if (pData.exams.length <= 1) {
+            const ctx = getExamContext();
+            if (ctx.exams.length <= 1) {
                 showToast('Sekurang-kurangnya 1 kategori ujian mesti dikekalkan.');
                 return;
             }
-            pData.deletedExamIds = Array.from(new Set([...(pData.deletedExamIds || []), pData.selectedExamId]));
-            pData.exams = pData.exams.filter(e => e.id !== pData.selectedExamId);
-            pData.selectedExamId = pData.exams[0].id;
+            const curId = ctx.getSelectedId();
+            pData.deletedExamIds = Array.from(new Set([...(pData.deletedExamIds || []), curId]));
+            const remaining = ctx.exams.filter(e => e.id !== curId);
+            ctx.setExams(remaining);
+            ctx.setSelectedId(remaining[0].id);
             saveState(true);
             renderGradesSection();
         }
 
         function openAddSubjectModal() {
             document.getElementById('new-subj-name').value = '';
+            const catSel = document.getElementById('new-subj-cat');
+            if (catSel) {
+                if (isKafaModeActive()) {
+                    catSel.value = 'KAFA / UPKK';
+                } else {
+                    catSel.value = 'Teras';
+                }
+            }
             const m = document.getElementById('add-subject-modal');
             m.classList.remove('hidden');
             m.classList.add('flex');
@@ -1678,8 +1856,8 @@
             const tp = document.getElementById('new-subj-tp').value;
             if (!name) return;
 
-            const pData = appState.profiles[activeProfileId];
-            const currentExam = pData.exams.find(e => e.id === pData.selectedExamId);
+            const ctx = getExamContext();
+            const currentExam = ctx.exams.find(e => e.id === ctx.getSelectedId());
             if (currentExam) {
                 currentExam.subjects.push({
                     name,
@@ -1695,27 +1873,15 @@
 
         function renderCrossYearComparisonTable() {
             const cfg = PROFILES_CONFIG[activeProfileId];
-            const pData = appState.profiles[activeProfileId];
-            const kafaBlock = document.getElementById('summary-block-kafa');
-            const isKafa = s => /KAFA|UPKK/i.test(s.cat || '');
-            if (cfg.id === 'd4') {
-                // Raisha: SK (sekolah pagi) dan KAFA/UPKK adalah dua sekolah berbeza -> ringkasan berasingan
-                const skExams = pData.exams
-                    .filter(ex => ex.id !== 'kafa_exam')
-                    .map(ex => ({ ...ex, subjects: ex.subjects.filter(s => !isKafa(s)) }));
-                const kafaExams = pData.exams
-                    .filter((ex, i) => i === 0 || ex.id === 'kafa_exam' || ex.subjects.some(isKafa))
-                    .map(ex => ({ ...ex, subjects: ex.subjects.filter(isKafa) }));
+            const ctx = getExamContext();
+            if (cfg.id === 'd4' && ctx.isKafa) {
+                document.getElementById('summary-title-main').textContent = 'Ringkasan Keputusan KAFA / UPKK';
+            } else if (cfg.id === 'd4') {
                 document.getElementById('summary-title-main').textContent = 'Ringkasan Keputusan Sekolah Kebangsaan (SK)';
-                document.getElementById('summary-title-kafa').textContent = 'Ringkasan Keputusan KAFA / UPKK';
-                kafaBlock.classList.remove('hidden');
-                renderSummaryBlock(cfg, skExams, document.getElementById('gpaSummaryCards'), document.getElementById('summary-comparison-table'));
-                renderSummaryBlock(cfg, kafaExams, document.getElementById('gpaSummaryCards2'), document.getElementById('summary-comparison-table2'));
             } else {
                 document.getElementById('summary-title-main').textContent = 'Ringkasan Keseluruhan Gred (All-In-One Summary)';
-                kafaBlock.classList.add('hidden');
-                renderSummaryBlock(cfg, pData.exams, document.getElementById('gpaSummaryCards'), document.getElementById('summary-comparison-table'));
             }
+            renderSummaryBlock(cfg, ctx.exams, document.getElementById('gpaSummaryCards'), document.getElementById('summary-comparison-table'));
         }
 
         function renderSummaryBlock(cfg, exams, cardsBox, table) {
@@ -2271,7 +2437,7 @@
             renderHeroAndOverview();
             renderEventsGrid();
             updateCountdownTick();
-            if (unlockedTabs.grades) renderGradesSection();
+            if (unlockedTabs.grades || unlockedTabs.kafa) renderGradesSection();
             if (unlockedTabs.todo) renderTodoSection();
             lucide.createIcons();
         }
