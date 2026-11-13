@@ -981,6 +981,56 @@
             };
         }
 
+        // Bersihkan senarai peperiksaan: pastikan HANYA SATU kategori Target (di kedudukan pertama),
+        // tiada ujian berulang (id sama) dan tiada subjek berulang dalam satu ujian.
+        function normalizeExamList(list, defTarget, kafaMode) {
+            const hasMk = s => s && s.mark !== '' && s.mark !== null && s.mark !== undefined && !isNaN(s.mark);
+            const isKafaSubj = s => /KAFA|UPKK/i.test((s && s.cat) || '');
+            const isT = ex => /target|sasaran/i.test(ex.name || '');
+            const keyOf = s => String(s.name || '').trim().toLowerCase();
+            const mergeSubjects = (base, extra) => {
+                const map = new Map();
+                (base || []).concat(extra || []).forEach(s => {
+                    if (!s) return;
+                    const k = keyOf(s);
+                    if (!map.has(k)) map.set(k, s);
+                    else if (!hasMk(map.get(k)) && hasMk(s)) map.set(k, s);
+                });
+                return [...map.values()];
+            };
+            const targets = [];
+            const others = [];
+            const seenIds = new Map();
+            (list || []).forEach(ex => {
+                if (!ex) return;
+                if (isT(ex)) { targets.push(ex); return; }
+                if (seenIds.has(ex.id)) {
+                    const prev = seenIds.get(ex.id);
+                    prev.subjects = mergeSubjects(prev.subjects, ex.subjects);
+                } else {
+                    seenIds.set(ex.id, ex);
+                    others.push(ex);
+                }
+            });
+            others.forEach(ex => { ex.subjects = mergeSubjects(ex.subjects, []); });
+
+            let result = others;
+            if (targets.length) {
+                const base = targets.find(t => defTarget && t.id === defTarget.id) || targets[0];
+                let subs = [];
+                targets.forEach(t => { subs = subs.concat(t === base ? [] : (t.subjects || [])); });
+                subs = mergeSubjects(base.subjects, subs);
+                if (defTarget) {
+                    // Target Sekolah hanya subjek sekolah; Target KAFA hanya subjek KAFA/UPKK
+                    const filtered = subs.filter(s => kafaMode ? isKafaSubj(s) : !isKafaSubj(s));
+                    subs = filtered.length ? filtered : JSON.parse(JSON.stringify(defTarget.subjects));
+                }
+                base.subjects = subs;
+                result = [base].concat(others);
+            }
+            return result;
+        }
+
         function mergeWithDefaults(savedData) {
             const result = { profiles: {} };
             Object.keys(PROFILES_CONFIG).forEach(pid => {
@@ -1071,6 +1121,14 @@
                         finalSelectedExamId = finalExams[0].id;
                         finalSelectedKafaExamId = finalKafaExams[0].id;
                     }
+
+                    // Bersihkan Target berganda / ujian & subjek berulang (cth. Raisha Husna)
+                    finalExams = normalizeExamList(finalExams, cfg.defaultExams[0], false);
+                    if (pid === 'd4') {
+                        finalKafaExams = normalizeExamList(finalKafaExams, (cfg.defaultKafaExams || [])[0], true);
+                    }
+                    if (!finalExams.some(e => e.id === finalSelectedExamId)) finalSelectedExamId = finalExams[0].id;
+                    if (finalKafaExams.length && !finalKafaExams.some(e => e.id === finalSelectedKafaExamId)) finalSelectedKafaExamId = finalKafaExams[0].id;
 
                     result.profiles[pid] = {
                         ...def,
