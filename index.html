@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apps Akademik & Countdown Keluarga - by Sharizal</title>
+    <title>Apps Akademik & Countdown Keluarga v6 - by Sharizal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -1694,19 +1694,63 @@
             const isTarget = (ex, i) => i === 0 && /target|sasaran/i.test(ex.name);
             const hasTarget = exams.length > 0 && isTarget(exams[0], 0);
 
-            // Kad ringkasan: bilangan gred setiap ujian (cth: 3A 1B)
-            cardsBox.innerHTML = exams.map(ex => {
-                const gc = {}; let count = 0;
+            // Kad ringkasan: bilangan gred setiap ujian dengan warna latar belakang mengikut pencapaian Target (Kaedah 2: Bilangan Gred A)
+            // Cari jumlah A dalam Target (exam pertama jika isTarget)
+            let targetACount = 0;
+            if (hasTarget && exams[0]) {
+                exams[0].subjects.forEach(s => {
+                    if (hasMark(s)) {
+                        const g = mergeA(calculateGrade(s.mark, cfg.gradeSystem).grade);
+                        if (g === 'A') targetACount++;
+                    }
+                });
+            }
+
+            cardsBox.innerHTML = exams.map((ex, exIdx) => {
+                const gc = {}; let count = 0; let currentACount = 0;
                 ex.subjects.forEach(s => {
                     if (!hasMark(s)) return;
                     const g = mergeA(calculateGrade(s.mark, cfg.gradeSystem).grade);
-                    gc[g] = (gc[g] || 0) + 1; count++;
+                    gc[g] = (gc[g] || 0) + 1;
+                    if (g === 'A') currentACount++;
+                    count++;
                 });
                 const txt = ORDER.filter(k => gc[k]).map(k => gc[k] + k).join(' ');
-                return `<div class="glass-card p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-center">
-                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">${escEv(ex.name)}</div>
-                    <div class="text-xs sm:text-sm font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">${count ? txt : 'Belum diisi'}</div>
-                    <div class="text-[9px] text-slate-400 mt-0.5">${count}/${ex.subjects.length} subjek</div>
+
+                // Tentukan warna kad mengikut peratusan pencapaian berbanding target (Kaedah 2)
+                let cardStyleClass = 'glass-card border-slate-200 dark:border-slate-800';
+                if (isTarget(ex, exIdx)) {
+                    cardStyleClass = 'bg-indigo-50/90 dark:bg-indigo-950/40 border-indigo-300 dark:border-indigo-800 shadow-sm';
+                } else if (count === 0) {
+                    cardStyleClass = 'glass-card border-slate-200 dark:border-slate-800 opacity-80';
+                } else {
+                    let ratio = 1.0;
+                    if (targetACount > 0) {
+                        ratio = currentACount / targetACount;
+                    } else {
+                        // Jika target 0 A atau tiada target, guna nisbah markah purata / 100 atau bilangan subjek lulus/A
+                        let totalScore = 0;
+                        ex.subjects.forEach(s => { if (hasMark(s)) totalScore += Number(s.mark); });
+                        let avg = count ? totalScore / count : 0;
+                        ratio = avg / 80; // Sasaran purata 80 markah sebagai asas
+                    }
+
+                    if (ratio > 2/3) {
+                        // Hijau lembut (> 2/3 pencapaian)
+                        cardStyleClass = 'bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-100 shadow-sm';
+                    } else if (ratio >= 1/3) {
+                        // Oren lembut (antara 1/3 dan 2/3)
+                        cardStyleClass = 'bg-amber-50/90 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-950 dark:text-amber-100 shadow-sm';
+                    } else {
+                        // Merah lembut (< 1/3)
+                        cardStyleClass = 'bg-rose-50/90 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-950 dark:text-rose-100 shadow-sm';
+                    }
+                }
+
+                return `<div class="${cardStyleClass} p-3 rounded-xl border text-center transition-all">
+                    <div class="text-[10px] font-bold uppercase tracking-wider opacity-80">${escEv(ex.name)}</div>
+                    <div class="text-xs sm:text-sm font-extrabold mt-1">${count ? txt : 'Belum diisi'}</div>
+                    <div class="text-[9px] opacity-70 mt-0.5">${count}/${ex.subjects.length} subjek</div>
                 </div>`;
             }).join('');
 
