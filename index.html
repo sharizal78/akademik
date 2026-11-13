@@ -37,81 +37,81 @@
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200 selection:bg-indigo-500 selection:text-white">
 
-    <!-- Top Control Bar -->
-    <header class="sticky top-0 z-40 backdrop-blur-md bg-white/85 dark:bg-slate-900/85 border-b border-slate-200 dark:border-slate-800">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 py-3">
-            <div class="flex flex-wrap items-center justify-between gap-3">
-                <!-- Brand & Active Profile -->
-                <div class="flex items-center gap-3">
-                    <div id="brand-icon" class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-emerald-500 flex items-center justify-center text-white shadow-lg">
-                        <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+    <!-- Top Control Bar (Freeze Pane / Sticky Header Padat & Nipis - Kaedah 1 & 2) -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-white/95 dark:bg-slate-900/95 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="max-w-7xl mx-auto px-2.5 sm:px-5 py-1.5 space-y-1.5">
+            <div class="flex flex-wrap xl:flex-nowrap items-center justify-between gap-2">
+                <!-- Brand & Active Profile (Kiri) -->
+                <div class="flex items-center gap-2 shrink-0">
+                    <div id="brand-icon" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-emerald-500 flex items-center justify-center text-white shadow shrink-0">
+                        <i data-lucide="graduation-cap" class="w-4 h-4 sm:w-4.5 sm:h-4.5"></i>
                     </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h1 class="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-white">Apps Pelajar Cemerlang</h1>
-                            <span id="sync-badge" onclick="cloudToggle()" title="Klik untuk log masuk Google / log keluar (sync antara PC)" class="cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                    <div class="leading-tight">
+                        <div class="flex items-center gap-1.5">
+                            <h1 class="text-xs sm:text-sm font-extrabold tracking-tight text-slate-900 dark:text-white whitespace-nowrap">Apps Pelajar Cemerlang</h1>
+                            <span id="sync-badge" onclick="cloudToggle()" title="Klik untuk log masuk Google / log keluar (sync antara PC)" class="cursor-pointer inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 whitespace-nowrap">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                 <span id="sync-text">Log Masuk Google</span>
                             </span>
                         </div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">by Sharizal • <span id="active-profile-subtitle" class="font-semibold text-indigo-600 dark:text-indigo-400">Nurul Izzati (Calon SPM 2027)</span></p>
+                        <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 whitespace-nowrap">by Sharizal • <span id="active-profile-subtitle" class="font-semibold text-indigo-600 dark:text-indigo-400">Nurul Izzati (Calon SPM 2027)</span></p>
                     </div>
                 </div>
 
-                <!-- Right Controls: Default PC, Backup, Theme -->
-                <div class="flex items-center gap-1.5 sm:gap-2">
-                    <button onclick="setDefaultPC()" id="btn-default-pc" title="Jadikan Profil Ini Default PC" class="flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
-                        <i data-lucide="monitor-check" class="w-4 h-4 text-emerald-500"></i>
+                <!-- 5 Children Profile Switcher (Pindah ke tengah-tengah / ruang kosong header) -->
+                <div class="flex items-center gap-1 overflow-x-auto max-w-full py-0.5 px-1 bg-slate-100/70 dark:bg-slate-800/50 rounded-xl border border-slate-200/60 dark:border-slate-800/60" id="profile-switcher-bar">
+                    <!-- Rendered by JS -->
+                </div>
+
+                <!-- Right Controls: Default PC, Backup, Theme (Kanan) -->
+                <div class="flex items-center gap-1 shrink-0">
+                    <button onclick="setDefaultPC()" id="btn-default-pc" title="Jadikan Profil Ini Default PC" class="flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition whitespace-nowrap">
+                        <i data-lucide="monitor-check" class="w-3.5 h-3.5 text-emerald-500"></i>
                         <span class="hidden md:inline" id="default-pc-label">Jadikan Default PC Ini</span>
                     </button>
 
-                    <button onclick="exportBackupJSON()" title="Eksport Backup JSON" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
-                        <i data-lucide="download" class="w-4 h-4"></i>
+                    <button onclick="exportBackupJSON()" title="Eksport Backup JSON" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
                     </button>
 
-                    <label title="Import Backup JSON" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition cursor-pointer">
-                        <i data-lucide="upload" class="w-4 h-4"></i>
+                    <label title="Import Backup JSON" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition cursor-pointer">
+                        <i data-lucide="upload" class="w-3.5 h-3.5"></i>
                         <input type="file" id="import-json-input" accept=".json" class="hidden" onchange="importBackupJSON(event)">
                     </label>
 
-                    <button onclick="openResetPinModal()" title="Tetapan PIN / Master Ibu Bapa" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
-                        <i data-lucide="key-round" class="w-4 h-4 text-amber-500"></i>
+                    <button onclick="openResetPinModal()" title="Tetapan PIN / Master Ibu Bapa" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+                        <i data-lucide="key-round" class="w-3.5 h-3.5 text-amber-500"></i>
                     </button>
 
-                    <button onclick="toggleTheme()" title="Tukar Tema Gelap/Cerah" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
-                        <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
-                        <i data-lucide="moon" class="w-4 h-4 block dark:hidden text-slate-700"></i>
+                    <button onclick="toggleTheme()" title="Tukar Tema Gelap/Cerah" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+                        <i data-lucide="sun" class="w-3.5 h-3.5 hidden dark:block text-amber-400"></i>
+                        <i data-lucide="moon" class="w-3.5 h-3.5 block dark:hidden text-slate-700"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- 5 Children Profile Switcher -->
-            <div class="mt-3 pt-2.5 border-t border-slate-200/70 dark:border-slate-800/70 flex items-center gap-2 overflow-x-auto pb-1" id="profile-switcher-bar">
-                <!-- Rendered by JS -->
-            </div>
+            <!-- Navigation Tabs (Nipis & Padat) -->
+            <nav class="pt-1 border-t border-slate-200/70 dark:border-slate-800/70 grid grid-cols-3 gap-1.5 sm:gap-2.5">
+                <button id="tab-btn-countdown" onclick="switchTab('countdown')" class="flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-bold text-xs transition-all shadow-sm">
+                    <i data-lucide="timer" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                    <span>Countdown</span>
+                </button>
+                <button id="tab-btn-grades" onclick="switchTab('grades')" class="flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-bold text-xs transition-all">
+                    <i data-lucide="award" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                    <span>Keputusan</span>
+                    <i id="lock-icon-grades" data-lucide="lock" class="w-3 h-3 opacity-80"></i>
+                </button>
+                <button id="tab-btn-todo" onclick="switchTab('todo')" class="flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-bold text-xs transition-all">
+                    <i data-lucide="check-square" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                    <span id="tab-todo-label">To-Do List</span>
+                    <i id="lock-icon-todo" data-lucide="lock" class="w-3 h-3 opacity-80"></i>
+                </button>
+            </nav>
         </div>
     </header>
 
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-3 sm:px-6 py-5 space-y-6">
-
-        <!-- Navigation Tabs (Countdown: Merah bila dipilih, Hijau bila tidak dipilih) -->
-        <nav class="grid grid-cols-3 gap-2 sm:gap-3 bg-white dark:bg-slate-900 p-2 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
-            <button id="tab-btn-countdown" onclick="switchTab('countdown')" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all shadow-sm">
-                <i data-lucide="timer" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                <span>Countdown</span>
-            </button>
-            <button id="tab-btn-grades" onclick="switchTab('grades')" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all">
-                <i data-lucide="award" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                <span>Keputusan</span>
-                <i id="lock-icon-grades" data-lucide="lock" class="w-3.5 h-3.5 opacity-80"></i>
-            </button>
-            <button id="tab-btn-todo" onclick="switchTab('todo')" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all">
-                <i data-lucide="check-square" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                <span id="tab-todo-label">To-Do List</span>
-                <i id="lock-icon-todo" data-lucide="lock" class="w-3.5 h-3.5 opacity-80"></i>
-            </button>
-        </nav>
 
         <!-- TAB 1: COUNTDOWN & MOTIVATION -->
         <section id="section-countdown" class="space-y-6 fade-in">
@@ -1171,16 +1171,13 @@
             bar.innerHTML = Object.values(PROFILES_CONFIG).map(cfg => {
                 const isActive = cfg.id === activeProfileId;
                 return `
-                    <button onclick="selectProfile('${cfg.id}')" class="shrink-0 flex items-center gap-2.5 px-3.5 py-2 rounded-xl border text-left transition-all ${
+                    <button onclick="selectProfile('${cfg.id}')" title="${cfg.name} — ${cfg.level}" class="shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-left transition-all ${
                         isActive
-                        ? `bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-transparent shadow-md ring-2 ${cfg.ringColor}`
+                        ? `bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-transparent shadow-sm ring-1 ${cfg.ringColor}`
                         : 'bg-slate-100/80 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200/70 dark:hover:bg-slate-800'
                     }">
-                        <span class="w-2.5 h-2.5 rounded-full ${cfg.badgeBg}"></span>
-                        <div>
-                            <div class="text-xs font-extrabold leading-tight">${cfg.name}</div>
-                            <div class="text-[10px] opacity-75 font-medium">${cfg.level}</div>
-                        </div>
+                        <span class="w-2 h-2 rounded-full shrink-0 ${cfg.badgeBg}"></span>
+                        <span class="text-[11px] font-bold whitespace-nowrap">${cfg.shortName}</span>
                     </button>
                 `;
             }).join('');
@@ -1193,13 +1190,13 @@
             const btnTd = document.getElementById('tab-btn-todo');
 
             if (activeTab === 'countdown') {
-                btnCd.className = 'flex items-center justify-center gap-2 py-3 px-3 rounded-xl font-extrabold text-xs sm:text-sm transition-all shadow-md bg-red-600 hover:bg-red-700 text-white';
+                btnCd.className = 'flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-extrabold text-xs transition-all shadow-sm bg-red-600 hover:bg-red-700 text-white';
             } else {
-                btnCd.className = 'flex items-center justify-center gap-2 py-3 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm';
+                btnCd.className = 'flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-bold text-xs transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm';
             }
 
-            const inactiveStd = 'flex items-center justify-center gap-2 py-3 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700';
-            const activeStd = 'flex items-center justify-center gap-2 py-3 px-3 rounded-xl font-extrabold text-xs sm:text-sm transition-all shadow-md bg-indigo-600 text-white';
+            const inactiveStd = 'flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-bold text-xs transition-all bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700';
+            const activeStd = 'flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-extrabold text-xs transition-all shadow-sm bg-indigo-600 text-white';
 
             btnGr.className = activeTab === 'grades' ? activeStd : inactiveStd;
             btnTd.className = activeTab === 'todo' ? activeStd : inactiveStd;
