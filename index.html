@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apps Akademik & Countdown Keluarga v7 - by Sharizal</title>
+    <title>Apps Akademik & Countdown Keluarga v8 - by Sharizal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -1719,8 +1719,8 @@
         }
 
         function renderSummaryBlock(cfg, exams, cardsBox, table) {
-            const mergeA = g => (g === 'A+' || g === 'A' || g === 'A-') ? 'A' : g;   // A+, A, A- dirangkum sebagai A
-            const ORDER = ['A', 'B+', 'B', 'C+', 'C', 'D', 'E', 'F', 'G'];
+            const mergeGrade = g => g && g !== '-' ? g.replace(/[+-]/g, '') : g;   // Rangkumkan A+/A/A- -> A, B+/B/B- -> B, C+/C/C- -> C, D+/D/D- -> D
+            const ORDER = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
             const RANK = ['G', 'F', 'E', 'D', 'C', 'C+', 'B', 'B+', 'A-', 'A', 'A+'];
             const hasMark = s => s && s.mark !== '' && s.mark !== null && s.mark !== undefined && !isNaN(s.mark);
             const isTarget = (ex, i) => i === 0 && /target|sasaran/i.test(ex.name);
@@ -1732,7 +1732,7 @@
             if (hasTarget && exams[0]) {
                 exams[0].subjects.forEach(s => {
                     if (hasMark(s)) {
-                        const g = mergeA(calculateGrade(s.mark, cfg.gradeSystem).grade);
+                        const g = mergeGrade(calculateGrade(s.mark, cfg.gradeSystem).grade);
                         if (g === 'A') targetACount++;
                     }
                 });
@@ -1742,7 +1742,7 @@
                 const gc = {}; let count = 0; let currentACount = 0;
                 ex.subjects.forEach(s => {
                     if (!hasMark(s)) return;
-                    const g = mergeA(calculateGrade(s.mark, cfg.gradeSystem).grade);
+                    const g = mergeGrade(calculateGrade(s.mark, cfg.gradeSystem).grade);
                     gc[g] = (gc[g] || 0) + 1;
                     if (g === 'A') currentACount++;
                     count++;
