@@ -296,10 +296,10 @@
         <section id="section-todo" class="hidden space-y-6 fade-in">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- Left/Main Column: To-Do / Misi Harian -->
-                <div id="todo-main-col" class="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-                    <div class="flex items-center justify-between">
+                <div id="todo-main-col" class="lg:col-span-12 bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
                         <div>
-                            <h2 id="todo-section-title" class="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+                            <h2 id="todo-section-title" class="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
                                 <i data-lucide="list-todo" class="w-5 h-5 text-emerald-500"></i>
                                 <span>Senarai Tugasan & Ulangkaji</span>
                             </h2>
@@ -323,13 +323,13 @@
                     </form>
 
                     <!-- Todo List -->
-                    <div id="todo-list-container" class="space-y-2 max-h-[460px] overflow-y-auto pr-1">
+                    <div id="todo-list-container" class="space-y-2.5 max-h-[68vh] min-h-[260px] overflow-y-auto pr-1">
                         <!-- Rendered dynamically -->
                     </div>
                 </div>
 
-                <!-- Right Column: Tracker Hafazan (semua pelajar) + Papan Bintang (Aisyah) -->
-                <div id="todo-side-col" class="lg:col-span-5 space-y-6">
+                <!-- Right Column: Tracker Hafazan (Raisha & Aisyah) + Papan Bintang (Aisyah) -->
+                <div id="todo-side-col" class="lg:col-span-5 space-y-6 hidden">
                     <!-- Dynamic Special Widget -->
                     <div id="special-tracker-card" class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
                         <!-- Rendered dynamically per profile -->
@@ -1207,7 +1207,7 @@
 
             // Update Todo label dynamically
             const cfg = PROFILES_CONFIG[activeProfileId];
-            document.getElementById('tab-todo-label').textContent = cfg.isKidMode ? 'Misi, Bintang & Hafazan' : 'To-Do & Hafazan';
+            document.getElementById('tab-todo-label').textContent = cfg.isKidMode ? 'Misi, Bintang & Hafazan' : (cfg.id === 'd4' ? 'To-Do & Hafazan' : 'To-Do List');
 
             // Show/Hide Sections
             document.getElementById('section-countdown').classList.toggle('hidden', activeTab !== 'countdown');
@@ -1752,30 +1752,53 @@
 
             const listEl = document.getElementById('todo-list-container');
             if (!total) {
-                listEl.innerHTML = `<div class="py-8 text-center text-xs text-slate-400">Tiada tugasan buat masa ini. Tambah tugasan pertama di atas!</div>`;
+                listEl.innerHTML = `<div class="py-12 text-center text-xs text-slate-400">Tiada tugasan buat masa ini. Tambah tugasan pertama di atas!</div>`;
             } else {
-                listEl.innerHTML = pData.todos.map((item, idx) => `
-                    <div class="flex items-center justify-between gap-3 p-3 rounded-xl border transition ${
+                listEl.innerHTML = pData.todos.map((item, idx) => {
+                    const createdLabel = item.createdAt ? item.createdAt : 'Rekod Sedia Ada';
+                    const completedBadge = (item.done && item.completedAt)
+                        ? `<span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-100/80 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                               <i data-lucide="check-circle-2" class="w-3 h-3"></i> Siap: ${item.completedAt}
+                           </span>`
+                        : '';
+                    return `
+                    <div class="flex items-start sm:items-center justify-between gap-3 p-3.5 rounded-xl border transition ${
                         item.done
                         ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200/70 dark:border-emerald-900/50'
                         : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200/70 dark:border-slate-700/70'
                     }">
-                        <label class="flex items-center gap-3 cursor-pointer flex-1">
-                            <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleTodoItem(${idx})" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500">
-                            <div>
-                                <div class="text-xs sm:text-sm font-semibold ${item.done ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-100'}">${item.text}</div>
-                                <span class="inline-block mt-0.5 text-[10px] font-bold px-2 py-0.5 rounded bg-white dark:bg-slate-900 text-slate-500 border border-slate-200 dark:border-slate-700">${item.tag}</span>
+                        <label class="flex items-start sm:items-center gap-3 cursor-pointer flex-1 min-w-0">
+                            <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleTodoItem(${idx})" class="mt-0.5 sm:mt-0 w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 shrink-0">
+                            <div class="min-w-0 flex-1">
+                                <div class="text-xs sm:text-sm font-semibold break-words ${item.done ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-100'}">${item.text}</div>
+                                <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+                                    <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">${item.tag}</span>
+                                    <span class="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded bg-indigo-50/80 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 border border-indigo-200/70 dark:border-indigo-800/60">
+                                        <i data-lucide="calendar-plus" class="w-3 h-3"></i> Input: ${createdLabel}
+                                    </span>
+                                    ${completedBadge}
+                                </div>
                             </div>
                         </label>
-                        <button onclick="deleteTodoItem(${idx})" class="p-1.5 text-slate-400 hover:text-rose-500 transition">
+                        <button onclick="deleteTodoItem(${idx})" title="Padam Tugasan" class="p-1.5 text-slate-400 hover:text-rose-500 transition shrink-0">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                         </button>
                     </div>
-                `).join('');
+                `}).join('');
             }
 
             renderSpecialSideTracker();
             lucide.createIcons();
+        }
+
+        function formatNowTimestamp() {
+            const now = new Date();
+            const d = String(now.getDate()).padStart(2, '0');
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const y = now.getFullYear();
+            const hr = String(now.getHours()).padStart(2, '0');
+            const min = String(now.getMinutes()).padStart(2, '0');
+            return `${d}/${m}/${y} ${hr}:${min}`;
         }
 
         function addTodoItem(e) {
@@ -1789,7 +1812,9 @@
                 id: Date.now(),
                 text,
                 tag,
-                done: false
+                done: false,
+                createdAt: formatNowTimestamp(),
+                completedAt: null
             });
             input.value = '';
             saveState(true);
@@ -1799,7 +1824,13 @@
 
         function toggleTodoItem(idx) {
             const pData = appState.profiles[activeProfileId];
-            pData.todos[idx].done = !pData.todos[idx].done;
+            const item = pData.todos[idx];
+            item.done = !item.done;
+            if (item.done) {
+                item.completedAt = formatNowTimestamp();
+            } else {
+                item.completedAt = null;
+            }
             saveState(false);
             renderTodoSection();
             renderHeroAndOverview();
@@ -1815,13 +1846,28 @@
         function renderSpecialSideTracker() {
             const cfg = PROFILES_CONFIG[activeProfileId];
             const pData = appState.profiles[activeProfileId];
+            const mainCol = document.getElementById('todo-main-col');
+            const sideCol = document.getElementById('todo-side-col');
             const card = document.getElementById('special-tracker-card');
             const hCard = document.getElementById('hafazan-tracker-card');
+
+            // Profil spm (Izzati), t3 (Ammar), t1 (Hanna): Tiada kotak Hafazan / Side tracker -> besarkan kotak To-Do semaksima mungkin
+            const showSide = (cfg.id === 'd4' || cfg.isKidMode);
+            if (!showSide) {
+                mainCol.className = 'lg:col-span-12 bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4';
+                sideCol.classList.add('hidden');
+                card.innerHTML = '';
+                hCard.innerHTML = '';
+                return;
+            }
+
+            // Profil d4 (Raisha) & d1 (Aisyah): Papar side column
+            mainCol.className = 'lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4';
+            sideCol.classList.remove('hidden');
 
             // Papan Bintang (Aisyah sahaja)
             if (cfg.isKidMode) {
                 card.classList.remove('hidden');
-                // Papan Bintang Ganjaran Ceria untuk Aisyah Najihah (Tahun 1)
                 const doneTodos = pData.todos.filter(t => t.done).length;
                 const bonus = pData.bonusStars || 0;
                 const totalStars = (doneTodos * 2) + bonus;
@@ -1848,50 +1894,50 @@
                 card.classList.add('hidden');
             }
 
-            // Tracker Hafazan (semua pelajar)
+            // Tracker Hafazan (untuk Raisha & Aisyah)
             const list = pData.hafazan || [];
             const hafazCount = list.filter(h => h.status === 'hafaz').length;
-                hCard.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                                <i data-lucide="book-open-check" class="w-5 h-5 text-orange-500"></i>
-                                <span>Tracker Hafazan Surah & Doa</span>
-                            </h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Klik status untuk kemaskini hafazan ${cfg.shortName}.</p>
-                        </div>
-                        <span class="px-2.5 py-1 rounded-full text-xs font-black bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300">${hafazCount}/${list.length}</span>
+            hCard.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                            <i data-lucide="book-open-check" class="w-5 h-5 text-orange-500"></i>
+                            <span>Tracker Hafazan Surah & Doa</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Klik status untuk kemaskini hafazan ${cfg.shortName}.</p>
                     </div>
-                    <div class="flex gap-2">
-                        <input type="text" id="new-hafazan-input" placeholder="Tambah Surah / Doa..." class="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
-                        <button onclick="addHafazanItem()" class="px-3 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold">Tambah</button>
-                    </div>
-                    <div class="space-y-2 max-h-[380px] overflow-y-auto pr-1">
-                        ${list.map((h, i) => {
-                            const badge = h.status === 'hafaz'
-                                ? { label: 'Sudah Hafaz ✓', cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' }
-                                : (h.status === 'proses'
-                                    ? { label: 'Sedang Hafaz', cls: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300' }
-                                    : { label: 'Belum Mula', cls: 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300' });
-                            return `
-                                <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700/60">
-                                    <div>
-                                        <div class="text-xs font-bold text-slate-800 dark:text-slate-100">${h.title}</div>
-                                        <div class="text-[10px] text-slate-400">${h.type}</div>
-                                    </div>
-                                    <div class="flex items-center gap-1.5 shrink-0">
-                                        <button onclick="cycleHafazanStatus(${i})" class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition ${badge.cls}">
-                                            ${badge.label}
-                                        </button>
-                                        <button onclick="deleteHafazanItem(${i})" title="Padam" class="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition">
-                                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                                        </button>
-                                    </div>
+                    <span class="px-2.5 py-1 rounded-full text-xs font-black bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300">${hafazCount}/${list.length}</span>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="new-hafazan-input" placeholder="Tambah Surah / Doa..." class="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+                    <button onclick="addHafazanItem()" class="px-3 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold">Tambah</button>
+                </div>
+                <div class="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+                    ${list.map((h, i) => {
+                        const badge = h.status === 'hafaz'
+                            ? { label: 'Sudah Hafaz ✓', cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' }
+                            : (h.status === 'proses'
+                                ? { label: 'Sedang Hafaz', cls: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300' }
+                                : { label: 'Belum Mula', cls: 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300' });
+                        return `
+                            <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700/60">
+                                <div>
+                                    <div class="text-xs font-bold text-slate-800 dark:text-slate-100">${h.title}</div>
+                                    <div class="text-[10px] text-slate-400">${h.type}</div>
                                 </div>
-                            `;
-                        }).join('')}
-                    </div>
-                `;
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <button onclick="cycleHafazanStatus(${i})" class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition ${badge.cls}">
+                                        ${badge.label}
+                                    </button>
+                                    <button onclick="deleteHafazanItem(${i})" title="Padam" class="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
         }
 
         function cycleHafazanStatus(idx) {
