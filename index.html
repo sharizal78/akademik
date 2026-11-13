@@ -1803,7 +1803,7 @@
                                 </div>
                             </div>
                         </label>
-                        <button onclick="deleteTodoItem(${idx})" title="Padam Tugasan (Perlu Master PIN Ibu Bapa)" class="p-1.5 text-slate-400 hover:text-rose-500 transition shrink-0">
+                        <button onclick="deleteTodoItem(${idx})" title="${item.tag === 'Latihan' ? 'Padam Tugasan (Perlu Master PIN Ibu Bapa)' : 'Padam Tugasan'}" class="p-1.5 text-slate-400 hover:text-rose-500 transition shrink-0">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                         </button>
                     </div>
@@ -1866,17 +1866,27 @@
             const item = pData.todos[idx];
             if (!item) return;
 
-            pendingDeleteTodoIdx = idx;
-            const cfg = PROFILES_CONFIG[activeProfileId];
-            document.getElementById('delete-todo-modal-desc').textContent = `Masukkan Master PIN Ibu Bapa (4-digit) untuk memadam tugasan "${item.text}" (${cfg.shortName}).`;
-            const input = document.getElementById('delete-todo-pin-input');
-            input.value = '';
-            document.getElementById('delete-todo-pin-error').classList.add('hidden');
-            const modal = document.getElementById('delete-todo-pin-modal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            lucide.createIcons();
-            setTimeout(() => input.focus(), 100);
+            // Hanya kategori 'Latihan' memerlukan pengesahan Master PIN Ibu Bapa
+            if (item.tag === 'Latihan') {
+                pendingDeleteTodoIdx = idx;
+                const cfg = PROFILES_CONFIG[activeProfileId];
+                document.getElementById('delete-todo-modal-desc').textContent = `Tugasan kategori "Latihan" memerlukan Master PIN Ibu Bapa untuk dipadam: "${item.text}" (${cfg.shortName}).`;
+                const input = document.getElementById('delete-todo-pin-input');
+                input.value = '';
+                document.getElementById('delete-todo-pin-error').classList.add('hidden');
+                const modal = document.getElementById('delete-todo-pin-modal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                lucide.createIcons();
+                setTimeout(() => input.focus(), 100);
+            } else {
+                if (!confirm(`Padam tugasan "${item.text}"?`)) return;
+                pData.todos.splice(idx, 1);
+                saveState(true);
+                renderTodoSection();
+                renderHeroAndOverview();
+                showToast('Tugasan berjaya dipadam!');
+            }
         }
 
         function closeDeleteTodoPinModal() {
