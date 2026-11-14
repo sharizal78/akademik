@@ -111,6 +111,11 @@
                     <span id="tab-todo-label">To-Do List</span>
                     <i id="lock-icon-todo" data-lucide="lock" class="w-3 h-3 opacity-80"></i>
                 </button>
+                <button id="tab-btn-latihan" onclick="switchTab('latihan')" class="hidden items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-bold text-xs transition-all">
+                    <i data-lucide="clipboard-list" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                    <span>Latihan</span>
+                    <i id="lock-icon-latihan" data-lucide="lock" class="w-3 h-3 opacity-80"></i>
+                </button>
             </nav>
         </div>
     </header>
@@ -329,6 +334,74 @@
                     <!-- Tracker Hafazan (semua pelajar) -->
                     <div id="hafazan-tracker-card" class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4"></div>
                 </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: LATIHAN - REKOD KESILAPAN & STATISTIK KELEMAHAN (Nurul Izzati sahaja) -->
+        <section id="section-latihan" class="hidden space-y-6 fade-in">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                <div>
+                    <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                        <i data-lucide="clipboard-list" class="w-5 h-5 text-rose-500"></i>
+                        <span>Rekod Kesilapan Latihan</span>
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Catat bab yang kerap salah dalam latihan supaya kelemahan dapat dikenal pasti dan ditangani.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Tugasan (To-Do: Latihan)</label>
+                        <select id="lt-todo" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Subjek</label>
+                        <select id="lt-subjek" onchange="latihanFillBab()" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Bab</label>
+                        <select id="lt-bab" onchange="latihanToggleCustomBab()" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
+                    </div>
+                </div>
+                <input type="text" id="lt-bab-custom" placeholder="Taip nama bab / topik sendiri..." class="hidden w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2 items-end">
+                    <div class="space-y-1 lg:col-span-2">
+                        <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Bil. soalan salah</label>
+                        <input type="number" id="lt-bilangan" min="1" max="99" value="1" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div class="space-y-1 lg:col-span-3">
+                        <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Punca (pilihan)</label>
+                        <select id="lt-punca" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
+                    </div>
+                    <div class="space-y-1 sm:col-span-2 lg:col-span-5">
+                        <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Catatan (pilihan)</label>
+                        <input type="text" id="lt-catatan" placeholder="Cth: No. 5 &amp; 7, silap tukar unit" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div class="sm:col-span-2 lg:col-span-2">
+                        <button type="button" onclick="addLatihanRecord()" class="w-full px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition flex items-center justify-center gap-1.5">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Simpan Rekod
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistik Kelemahan -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h3 class="font-extrabold text-sm sm:text-base text-slate-800 dark:text-white flex items-center gap-2">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5 text-indigo-500"></i> Statistik Kelemahan
+                    </h3>
+                    <select id="lt-filter" onchange="setLatihanFilter(this.value)" class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
+                </div>
+                <div id="latihan-stats" class="space-y-4"></div>
+            </div>
+
+            <!-- Senarai Rekod -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+                <h3 class="font-extrabold text-sm sm:text-base text-slate-800 dark:text-white flex items-center gap-2">
+                    <i data-lucide="history" class="w-5 h-5 text-slate-500"></i> Sejarah Rekod
+                </h3>
+                <div id="latihan-log" class="space-y-2 max-h-[60vh] overflow-y-auto pr-1"></div>
             </div>
         </section>
 
@@ -812,7 +885,7 @@
         };
         let activeProfileId = 'spm';
         let activeTab = 'countdown';
-        let unlockedTabs = { grades: false, kafa: false, todo: false }; // Dikunci setiap sesi apabila tukar profil
+        let unlockedTabs = { grades: false, kafa: false, todo: false, latihan: false }; // Dikunci setiap sesi apabila tukar profil
         let pendingTabAfterPin = null;
         let currentQuoteIdx = 0;
         let db = null;
@@ -1212,7 +1285,7 @@
             if (!PROFILES_CONFIG[pid]) return;
             activeProfileId = pid;
             // Kunci semula tab sensitif apabila bertukar anak
-            unlockedTabs = { grades: false, kafa: false, todo: false };
+            unlockedTabs = { grades: false, kafa: false, todo: false, latihan: false };
             currentQuoteIdx = 0;
 
             // Kemaskini URL tanpa reload halaman
@@ -1312,12 +1385,14 @@
                 unlockedTabs.grades = true;
                 unlockedTabs.kafa = true;
                 unlockedTabs.todo = true;
+                unlockedTabs.latihan = true;
                 const target = pendingTabAfterPin || 'grades';
                 closePinModal();
                 activeTab = target;
                 renderTabVisibility();
                 renderGradesSection();
                 renderTodoSection();
+                renderLatihanSection();
                 showToast('Akses dibuka!');
             } else {
                 document.getElementById('pin-error-msg').classList.remove('hidden');
@@ -1390,10 +1465,16 @@
                 activeTab = 'grades';
             }
 
-            // Susun grid navigasi: 4 tab untuk Raisha (Countdown, Keputusan Sekolah, Keputusan KAFA, To-Do & Hafazan), 3 tab untuk anak lain
+            const isSPM = cfg.id === 'spm';
+            // Tab Latihan hanya untuk Nurul Izzati
+            if (!isSPM && activeTab === 'latihan') {
+                activeTab = 'countdown';
+            }
+
+            // Susun grid navigasi: 4 tab untuk Raisha (Countdown, Keputusan Sekolah, Keputusan KAFA, To-Do & Hafazan) dan Izzati (Countdown, Keputusan, To-Do, Latihan), 3 tab untuk anak lain
             const navEl = document.getElementById('main-nav-tabs');
             if (navEl) {
-                navEl.className = isRaisha
+                navEl.className = (isRaisha || isSPM)
                     ? 'pt-1 border-t border-slate-200/70 dark:border-slate-800/70 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2.5'
                     : 'pt-1 border-t border-slate-200/70 dark:border-slate-800/70 grid grid-cols-3 gap-1.5 sm:gap-2.5';
             }
@@ -1417,6 +1498,14 @@
             btnGr.className = activeTab === 'grades' ? activeStd : inactiveStd;
             btnTd.className = activeTab === 'todo' ? activeStd : inactiveStd;
 
+            // Butang Latihan (khas untuk Izzati sahaja)
+            const btnLt = document.getElementById('tab-btn-latihan');
+            if (isSPM) {
+                btnLt.className = activeTab === 'latihan' ? activeStd : inactiveStd;
+            } else {
+                btnLt.className = 'hidden';
+            }
+
             // Label tab Keputusan: untuk Raisha jadi "Keputusan Sekolah"
             document.getElementById('tab-grades-label').textContent = isRaisha ? 'Keputusan Sekolah' : 'Keputusan';
 
@@ -1434,6 +1523,7 @@
             document.getElementById('lock-icon-grades').style.display = unlockedTabs.grades ? 'none' : 'inline-block';
             document.getElementById('lock-icon-kafa').style.display = unlockedTabs.kafa ? 'none' : 'inline-block';
             document.getElementById('lock-icon-todo').style.display = unlockedTabs.todo ? 'none' : 'inline-block';
+            document.getElementById('lock-icon-latihan').style.display = unlockedTabs.latihan ? 'none' : 'inline-block';
 
             // Update Todo label dynamically
             document.getElementById('tab-todo-label').textContent = cfg.isKidMode ? 'Misi, Bintang & Hafazan' : (isRaisha ? 'To-Do & Hafazan' : 'To-Do List');
@@ -1443,9 +1533,13 @@
             document.getElementById('section-countdown').classList.toggle('hidden', activeTab !== 'countdown');
             document.getElementById('section-grades').classList.toggle('hidden', !isGradesOrKafa);
             document.getElementById('section-todo').classList.toggle('hidden', activeTab !== 'todo');
+            document.getElementById('section-latihan').classList.toggle('hidden', activeTab !== 'latihan');
 
             if (isGradesOrKafa && unlockedTabs[activeTab]) {
                 renderGradesSection();
+            }
+            if (activeTab === 'latihan' && unlockedTabs.latihan) {
+                renderLatihanSection();
             }
         }
 
@@ -2596,6 +2690,274 @@
             }, 3000);
         }
 
+
+        // =========================================================================
+        // 9. LATIHAN - REKOD KESILAPAN & STATISTIK KELEMAHAN (Nurul Izzati)
+        // Data disimpan dalam appState.profiles.spm.latihanLog (turut disync ke cloud)
+        // =========================================================================
+        // Senarai bab: [nombor bab pertama, [tajuk...]]. Tambah subjek / Tingkatan 5 di sini.
+        const LATIHAN_BAB_DATA = {
+            'matematik': { t: 'T4', start: 1, bab: [
+                'Fungsi dan Persamaan Kuadratik dalam Satu Pemboleh Ubah', 'Asas Nombor', 'Penaakulan Logik', 'Operasi Set',
+                'Rangkaian dalam Teori Graf', 'Ketaksamaan Linear dalam Dua Pemboleh Ubah', 'Graf Gerakan',
+                'Sukatan Serakan Data Tak Terkumpul', 'Kebarangkalian Peristiwa Bergabung', 'Matematik Pengguna (Pengurusan Kewangan)'
+            ]},
+            'matematik tambahan': { t: 'T4', start: 1, bab: [
+                'Fungsi', 'Fungsi Kuadratik', 'Sistem Persamaan', 'Indeks, Surd dan Logaritma', 'Janjang',
+                'Hukum Linear', 'Geometri Koordinat', 'Vektor', 'Penyelesaian Segi Tiga', 'Nombor Indeks'
+            ]},
+            'kimia': { t: 'T4', start: 1, bab: [
+                'Pengenalan kepada Kimia', 'Jirim dan Struktur Atom', 'Konsep Mol, Formula dan Persamaan Kimia', 'Jadual Berkala Unsur', 'Ikatan Kimia',
+                'Asid, Bes dan Garam', 'Kadar Tindak Balas', 'Bahan Buatan Dalam Industri'
+            ]},
+            'fizik': { t: 'T4', start: 1, bab: [
+                'Pengukuran', 'Daya dan Gerakan I', 'Kegravitian', 'Haba', 'Gelombang', 'Cahaya dan Optik'
+            ]},
+            'biologi': { t: 'T4', start: 1, bab: [
+                'Pengenalan kepada Biologi dan Peraturan Makmal', 'Biologi Sel dan Organisasi Sel', 'Pergerakan Bahan Merentasi Membran Plasma', 'Komposisi Kimia dalam Sel',
+                'Metabolisme dan Enzim', 'Pembahagian Sel', 'Respirasi Sel', 'Sistem Respirasi dalam Manusia dan Haiwan',
+                'Nutrisi dan Sistem Pencernaan Manusia', 'Pengangkutan dalam Manusia dan Haiwan', 'Keimunan Manusia',
+                'Koordinasi dan Gerak Balas dalam Manusia', 'Homeostasis dan Sistem Urinari Manusia',
+                'Sokongan dan Pergerakan dalam Manusia dan Haiwan',
+                'Pembiakan Seks, Perkembangan dan Pertumbuhan dalam Manusia dan Haiwan'
+            ]}
+        };
+        const LATIHAN_PUNCA = ['Tak faham konsep', 'Cuai / silap kira', 'Lupa formula / fakta', 'Salah faham soalan', 'Tak sempat / lambat'];
+        const LATIHAN_LAIN = '__lain__';
+        let latihanFilter = '';
+
+        function latihanBabList(subjek) {
+            const d = LATIHAN_BAB_DATA[String(subjek || '').trim().toLowerCase()];
+            return d ? d.bab.map((title, i) => `${d.t} Bab ${d.start + i}: ${title}`) : [];
+        }
+
+        function latihanGetLog() {
+            const pData = appState.profiles.spm;
+            if (!Array.isArray(pData.latihanLog)) pData.latihanLog = [];
+            return pData.latihanLog;
+        }
+
+        // Semua subjek daripada tab Keputusan (gabungan semua ujian, ikut susunan asal)
+        function latihanSubjects() {
+            const names = [];
+            (appState.profiles.spm.exams || []).forEach(ex => (ex.subjects || []).forEach(sub => {
+                if (sub.name && !names.includes(sub.name)) names.push(sub.name);
+            }));
+            return names;
+        }
+
+        function latihanFillForm() {
+            const pData = appState.profiles.spm;
+            const selT = document.getElementById('lt-todo');
+            const selS = document.getElementById('lt-subjek');
+            const selP = document.getElementById('lt-punca');
+            const selF = document.getElementById('lt-filter');
+            const prevT = selT.value, prevS = selS.value, prevP = selP.value;
+
+            const todos = (pData.todos || []).filter(t => t.tag === 'Latihan');
+            selT.innerHTML = `<option value="">— Tiada / tugasan lain —</option>` + todos.map(t =>
+                `<option value="${escEv(t.id)}">${t.done ? '✓ ' : ''}${escEv(t.text)}</option>`).join('');
+            if ([...selT.options].some(o => o.value === prevT)) selT.value = prevT;
+
+            const subjects = latihanSubjects();
+            selS.innerHTML = `<option value="">— Pilih subjek —</option>` + subjects.map(n =>
+                `<option value="${escEv(n)}">${escEv(n)}</option>`).join('');
+            if ([...selS.options].some(o => o.value === prevS)) selS.value = prevS;
+
+            selP.innerHTML = `<option value="">— Tidak pasti —</option>` + LATIHAN_PUNCA.map(x =>
+                `<option value="${escEv(x)}">${escEv(x)}</option>`).join('');
+            if ([...selP.options].some(o => o.value === prevP)) selP.value = prevP;
+
+            // Penapis statistik: semua subjek + subjek yang ada dalam rekod
+            const logSubjects = latihanGetLog().map(r => r.subjek);
+            const filterNames = [...subjects];
+            logSubjects.forEach(n => { if (n && !filterNames.includes(n)) filterNames.push(n); });
+            selF.innerHTML = `<option value="">Semua subjek</option>` + filterNames.map(n =>
+                `<option value="${escEv(n)}">${escEv(n)}</option>`).join('');
+            if (!filterNames.includes(latihanFilter)) latihanFilter = '';
+            selF.value = latihanFilter;
+
+            latihanFillBab();
+        }
+
+        function latihanFillBab() {
+            const selS = document.getElementById('lt-subjek');
+            const selB = document.getElementById('lt-bab');
+            const prevB = selB.value;
+            const list = latihanBabList(selS.value);
+            let html = `<option value="">${selS.value ? '— Pilih bab —' : '— Pilih subjek dahulu —'}</option>`;
+            html += list.map(b => `<option value="${escEv(b)}">${escEv(b)}</option>`).join('');
+            if (selS.value) html += `<option value="${LATIHAN_LAIN}">Lain-lain (taip sendiri)…</option>`;
+            selB.innerHTML = html;
+            if ([...selB.options].some(o => o.value === prevB)) selB.value = prevB;
+            latihanToggleCustomBab();
+        }
+
+        function latihanToggleCustomBab() {
+            const isLain = document.getElementById('lt-bab').value === LATIHAN_LAIN;
+            document.getElementById('lt-bab-custom').classList.toggle('hidden', !isLain);
+        }
+
+        function latihanTodayLabel() {
+            const d = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+        }
+
+        function addLatihanRecord() {
+            const subjek = document.getElementById('lt-subjek').value;
+            let bab = document.getElementById('lt-bab').value;
+            if (!subjek) { showToast('Sila pilih subjek dahulu.'); return; }
+            if (bab === LATIHAN_LAIN) bab = document.getElementById('lt-bab-custom').value.trim();
+            if (!bab) { showToast('Sila pilih atau taip nama bab.'); return; }
+
+            const bil = Math.max(1, Math.min(99, parseInt(document.getElementById('lt-bilangan').value, 10) || 1));
+            const todoId = document.getElementById('lt-todo').value;
+            const todo = (appState.profiles.spm.todos || []).find(t => String(t.id) === String(todoId));
+
+            latihanGetLog().unshift({
+                id: Date.now(),
+                tarikh: latihanTodayLabel(),
+                subjek,
+                bab,
+                bilangan: bil,
+                punca: document.getElementById('lt-punca').value,
+                catatan: document.getElementById('lt-catatan').value.trim(),
+                todoId: todo ? todo.id : null,
+                todoText: todo ? todo.text : ''
+            });
+
+            // Kosongkan medan yang perlu sahaja; subjek kekal untuk memudahkan rekod berturutan
+            document.getElementById('lt-bab').value = '';
+            document.getElementById('lt-bab-custom').value = '';
+            document.getElementById('lt-bilangan').value = 1;
+            document.getElementById('lt-punca').value = '';
+            document.getElementById('lt-catatan').value = '';
+            saveState(false);
+            showToast('Rekod kesilapan disimpan!');
+            renderLatihanSection();
+        }
+
+        function deleteLatihanRecord(id) {
+            if (!confirm('Padam rekod ini?')) return;
+            const pData = appState.profiles.spm;
+            pData.latihanLog = latihanGetLog().filter(r => String(r.id) !== String(id));
+            saveState(false);
+            renderLatihanSection();
+        }
+
+        function setLatihanFilter(val) {
+            latihanFilter = val || '';
+            renderLatihanStats();
+        }
+
+        function latihanBars(rows, colorClass) {
+            if (!rows.length) return '';
+            const max = Math.max(...rows.map(r => r.value));
+            return rows.map(r => `
+                <div class="space-y-0.5">
+                    <div class="flex items-center justify-between gap-2 text-xs">
+                        <span class="font-semibold text-slate-700 dark:text-slate-200 truncate">${escEv(r.label)}</span>
+                        <span class="font-black text-slate-800 dark:text-white whitespace-nowrap">${r.value}</span>
+                    </div>
+                    <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                        <div class="h-full rounded-full ${colorClass}" style="width:${Math.max(4, Math.round(r.value / max * 100))}%"></div>
+                    </div>
+                </div>`).join('');
+        }
+
+        function renderLatihanStats() {
+            const box = document.getElementById('latihan-stats');
+            if (!box) return;
+            const all = latihanGetLog();
+            const log = latihanFilter ? all.filter(r => r.subjek === latihanFilter) : all;
+
+            if (!log.length) {
+                box.innerHTML = `<div class="py-8 text-center text-xs text-slate-400">Belum ada rekod${latihanFilter ? ' untuk ' + escEv(latihanFilter) : ''}. Mulakan dengan mengisi borang di atas.</div>`;
+                return;
+            }
+
+            const tally = keyFn => {
+                const m = new Map();
+                log.forEach(r => {
+                    const k = keyFn(r);
+                    m.set(k, (m.get(k) || 0) + (Number(r.bilangan) || 1));
+                });
+                return [...m.entries()].map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value);
+            };
+            const byBab = tally(r => `${r.subjek} · ${r.bab}`);
+            const bySubjek = tally(r => r.subjek);
+            const byPunca = tally(r => r.punca || 'Tidak dinyatakan');
+            const totalSalah = log.reduce((t, r) => t + (Number(r.bilangan) || 1), 0);
+
+            const card = (label, big, small) => `
+                <div class="rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-3">
+                    <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500">${label}</div>
+                    <div class="text-sm sm:text-base font-black text-slate-800 dark:text-white mt-1 leading-snug break-words">${big}</div>
+                    ${small ? `<div class="text-[10px] text-slate-400 mt-0.5">${small}</div>` : ''}
+                </div>`;
+
+            box.innerHTML = `
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                    ${card('Jumlah soalan salah', totalSalah, `${log.length} rekod`)}
+                    ${card('Bab paling lemah', escEv(byBab[0].label.split(' · ').slice(1).join(' · ')), `${escEv(byBab[0].label.split(' · ')[0])} · ${byBab[0].value} salah`)}
+                    ${card('Subjek paling lemah', escEv(bySubjek[0].label), `${bySubjek[0].value} salah`)}
+                    ${card('Punca utama', escEv(byPunca[0].label), `${byPunca[0].value} salah`)}
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    <div class="space-y-2">
+                        <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">Bab paling banyak salah (10 teratas)</h4>
+                        ${latihanBars(byBab.slice(0, 10), 'bg-rose-500')}
+                    </div>
+                    <div class="space-y-5">
+                        ${latihanFilter ? '' : `<div class="space-y-2">
+                            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">Mengikut subjek</h4>
+                            ${latihanBars(bySubjek, 'bg-orange-500')}
+                        </div>`}
+                        <div class="space-y-2">
+                            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">Punca kesilapan</h4>
+                            ${latihanBars(byPunca, 'bg-indigo-500')}
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function renderLatihanLog() {
+            const box = document.getElementById('latihan-log');
+            if (!box) return;
+            const all = latihanGetLog();
+            const log = latihanFilter ? all.filter(r => r.subjek === latihanFilter) : all;
+            if (!log.length) {
+                box.innerHTML = `<div class="py-8 text-center text-xs text-slate-400">Tiada rekod.</div>`;
+                return;
+            }
+            box.innerHTML = log.slice(0, 100).map(r => `
+                <div class="flex items-start justify-between gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40">
+                    <div class="min-w-0 space-y-1">
+                        <div class="flex flex-wrap items-center gap-1.5 text-[10px]">
+                            <span class="font-semibold text-slate-400">${escEv(r.tarikh)}</span>
+                            <span class="px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-bold">${escEv(r.subjek)}</span>
+                            <span class="px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-bold">${Number(r.bilangan) || 1} salah</span>
+                            ${r.punca ? `<span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold">${escEv(r.punca)}</span>` : ''}
+                        </div>
+                        <div class="text-xs font-bold text-slate-800 dark:text-slate-100 break-words">${escEv(r.bab)}</div>
+                        ${r.catatan ? `<div class="text-[11px] text-slate-500 dark:text-slate-400 break-words">${escEv(r.catatan)}</div>` : ''}
+                        ${r.todoText ? `<div class="text-[10px] text-slate-400 break-words">Tugasan: ${escEv(r.todoText)}</div>` : ''}
+                    </div>
+                    <button onclick="deleteLatihanRecord(${Number(r.id)})" title="Padam rekod" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition shrink-0">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>`).join('') + (log.length > 100 ? `<div class="text-center text-[10px] text-slate-400 py-1">Memaparkan 100 rekod terkini daripada ${log.length}.</div>` : '');
+        }
+
+        function renderLatihanSection() {
+            if (activeProfileId !== 'spm' || !document.getElementById('lt-todo')) return;
+            latihanFillForm();
+            renderLatihanStats();
+            renderLatihanLog();
+            lucide.createIcons();
+        }
+
         // =========================================================================
         // 10. INITIALIZATION
         // =========================================================================
@@ -2608,6 +2970,7 @@
             updateCountdownTick();
             if (unlockedTabs.grades || unlockedTabs.kafa) renderGradesSection();
             if (unlockedTabs.todo) renderTodoSection();
+            if (unlockedTabs.latihan) renderLatihanSection();
             lucide.createIcons();
         }
 
