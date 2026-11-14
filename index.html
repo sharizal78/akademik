@@ -2790,6 +2790,32 @@
         const LATIHAN_LAIN = '__lain__';
         let latihanFilter = '';
 
+        // Warna ikut subjek (bar statistik, lencana rekod & legenda)
+        const LATIHAN_WARNA = {
+            'matematik':          { bar: 'bg-sky-500',     badge: 'bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300' },
+            'matematik tambahan': { bar: 'bg-violet-500',  badge: 'bg-violet-100 dark:bg-violet-950 text-violet-700 dark:text-violet-300' },
+            'fizik':              { bar: 'bg-amber-500',   badge: 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300' },
+            'kimia':              { bar: 'bg-emerald-500', badge: 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300' },
+            'biologi':            { bar: 'bg-pink-500',    badge: 'bg-pink-100 dark:bg-pink-950 text-pink-700 dark:text-pink-300' },
+            'bahasa melayu':      { bar: 'bg-orange-500',  badge: 'bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300' },
+            'bahasa inggeris':    { bar: 'bg-cyan-500',    badge: 'bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300' },
+            'sejarah':            { bar: 'bg-lime-600',    badge: 'bg-lime-100 dark:bg-lime-950 text-lime-700 dark:text-lime-300' },
+            'pendidikan islam':   { bar: 'bg-teal-500',    badge: 'bg-teal-100 dark:bg-teal-950 text-teal-700 dark:text-teal-300' }
+        };
+        const LATIHAN_WARNA_LAIN = [
+            { bar: 'bg-fuchsia-500', badge: 'bg-fuchsia-100 dark:bg-fuchsia-950 text-fuchsia-700 dark:text-fuchsia-300' },
+            { bar: 'bg-blue-500',    badge: 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300' },
+            { bar: 'bg-yellow-500',  badge: 'bg-yellow-100 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300' },
+            { bar: 'bg-slate-500',   badge: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200' }
+        ];
+        function latihanSubjectColor(subjek) {
+            const k = String(subjek || '').trim().toLowerCase();
+            if (LATIHAN_WARNA[k]) return LATIHAN_WARNA[k];
+            let h = 0;
+            for (let i = 0; i < k.length; i++) h = (h * 31 + k.charCodeAt(i)) >>> 0;
+            return LATIHAN_WARNA_LAIN[h % LATIHAN_WARNA_LAIN.length];
+        }
+
         function latihanBabList(subjek) {
             const d = LATIHAN_BAB_DATA[String(subjek || '').trim().toLowerCase()];
             return d ? d.bab.map((title, i) => `${d.t} Bab ${d.start + i}: ${title}`) : [];
@@ -3068,7 +3094,7 @@
                         <span class="font-black text-slate-800 dark:text-white whitespace-nowrap">${r.value}</span>
                     </div>
                     <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                        <div class="h-full rounded-full ${colorClass}" style="width:${Math.max(4, Math.round(r.value / max * 100))}%"></div>
+                        <div class="h-full rounded-full ${r.color || colorClass}" style="width:${Math.max(4, Math.round(r.value / max * 100))}%"></div>
                     </div>
                 </div>`).join('');
         }
@@ -3095,6 +3121,12 @@
             const byBab = tally(r => `${r.subjek} · ${r.bab}`);
             const bySubjek = tally(r => r.subjek);
             const byPunca = tally(r => r.punca || 'Tidak dinyatakan');
+            byBab.forEach(r => { r.color = latihanSubjectColor(r.label.split(' · ')[0]).bar; });
+            bySubjek.forEach(r => { r.color = latihanSubjectColor(r.label).bar; });
+            const legend = latihanFilter ? '' : `<div class="flex flex-wrap gap-x-3 gap-y-1">${bySubjek.map(r => `
+                <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                    <span class="w-2.5 h-2.5 rounded-full ${r.color}"></span>${escEv(r.label)}
+                </span>`).join('')}</div>`;
             const totalSalah = log.reduce((t, r) => t + (Number(r.bilangan) || 1), 0);
 
             const card = (label, big, small) => `
@@ -3114,6 +3146,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
                     <div class="space-y-2">
                         <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">Bab paling banyak salah (10 teratas)</h4>
+                        ${legend}
                         ${latihanBars(byBab.slice(0, 10), 'bg-rose-500')}
                     </div>
                     <div class="space-y-5">
@@ -3123,7 +3156,7 @@
                         </div>`}
                         <div class="space-y-2">
                             <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">Punca kesilapan</h4>
-                            ${latihanBars(byPunca, 'bg-indigo-500')}
+                            ${latihanBars(byPunca, 'bg-slate-500')}
                         </div>
                     </div>
                 </div>`;
@@ -3143,7 +3176,7 @@
                     <div class="min-w-0 space-y-1">
                         <div class="flex flex-wrap items-center gap-1.5 text-[10px]">
                             <span class="font-semibold text-slate-400">${escEv(r.tarikh)}</span>
-                            <span class="px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-bold">${escEv(r.subjek)}</span>
+                            <span class="px-2 py-0.5 rounded font-bold ${latihanSubjectColor(r.subjek).badge}">${escEv(r.subjek)}</span>
                             <span class="px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-bold">${Number(r.bilangan) || 1} salah</span>
                             ${r.punca ? `<span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold">${escEv(r.punca)}</span>` : ''}
                         </div>
