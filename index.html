@@ -338,7 +338,7 @@
 
         <!-- TAB 4: LATIHAN - REKOD KESILAPAN & STATISTIK KELEMAHAN (Nurul Izzati sahaja) -->
         <section id="section-latihan" class="hidden space-y-6 fade-in">
-            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+            <div class="bg-amber-50 dark:bg-amber-950/40 rounded-2xl p-5 sm:p-6 border border-amber-200 dark:border-amber-900 shadow-sm space-y-4">
                 <div>
                     <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
                         <i data-lucide="clipboard-list" class="w-5 h-5 text-rose-500"></i>
@@ -350,31 +350,31 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                     <div class="space-y-1">
                         <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Tugasan (To-Do: Latihan)</label>
-                        <select id="lt-todo" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
+                        <select id="lt-todo" class="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
                     </div>
                     <div class="space-y-1">
                         <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Subjek</label>
-                        <select id="lt-subjek" onchange="latihanFillBab()" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
+                        <select id="lt-subjek" onchange="latihanFillBab()" class="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
                     </div>
                     <div class="space-y-1">
                         <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Bab</label>
-                        <select id="lt-bab" onchange="latihanToggleCustomBab()" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
+                        <select id="lt-bab" onchange="latihanToggleCustomBab()" class="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
                     </div>
                 </div>
-                <input type="text" id="lt-bab-custom" placeholder="Taip nama bab / topik sendiri..." class="hidden w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <input type="text" id="lt-bab-custom" placeholder="Taip nama bab / topik sendiri..." class="hidden w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2 items-end">
                     <div class="space-y-1 lg:col-span-2">
                         <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Bil. soalan salah</label>
-                        <input type="number" id="lt-bilangan" min="1" max="99" value="1" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <input type="number" id="lt-bilangan" min="1" max="99" value="1" class="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                     <div class="space-y-1 lg:col-span-3">
                         <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Punca (pilihan)</label>
-                        <select id="lt-punca" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
+                        <select id="lt-punca" class="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
                     </div>
                     <div class="space-y-1 sm:col-span-2 lg:col-span-5">
                         <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Catatan (pilihan)</label>
-                        <input type="text" id="lt-catatan" placeholder="Cth: No. 5 &amp; 7, silap tukar unit" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <input type="text" id="lt-catatan" placeholder="Cth: No. 5 &amp; 7, silap tukar unit" class="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                     <div class="sm:col-span-2 lg:col-span-2">
                         <button type="button" onclick="addLatihanRecord()" class="w-full px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition flex items-center justify-center gap-1.5">
@@ -385,18 +385,18 @@
             </div>
 
             <!-- Statistik Kelemahan -->
-            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+            <div class="bg-sky-50 dark:bg-sky-950/40 rounded-2xl p-5 sm:p-6 border border-sky-200 dark:border-sky-900 shadow-sm space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <h3 class="font-extrabold text-sm sm:text-base text-slate-800 dark:text-white flex items-center gap-2">
                         <i data-lucide="bar-chart-3" class="w-5 h-5 text-indigo-500"></i> Statistik Kelemahan
                     </h3>
-                    <select id="lt-filter" onchange="setLatihanFilter(this.value)" class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
+                    <select id="lt-filter" onchange="setLatihanFilter(this.value)" class="px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
                 </div>
                 <div id="latihan-stats" class="space-y-4"></div>
             </div>
 
             <!-- Senarai Rekod -->
-            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+            <div class="bg-violet-50 dark:bg-violet-950/40 rounded-2xl p-5 sm:p-6 border border-violet-200 dark:border-violet-900 shadow-sm space-y-3">
                 <h3 class="font-extrabold text-sm sm:text-base text-slate-800 dark:text-white flex items-center gap-2">
                     <i data-lucide="history" class="w-5 h-5 text-slate-500"></i> Sejarah Rekod
                 </h3>
@@ -3093,7 +3093,7 @@
                         <span class="font-semibold text-slate-700 dark:text-slate-200 truncate">${escEv(r.label)}</span>
                         <span class="font-black text-slate-800 dark:text-white whitespace-nowrap">${r.value}</span>
                     </div>
-                    <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                    <div class="h-2 rounded-full bg-white/80 dark:bg-slate-800 overflow-hidden">
                         <div class="h-full rounded-full ${r.color || colorClass}" style="width:${Math.max(4, Math.round(r.value / max * 100))}%"></div>
                     </div>
                 </div>`).join('');
@@ -3130,7 +3130,7 @@
             const totalSalah = log.reduce((t, r) => t + (Number(r.bilangan) || 1), 0);
 
             const card = (label, big, small) => `
-                <div class="rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-3">
+                <div class="rounded-xl bg-white/70 dark:bg-slate-800/60 border border-sky-100 dark:border-slate-700 p-3">
                     <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500">${label}</div>
                     <div class="text-sm sm:text-base font-black text-slate-800 dark:text-white mt-1 leading-snug break-words">${big}</div>
                     ${small ? `<div class="text-[10px] text-slate-400 mt-0.5">${small}</div>` : ''}
@@ -3172,7 +3172,7 @@
                 return;
             }
             box.innerHTML = log.slice(0, 100).map(r => `
-                <div class="flex items-start justify-between gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40">
+                <div class="flex items-start justify-between gap-3 p-3 rounded-xl border border-violet-100 dark:border-violet-900 bg-white/70 dark:bg-slate-800/40">
                     <div class="min-w-0 space-y-1">
                         <div class="flex flex-wrap items-center gap-1.5 text-[10px]">
                             <span class="font-semibold text-slate-400">${escEv(r.tarikh)}</span>
