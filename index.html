@@ -1832,10 +1832,10 @@
             const r = computeMerit(exam);
             const f = n => (Math.round(n * 100) / 100).toFixed(2);
 
-            // Warna ikut gred: Hijau (A+, A, A-, B+, B), Oren (C+, C), Merah (D, E, G)
+            // Warna ikut gred: Hijau (A+, A, A-), Oren (B+, B, C+, C), Merah (D, E, G)
             const meritGradeClass = g => {
-                if (['A+', 'A', 'A-', 'B+', 'B'].includes(g)) return 'bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold';
-                if (['C+', 'C'].includes(g)) return 'bg-orange-50 dark:bg-orange-950/40 border border-orange-300 dark:border-orange-800 text-orange-800 dark:text-orange-200 font-bold';
+                if (['A+', 'A', 'A-',].includes(g)) return 'bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold';
+                if ([ 'B+', 'B', 'C+', 'C'].includes(g)) return 'bg-orange-50 dark:bg-orange-950/40 border border-orange-300 dark:border-orange-800 text-orange-800 dark:text-orange-200 font-bold';
                 if (['D', 'E', 'G'].includes(g)) return 'bg-red-50 dark:bg-red-950/40 border border-red-300 dark:border-red-800 text-red-800 dark:text-red-200 font-bold';
                 return 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-bold';
             };
