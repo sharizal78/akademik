@@ -114,7 +114,6 @@
                 <button id="tab-btn-latihan" onclick="switchTab('latihan')" class="hidden items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-bold text-xs transition-all">
                     <i data-lucide="clipboard-list" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     <span>Latihan</span>
-                    <i id="lock-icon-latihan" data-lucide="lock" class="w-3 h-3 opacity-80"></i>
                 </button>
             </nav>
         </div>
@@ -481,6 +480,73 @@
             <div class="flex justify-end gap-2 pt-2">
                 <button onclick="closeEditTodoModal()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold">Batal</button>
                 <button onclick="saveEditTodoModal()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT LATIHAN MODAL -->
+    <div id="edit-latihan-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full max-h-[92vh] overflow-y-auto p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 fade-in">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="pencil" class="w-5 h-5 text-indigo-500"></i>
+                    <span>Sunting Rekod Latihan</span>
+                </h3>
+                <button onclick="closeEditLatihanModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold mb-1">Tugasan (To-Do: Latihan)</label>
+                    <select id="elt-todo" class="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-semibold"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold mb-1">Subjek</label>
+                    <select id="elt-subjek" onchange="latihanEditFillBab('')" class="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-semibold"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold mb-1">Bab</label>
+                    <select id="elt-bab" onchange="latihanEditToggleCustomBab()" class="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-semibold"></select>
+                    <input type="text" id="elt-bab-custom" placeholder="Taip nama bab / topik sendiri..." class="hidden mt-2 w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Bil. salah</label>
+                        <input type="number" id="elt-bilangan" min="1" max="99" value="1" class="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs font-bold mb-1">Punca</label>
+                        <select id="elt-punca" class="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-semibold"></select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold mb-1">Catatan</label>
+                    <input type="text" id="elt-catatan" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeEditLatihanModal()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold">Batal</button>
+                <button onclick="saveEditLatihanModal()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE LATIHAN MASTER PIN MODAL -->
+    <div id="delete-latihan-pin-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-5 fade-in">
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
+                    <i data-lucide="trash-2" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-lg font-black text-slate-900 dark:text-white">Padam Rekod Latihan</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Masukkan Master PIN Ibu Bapa (4-digit) untuk memadam rekod ini.</p>
+            </div>
+            <div class="space-y-3">
+                <input type="password" id="delete-latihan-pin-input" maxlength="4" inputmode="numeric" placeholder="••••" class="w-full text-center text-2xl tracking-[0.6em] font-black py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500">
+                <p id="delete-latihan-pin-error" class="text-xs text-center text-rose-500 font-semibold hidden">Master PIN salah! Hanya Ibu Bapa dibenarkan memadam rekod.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="closeDeleteLatihanPinModal()" class="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 transition">Batal</button>
+                <button onclick="confirmDeleteLatihanWithPin()" class="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition">Padam Rekod</button>
             </div>
         </div>
     </div>
@@ -885,7 +951,7 @@
         };
         let activeProfileId = 'spm';
         let activeTab = 'countdown';
-        let unlockedTabs = { grades: false, kafa: false, todo: false, latihan: false }; // Dikunci setiap sesi apabila tukar profil
+        let unlockedTabs = { grades: false, kafa: false, todo: false }; // Dikunci setiap sesi apabila tukar profil
         let pendingTabAfterPin = null;
         let currentQuoteIdx = 0;
         let db = null;
@@ -1285,7 +1351,7 @@
             if (!PROFILES_CONFIG[pid]) return;
             activeProfileId = pid;
             // Kunci semula tab sensitif apabila bertukar anak
-            unlockedTabs = { grades: false, kafa: false, todo: false, latihan: false };
+            unlockedTabs = { grades: false, kafa: false, todo: false };
             currentQuoteIdx = 0;
 
             // Kemaskini URL tanpa reload halaman
@@ -1345,8 +1411,9 @@
         // 5. NAVIGATION & PIN SECURITY
         // =========================================================================
         function switchTab(tabName) {
-            if (tabName === 'countdown') {
-                activeTab = 'countdown';
+            // Countdown dan Latihan tidak memerlukan PIN
+            if (tabName === 'countdown' || tabName === 'latihan') {
+                activeTab = tabName;
                 renderTabVisibility();
                 return;
             }
@@ -1385,14 +1452,12 @@
                 unlockedTabs.grades = true;
                 unlockedTabs.kafa = true;
                 unlockedTabs.todo = true;
-                unlockedTabs.latihan = true;
                 const target = pendingTabAfterPin || 'grades';
                 closePinModal();
                 activeTab = target;
                 renderTabVisibility();
                 renderGradesSection();
                 renderTodoSection();
-                renderLatihanSection();
                 showToast('Akses dibuka!');
             } else {
                 document.getElementById('pin-error-msg').classList.remove('hidden');
@@ -1523,7 +1588,6 @@
             document.getElementById('lock-icon-grades').style.display = unlockedTabs.grades ? 'none' : 'inline-block';
             document.getElementById('lock-icon-kafa').style.display = unlockedTabs.kafa ? 'none' : 'inline-block';
             document.getElementById('lock-icon-todo').style.display = unlockedTabs.todo ? 'none' : 'inline-block';
-            document.getElementById('lock-icon-latihan').style.display = unlockedTabs.latihan ? 'none' : 'inline-block';
 
             // Update Todo label dynamically
             document.getElementById('tab-todo-label').textContent = cfg.isKidMode ? 'Misi, Bintang & Hafazan' : (isRaisha ? 'To-Do & Hafazan' : 'To-Do List');
@@ -1538,7 +1602,7 @@
             if (isGradesOrKafa && unlockedTabs[activeTab]) {
                 renderGradesSection();
             }
-            if (activeTab === 'latihan' && unlockedTabs.latihan) {
+            if (activeTab === 'latihan') {
                 renderLatihanSection();
             }
         }
@@ -2838,13 +2902,156 @@
             renderLatihanSection();
         }
 
+        // ---- Padam rekod: perlu Master PIN Ibu Bapa ----
+        let pendingDeleteLatihanId = null;
+
         function deleteLatihanRecord(id) {
-            if (!confirm('Padam rekod ini?')) return;
+            pendingDeleteLatihanId = id;
+            const input = document.getElementById('delete-latihan-pin-input');
+            input.value = '';
+            document.getElementById('delete-latihan-pin-error').classList.add('hidden');
+            const modal = document.getElementById('delete-latihan-pin-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function closeDeleteLatihanPinModal() {
+            const modal = document.getElementById('delete-latihan-pin-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            pendingDeleteLatihanId = null;
+        }
+
+        function confirmDeleteLatihanWithPin() {
+            const entered = document.getElementById('delete-latihan-pin-input').value.trim();
+            if (entered !== MASTER_PIN) {
+                document.getElementById('delete-latihan-pin-error').classList.remove('hidden');
+                return;
+            }
+            if (pendingDeleteLatihanId !== null) {
+                const pData = appState.profiles.spm;
+                pData.latihanLog = latihanGetLog().filter(r => String(r.id) !== String(pendingDeleteLatihanId));
+                saveState(false);
+                showToast('Rekod berjaya dipadam!');
+                renderLatihanSection();
+            }
+            closeDeleteLatihanPinModal();
+        }
+
+        // ---- Sunting rekod ----
+        let editingLatihanId = null;
+
+        function openEditLatihanModal(id) {
+            const r = latihanGetLog().find(x => String(x.id) === String(id));
+            if (!r) return;
+            editingLatihanId = r.id;
             const pData = appState.profiles.spm;
-            pData.latihanLog = latihanGetLog().filter(r => String(r.id) !== String(id));
+
+            // Tugasan
+            const selT = document.getElementById('elt-todo');
+            const todos = (pData.todos || []).filter(t => t.tag === 'Latihan');
+            let tHtml = `<option value="">— Tiada / tugasan lain —</option>` + todos.map(t =>
+                `<option value="${escEv(t.id)}">${t.done ? '✓ ' : ''}${escEv(t.text)}</option>`).join('');
+            if (r.todoId != null && !todos.some(t => String(t.id) === String(r.todoId))) {
+                tHtml += `<option value="${escEv(r.todoId)}">${escEv(r.todoText || 'Tugasan lama')}</option>`;
+            }
+            selT.innerHTML = tHtml;
+            selT.value = r.todoId != null ? String(r.todoId) : '';
+
+            // Subjek
+            const selS = document.getElementById('elt-subjek');
+            const subjects = latihanSubjects();
+            if (r.subjek && !subjects.includes(r.subjek)) subjects.push(r.subjek);
+            selS.innerHTML = subjects.map(n => `<option value="${escEv(n)}">${escEv(n)}</option>`).join('');
+            selS.value = r.subjek;
+
+            // Punca
+            const selP = document.getElementById('elt-punca');
+            selP.innerHTML = `<option value="">— Tidak pasti —</option>` + LATIHAN_PUNCA.map(x =>
+                `<option value="${escEv(x)}">${escEv(x)}</option>`).join('');
+            selP.value = r.punca || '';
+
+            // Bab (bab sedia ada dipilih, atau Lain-lain jika bukan dalam senarai)
+            latihanEditFillBab(r.bab);
+
+            document.getElementById('elt-bilangan').value = Number(r.bilangan) || 1;
+            document.getElementById('elt-catatan').value = r.catatan || '';
+
+            const modal = document.getElementById('edit-latihan-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function latihanEditFillBab(selectedBab) {
+            const subjek = document.getElementById('elt-subjek').value;
+            const selB = document.getElementById('elt-bab');
+            const list = latihanBabList(subjek);
+            selB.innerHTML = `<option value="">— Pilih bab —</option>` +
+                list.map(b => `<option value="${escEv(b)}">${escEv(b)}</option>`).join('') +
+                `<option value="${LATIHAN_LAIN}">Lain-lain (taip sendiri)…</option>`;
+            const custom = document.getElementById('elt-bab-custom');
+            if (selectedBab && list.includes(selectedBab)) {
+                selB.value = selectedBab;
+                custom.value = '';
+            } else if (selectedBab) {
+                selB.value = LATIHAN_LAIN;
+                custom.value = selectedBab;
+            } else {
+                selB.value = '';
+            }
+            latihanEditToggleCustomBab();
+        }
+
+        function latihanEditToggleCustomBab() {
+            const isLain = document.getElementById('elt-bab').value === LATIHAN_LAIN;
+            document.getElementById('elt-bab-custom').classList.toggle('hidden', !isLain);
+        }
+
+        function closeEditLatihanModal() {
+            const modal = document.getElementById('edit-latihan-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            editingLatihanId = null;
+        }
+
+        function saveEditLatihanModal() {
+            if (editingLatihanId === null) return;
+            const r = latihanGetLog().find(x => String(x.id) === String(editingLatihanId));
+            if (!r) { closeEditLatihanModal(); return; }
+
+            const subjek = document.getElementById('elt-subjek').value;
+            let bab = document.getElementById('elt-bab').value;
+            if (bab === LATIHAN_LAIN) bab = document.getElementById('elt-bab-custom').value.trim();
+            if (!subjek) { showToast('Sila pilih subjek.'); return; }
+            if (!bab) { showToast('Sila pilih atau taip nama bab.'); return; }
+
+            const todoId = document.getElementById('elt-todo').value;
+            const todo = (appState.profiles.spm.todos || []).find(t => String(t.id) === String(todoId));
+            if (todo) {
+                r.todoId = todo.id;
+                r.todoText = todo.text;
+            } else if (!(todoId && String(r.todoId) === String(todoId))) {
+                // Dikosongkan; jika tugasan lama (sudah dipadam) kekal dipilih, simpan seperti asal
+                r.todoId = null;
+                r.todoText = '';
+            }
+            r.subjek = subjek;
+            r.bab = bab;
+            r.bilangan = Math.max(1, Math.min(99, parseInt(document.getElementById('elt-bilangan').value, 10) || 1));
+            r.punca = document.getElementById('elt-punca').value;
+            r.catatan = document.getElementById('elt-catatan').value.trim();
+
             saveState(false);
+            closeEditLatihanModal();
+            showToast('Rekod berjaya dikemas kini!');
             renderLatihanSection();
         }
+
+        document.getElementById('delete-latihan-pin-input').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') confirmDeleteLatihanWithPin();
+        });
 
         function setLatihanFilter(val) {
             latihanFilter = val || '';
@@ -2944,9 +3151,14 @@
                         ${r.catatan ? `<div class="text-[11px] text-slate-500 dark:text-slate-400 break-words">${escEv(r.catatan)}</div>` : ''}
                         ${r.todoText ? `<div class="text-[10px] text-slate-400 break-words">Tugasan: ${escEv(r.todoText)}</div>` : ''}
                     </div>
-                    <button onclick="deleteLatihanRecord(${Number(r.id)})" title="Padam rekod" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition shrink-0">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    </button>
+                    <div class="flex items-center gap-0.5 shrink-0">
+                        <button onclick="openEditLatihanModal(${Number(r.id)})" title="Sunting rekod" class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition">
+                            <i data-lucide="pencil" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="deleteLatihanRecord(${Number(r.id)})" title="Padam rekod (Perlu Master PIN Ibu Bapa)" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
                 </div>`).join('') + (log.length > 100 ? `<div class="text-center text-[10px] text-slate-400 py-1">Memaparkan 100 rekod terkini daripada ${log.length}.</div>` : '');
         }
 
@@ -2970,7 +3182,7 @@
             updateCountdownTick();
             if (unlockedTabs.grades || unlockedTabs.kafa) renderGradesSection();
             if (unlockedTabs.todo) renderTodoSection();
-            if (unlockedTabs.latihan) renderLatihanSection();
+            if (activeTab === 'latihan') renderLatihanSection();
             lucide.createIcons();
         }
 
