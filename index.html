@@ -109,7 +109,6 @@
                 <button id="tab-btn-todo" onclick="switchTab('todo')" class="flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-bold text-xs transition-all">
                     <i data-lucide="check-square" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     <span id="tab-todo-label">To-Do List</span>
-                    <i id="lock-icon-todo" data-lucide="lock" class="w-3 h-3 opacity-80"></i>
                 </button>
                 <button id="tab-btn-latihan" onclick="switchTab('latihan')" class="hidden items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-bold text-xs transition-all">
                     <i data-lucide="clipboard-list" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
@@ -951,7 +950,7 @@
         };
         let activeProfileId = 'spm';
         let activeTab = 'countdown';
-        let unlockedTabs = { grades: false, kafa: false, todo: false }; // Dikunci setiap sesi apabila tukar profil
+        let unlockedTabs = { grades: false, kafa: false }; // Dikunci setiap sesi apabila tukar profil
         let pendingTabAfterPin = null;
         let currentQuoteIdx = 0;
         let db = null;
@@ -1351,7 +1350,7 @@
             if (!PROFILES_CONFIG[pid]) return;
             activeProfileId = pid;
             // Kunci semula tab sensitif apabila bertukar anak
-            unlockedTabs = { grades: false, kafa: false, todo: false };
+            unlockedTabs = { grades: false, kafa: false };
             currentQuoteIdx = 0;
 
             // Kemaskini URL tanpa reload halaman
@@ -1411,8 +1410,8 @@
         // 5. NAVIGATION & PIN SECURITY
         // =========================================================================
         function switchTab(tabName) {
-            // Countdown dan Latihan tidak memerlukan PIN
-            if (tabName === 'countdown' || tabName === 'latihan') {
+            // Countdown, To-Do List dan Latihan tidak memerlukan PIN
+            if (tabName === 'countdown' || tabName === 'todo' || tabName === 'latihan') {
                 activeTab = tabName;
                 renderTabVisibility();
                 return;
@@ -1451,7 +1450,6 @@
             if (entered === userPin || entered === MASTER_PIN) {
                 unlockedTabs.grades = true;
                 unlockedTabs.kafa = true;
-                unlockedTabs.todo = true;
                 const target = pendingTabAfterPin || 'grades';
                 closePinModal();
                 activeTab = target;
@@ -1587,7 +1585,6 @@
             // Update lock icons
             document.getElementById('lock-icon-grades').style.display = unlockedTabs.grades ? 'none' : 'inline-block';
             document.getElementById('lock-icon-kafa').style.display = unlockedTabs.kafa ? 'none' : 'inline-block';
-            document.getElementById('lock-icon-todo').style.display = unlockedTabs.todo ? 'none' : 'inline-block';
 
             // Update Todo label dynamically
             document.getElementById('tab-todo-label').textContent = cfg.isKidMode ? 'Misi, Bintang & Hafazan' : (isRaisha ? 'To-Do & Hafazan' : 'To-Do List');
@@ -1601,6 +1598,10 @@
 
             if (isGradesOrKafa && unlockedTabs[activeTab]) {
                 renderGradesSection();
+            }
+            if (activeTab === 'todo') {
+                renderTodoSection();
+                lucide.createIcons();
             }
             if (activeTab === 'latihan') {
                 renderLatihanSection();
@@ -3214,7 +3215,7 @@
             renderEventsGrid();
             updateCountdownTick();
             if (unlockedTabs.grades || unlockedTabs.kafa) renderGradesSection();
-            if (unlockedTabs.todo) renderTodoSection();
+            if (activeTab === 'todo') renderTodoSection();
             if (activeTab === 'latihan') renderLatihanSection();
             lucide.createIcons();
         }
