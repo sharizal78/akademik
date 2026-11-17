@@ -738,7 +738,7 @@
                     { id: 'trial_spm', name: 'Trial SPM', subjects: [] }
                 ],
                 defaultTodos: [
-                    { id: 1, text: 'Selesaikan 1 set latihan Kertas 2 Matematik Tambahan', tag: 'Latihan', done: false },
+                    { id: 1, text: 'Selesaikan 1 set latihan Kertas 2 Matematik Tambahan', tag: 'Latihan', done: false, ujianScale: 3, resultScale: 3 },
                     { id: 2, text: 'Nota ringkas Sejarah Tingkatan 4 Bab 1 - 3', tag: 'Ulangkaji', done: true }
                 ]
             },
@@ -783,7 +783,7 @@
                     { id: 'uasa_t3', name: 'UASA T3', subjects: [] }
                 ],
                 defaultTodos: [
-                    { id: 1, text: 'Latih tubi Matematik Bab Bulatan & Poligon', tag: 'Latihan', done: false },
+                    { id: 1, text: 'Latih tubi Matematik Bab Bulatan & Poligon', tag: 'Latihan', done: false, ujianScale: 3, resultScale: 3 },
                     { id: 2, text: 'Ulangkaji peta lakar Geografi', tag: 'Ulangkaji', done: false }
                 ]
             },
@@ -885,7 +885,7 @@
                     { id: 'kafa_upkk', name: 'UPKK Sebenar', subjects: [] }
                 ],
                 defaultTodos: [
-                    { id: 1, text: 'Latihan sifir 6, 7, 8 dan 9', tag: 'Latihan', done: true },
+                    { id: 1, text: 'Latihan sifir 6, 7, 8 dan 9', tag: 'Latihan', done: true, ujianScale: 2, resultScale: 5 },
                     { id: 2, text: 'Latihan ejaan Jawi & Khat buku aktiviti KAFA', tag: 'Kerja Sekolah', done: false }
                 ],
                 defaultHafazan: [
@@ -935,7 +935,7 @@
                 ],
                 defaultTodos: [
                     { id: 1, text: '🌟 Misi Membaca: Baca 2 muka surat buku cerita', tag: 'Membaca / Hafazan', done: true },
-                    { id: 2, text: '🔢 Misi Mengira: Latihan tambah & tolak 1 hingga 50', tag: 'Latihan', done: true },
+                    { id: 2, text: '🔢 Misi Mengira: Latihan tambah & tolak 1 hingga 50', tag: 'Latihan', done: true, ujianScale: 2, resultScale: 5 },
                     { id: 3, text: '🕌 Misi Mengaji: Baca Iqra / Muqaddam bersama Ibu/Ayah', tag: 'Membaca / Hafazan', done: false },
                     { id: 4, text: '🎒 Kemas beg sekolah ikut jadual esok', tag: 'Kerja Sekolah', done: false }
                 ]
@@ -1068,7 +1068,7 @@
 
         // Tugasan & hafazan asal Raisha Husna - diduplikasi kepada semua pelajar
         const SHARED_TODOS = [
-            { id: 9001, text: 'Latihan sifir 6, 7, 8 dan 9', tag: 'Latihan', done: false },
+            { id: 9001, text: 'Latihan sifir 6, 7, 8 dan 9', tag: 'Latihan', done: false, ujianScale: 3, resultScale: 3 },
             { id: 9002, text: 'Latihan ejaan Jawi & Khat buku aktiviti KAFA', tag: 'Kerja Sekolah', done: false }
         ];
         const SHARED_HAFAZAN = [
@@ -2323,6 +2323,56 @@
         // =========================================================================
         // 8. TO-DO LIST, HAFAZAN UPKK (RAISHA) & BINTANG GANJARAN (AISYAH)
         // =========================================================================
+        const UJIAN_SCALE_LABELS = {
+            1: '1 • Sgt Susah',
+            2: '2 • Susah',
+            3: '3 • Sederhana',
+            4: '4 • Mudah',
+            5: '5 • Sgt Mudah'
+        };
+
+        const RESULT_SCALE_LABELS = {
+            1: '1 • Lemah',
+            2: '2 • Kurang',
+            3: '3 • Sederhana',
+            4: '4 • Baik',
+            5: '5 • Cemerlang'
+        };
+
+        function getUjianBadgeClass(val) {
+            const v = Number(val) || 3;
+            if (v >= 4) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
+            if (v === 3) return 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border-amber-200 dark:border-amber-800';
+            return 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 border-rose-200 dark:border-rose-800';
+        }
+
+        function getResultBadgeClass(val) {
+            const v = Number(val) || 3;
+            if (v >= 4) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
+            if (v === 3) return 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border-amber-200 dark:border-amber-800';
+            return 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 border-rose-200 dark:border-rose-800';
+        }
+
+        function updateTodoSlider(idx, field, val) {
+            const pData = appState.profiles[activeProfileId];
+            const item = pData.todos[idx];
+            if (!item || !item.done || item.tag !== 'Latihan') return;
+            const num = Math.max(1, Math.min(5, parseInt(val, 10) || 3));
+            item[field] = num;
+
+            const badge = document.getElementById(`todo-${field}-badge-${idx}`);
+            if (badge) {
+                if (field === 'ujianScale') {
+                    badge.textContent = UJIAN_SCALE_LABELS[num];
+                    badge.className = `px-1.5 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${getUjianBadgeClass(num)}`;
+                } else {
+                    badge.textContent = RESULT_SCALE_LABELS[num];
+                    badge.className = `px-1.5 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${getResultBadgeClass(num)}`;
+                }
+            }
+            saveState(false);
+        }
+
         function renderTodoSection() {
             const cfg = PROFILES_CONFIG[activeProfileId];
             const pData = appState.profiles[activeProfileId];
@@ -2347,20 +2397,69 @@
             if (!total) {
                 listEl.innerHTML = `<div class="py-12 text-center text-xs text-slate-400">Tiada tugasan buat masa ini. Tambah tugasan pertama di atas!</div>`;
             } else {
-                listEl.innerHTML = pData.todos.map((item, idx) => {
+                const hasCompletedLatihan = pData.todos.some(t => t.tag === 'Latihan' && t.done);
+                const columnHeaderHtml = hasCompletedLatihan
+                    ? `<div class="hidden lg:grid lg:grid-cols-12 items-center gap-3 px-3.5 py-2 rounded-xl bg-slate-100/90 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 text-[11px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+                           <div class="lg:col-span-6">Tugasan</div>
+                           <div class="lg:col-span-2 text-center">Ujian (1-5)</div>
+                           <div class="lg:col-span-2 text-center">Result (1-5)</div>
+                           <div class="lg:col-span-2 text-right">Tindakan</div>
+                       </div>`
+                    : '';
+
+                listEl.innerHTML = columnHeaderHtml + pData.todos.map((item, idx) => {
                     const createdLabel = item.createdAt ? item.createdAt : 'Rekod Sedia Ada';
                     const completedBadge = (item.done && item.completedAt)
                         ? `<span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-100/80 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                                <i data-lucide="check-circle-2" class="w-3 h-3"></i> Siap: ${item.completedAt}
                            </span>`
                         : '';
+
+                    // Kolum Ujian & Result hanya muncul untuk kategori 'Latihan' selepas di-tick siap
+                    const showLatihanSliders = item.tag === 'Latihan' && item.done;
+                    const uVal = Number(item.ujianScale) || 3;
+                    const rVal = Number(item.resultScale) || 3;
+
+                    const sliderColumnsHtml = showLatihanSliders
+                        ? `
+                            <div class="lg:col-span-2 flex flex-col gap-1 p-2 rounded-lg bg-white/80 dark:bg-slate-900/70 border border-slate-200/70 dark:border-slate-700/70">
+                                <div class="flex items-center justify-between gap-1">
+                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Ujian</span>
+                                    <span id="todo-ujianScale-badge-${idx}" class="px-1.5 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${getUjianBadgeClass(uVal)}">${UJIAN_SCALE_LABELS[uVal]}</span>
+                                </div>
+                                <input type="range" min="1" max="5" step="1" value="${uVal}"
+                                    oninput="updateTodoSlider(${idx}, 'ujianScale', this.value)"
+                                    onchange="updateTodoSlider(${idx}, 'ujianScale', this.value)"
+                                    title="Tahap Kesukaran Ujian (1 = Sgt Susah, 5 = Sgt Mudah)"
+                                    class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                                <div class="flex justify-between text-[9px] text-slate-400 font-semibold px-0.5">
+                                    <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                                </div>
+                            </div>
+                            <div class="lg:col-span-2 flex flex-col gap-1 p-2 rounded-lg bg-white/80 dark:bg-slate-900/70 border border-slate-200/70 dark:border-slate-700/70">
+                                <div class="flex items-center justify-between gap-1">
+                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Result</span>
+                                    <span id="todo-resultScale-badge-${idx}" class="px-1.5 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${getResultBadgeClass(rVal)}">${RESULT_SCALE_LABELS[rVal]}</span>
+                                </div>
+                                <input type="range" min="1" max="5" step="1" value="${rVal}"
+                                    oninput="updateTodoSlider(${idx}, 'resultScale', this.value)"
+                                    onchange="updateTodoSlider(${idx}, 'resultScale', this.value)"
+                                    title="Skala Result (1 = Lemah, 5 = Cemerlang)"
+                                    class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+                                <div class="flex justify-between text-[9px] text-slate-400 font-semibold px-0.5">
+                                    <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                                </div>
+                            </div>
+                        `
+                        : '';
+
                     return `
-                    <div class="flex items-start sm:items-center justify-between gap-3 p-3.5 rounded-xl border transition ${
+                    <div class="grid grid-cols-1 ${showLatihanSliders ? 'lg:grid-cols-12' : 'sm:flex'} items-stretch sm:items-center justify-between gap-3 p-3.5 rounded-xl border transition ${
                         item.done
                         ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200/70 dark:border-emerald-900/50'
                         : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200/70 dark:border-slate-700/70'
                     }">
-                        <label class="flex items-start sm:items-center gap-3 cursor-pointer flex-1 min-w-0">
+                        <label class="${showLatihanSliders ? 'lg:col-span-6' : 'flex-1'} flex items-start sm:items-center gap-3 cursor-pointer min-w-0">
                             <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleTodoItem(${idx})" class="mt-0.5 sm:mt-0 w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 shrink-0">
                             <div class="min-w-0 flex-1">
                                 <div class="text-xs sm:text-sm font-semibold break-words ${item.done ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-100'}">${escEv(item.text)}</div>
@@ -2373,7 +2472,8 @@
                                 </div>
                             </div>
                         </label>
-                        <div class="flex items-center gap-1 shrink-0">
+                        ${sliderColumnsHtml}
+                        <div class="${showLatihanSliders ? 'lg:col-span-2 justify-end' : 'shrink-0'} flex items-center gap-1">
                             <button onclick="openEditTodoModal(${idx})" title="Sunting Nama Tugasan" class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition">
                                 <i data-lucide="pencil" class="w-4 h-4"></i>
                             </button>
@@ -2406,14 +2506,20 @@
             const text = input.value.trim();
             if (!text) return;
 
-            appState.profiles[activeProfileId].todos.unshift({
+            const newItem = {
                 id: Date.now(),
                 text,
                 tag,
                 done: false,
                 createdAt: formatNowTimestamp(),
                 completedAt: null
-            });
+            };
+            if (tag === 'Latihan') {
+                newItem.ujianScale = 3;
+                newItem.resultScale = 3;
+            }
+
+            appState.profiles[activeProfileId].todos.unshift(newItem);
             input.value = '';
             saveState(true);
             renderTodoSection();
@@ -2426,6 +2532,10 @@
             item.done = !item.done;
             if (item.done) {
                 item.completedAt = formatNowTimestamp();
+                if (item.tag === 'Latihan') {
+                    if (!item.ujianScale) item.ujianScale = 3;
+                    if (!item.resultScale) item.resultScale = 3;
+                }
             } else {
                 item.completedAt = null;
             }
@@ -2479,6 +2589,10 @@
             if (item) {
                 item.text = newText;
                 item.tag = newTag;
+                if (newTag === 'Latihan') {
+                    if (!item.ujianScale) item.ujianScale = 3;
+                    if (!item.resultScale) item.resultScale = 3;
+                }
                 saveState(true);
                 renderTodoSection();
                 showToast('Nama tugasan berjaya dikemaskini!');
