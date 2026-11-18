@@ -312,6 +312,14 @@
                             <option value="Kerja Sekolah">Kerja Sekolah</option>
                             <option value="Membaca / Hafazan">Membaca / Hafazan</option>
                         </select>
+                        <select id="new-todo-level" title="Tahap Kesukaran (1/5 hingga 5/5)" class="px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold">
+                            <option value="">Tahap Kesukaran</option>
+                            <option value="1">1/5</option>
+                            <option value="2">2/5</option>
+                            <option value="3">3/5</option>
+                            <option value="4">4/5</option>
+                            <option value="5">5/5</option>
+                        </select>
                         <button type="submit" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition flex items-center justify-center gap-1.5">
                             <i data-lucide="plus" class="w-4 h-4"></i> Tambah
                         </button>
@@ -466,14 +474,27 @@
                     <label class="block text-xs font-bold mb-1">Nama Tugasan / Latihan</label>
                     <input type="text" id="edit-todo-text-input" placeholder="Masukkan nama tugasan..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
-                <div>
-                    <label class="block text-xs font-bold mb-1">Kategori</label>
-                    <select id="edit-todo-tag-input" class="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-semibold">
-                        <option value="Ulangkaji">Ulangkaji</option>
-                        <option value="Latihan">Latihan</option>
-                        <option value="Kerja Sekolah">Kerja Sekolah</option>
-                        <option value="Membaca / Hafazan">Membaca / Hafazan</option>
-                    </select>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Kategori</label>
+                        <select id="edit-todo-tag-input" class="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-semibold">
+                            <option value="Ulangkaji">Ulangkaji</option>
+                            <option value="Latihan">Latihan</option>
+                            <option value="Kerja Sekolah">Kerja Sekolah</option>
+                            <option value="Membaca / Hafazan">Membaca / Hafazan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Tahap Kesukaran (1-5)</label>
+                        <select id="edit-todo-level-input" class="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-semibold">
+                            <option value="">Tiada Tahap Kesukaran</option>
+                            <option value="1">1/5</option>
+                            <option value="2">2/5</option>
+                            <option value="3">3/5</option>
+                            <option value="4">4/5</option>
+                            <option value="5">5/5</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="flex justify-end gap-2 pt-2">
@@ -2353,6 +2374,31 @@
             return 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 border-rose-200 dark:border-rose-800';
         }
 
+        const QUESTION_LEVEL_LABELS = {
+            1: '1/5',
+            2: '2/5',
+            3: '3/5',
+            4: '4/5',
+            5: '5/5'
+        };
+
+        function getQuestionLevelClass(val) {
+            const v = Number(val);
+            if (v === 1 || v === 2) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800';
+            if (v === 3) return 'bg-orange-100 text-orange-700 dark:bg-orange-950/80 dark:text-orange-300 border-orange-300 dark:border-orange-800';
+            if (v === 4 || v === 5) return 'bg-rose-100 text-rose-700 dark:bg-rose-950/80 dark:text-rose-300 border-rose-300 dark:border-rose-800';
+            return 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700';
+        }
+
+        function updateTodoLevel(idx, val) {
+            const pData = appState.profiles[activeProfileId];
+            const item = pData.todos[idx];
+            if (!item) return;
+            item.questionLevel = val ? Math.max(1, Math.min(5, parseInt(val, 10))) : null;
+            saveState(false);
+            renderTodoSection();
+        }
+
         function updateTodoSlider(idx, field, val) {
             const pData = appState.profiles[activeProfileId];
             const item = pData.todos[idx];
@@ -2401,8 +2447,8 @@
                 const columnHeaderHtml = hasCompletedLatihan
                     ? `<div class="hidden lg:grid lg:grid-cols-12 items-center gap-3 px-3.5 py-2 rounded-xl bg-slate-100/90 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 text-[11px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">
                            <div class="lg:col-span-6">Tugasan</div>
-                           <div class="lg:col-span-2 text-center">Ujian (1-5)</div>
-                           <div class="lg:col-span-2 text-center">Result (1-5)</div>
+                           <div class="lg:col-span-2 text-center">Cabaran Menjawab (1-5)</div>
+                           <div class="lg:col-span-2 text-center">Keputusan (1-5)</div>
                            <div class="lg:col-span-2 text-right">Tindakan</div>
                        </div>`
                     : '';
@@ -2424,13 +2470,13 @@
                         ? `
                             <div class="lg:col-span-2 flex flex-col gap-1 p-2 rounded-lg bg-white/80 dark:bg-slate-900/70 border border-slate-200/70 dark:border-slate-700/70">
                                 <div class="flex items-center justify-between gap-1">
-                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Ujian</span>
+                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Cabaran Menjawab</span>
                                     <span id="todo-ujianScale-badge-${idx}" class="px-1.5 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${getUjianBadgeClass(uVal)}">${UJIAN_SCALE_LABELS[uVal]}</span>
                                 </div>
                                 <input type="range" min="1" max="5" step="1" value="${uVal}"
                                     oninput="updateTodoSlider(${idx}, 'ujianScale', this.value)"
                                     onchange="updateTodoSlider(${idx}, 'ujianScale', this.value)"
-                                    title="Tahap Kesukaran Ujian (1 = Sgt Susah, 5 = Sgt Mudah)"
+                                    title="Tahap Cabaran Menjawab (1 = Sgt Susah, 5 = Sgt Mudah)"
                                     class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600">
                                 <div class="flex justify-between text-[9px] text-slate-400 font-semibold px-0.5">
                                     <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
@@ -2438,13 +2484,13 @@
                             </div>
                             <div class="lg:col-span-2 flex flex-col gap-1 p-2 rounded-lg bg-white/80 dark:bg-slate-900/70 border border-slate-200/70 dark:border-slate-700/70">
                                 <div class="flex items-center justify-between gap-1">
-                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Result</span>
+                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Keputusan</span>
                                     <span id="todo-resultScale-badge-${idx}" class="px-1.5 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${getResultBadgeClass(rVal)}">${RESULT_SCALE_LABELS[rVal]}</span>
                                 </div>
                                 <input type="range" min="1" max="5" step="1" value="${rVal}"
                                     oninput="updateTodoSlider(${idx}, 'resultScale', this.value)"
                                     onchange="updateTodoSlider(${idx}, 'resultScale', this.value)"
-                                    title="Skala Result (1 = Lemah, 5 = Cemerlang)"
+                                    title="Skala Keputusan (1 = Lemah, 5 = Cemerlang)"
                                     class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-600">
                                 <div class="flex justify-between text-[9px] text-slate-400 font-semibold px-0.5">
                                     <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
@@ -2465,6 +2511,14 @@
                                 <div class="text-xs sm:text-sm font-semibold break-words ${item.done ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-100'}">${escEv(item.text)}</div>
                                 <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
                                     <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">${item.tag}</span>
+                                    <select onclick="event.preventDefault(); event.stopPropagation();" onchange="updateTodoLevel(${idx}, this.value)" title="Tahap Kesukaran (1/5 hingga 5/5)" class="text-[10px] font-bold px-2 py-0.5 rounded border cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500 ${getQuestionLevelClass(item.questionLevel)}">
+                                        <option value="" ${!item.questionLevel ? 'selected' : ''}>Tahap Kesukaran: -</option>
+                                        <option value="1" ${Number(item.questionLevel) === 1 ? 'selected' : ''}>1/5</option>
+                                        <option value="2" ${Number(item.questionLevel) === 2 ? 'selected' : ''}>2/5</option>
+                                        <option value="3" ${Number(item.questionLevel) === 3 ? 'selected' : ''}>3/5</option>
+                                        <option value="4" ${Number(item.questionLevel) === 4 ? 'selected' : ''}>4/5</option>
+                                        <option value="5" ${Number(item.questionLevel) === 5 ? 'selected' : ''}>5/5</option>
+                                    </select>
                                     <span class="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded bg-indigo-50/80 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 border border-indigo-200/70 dark:border-indigo-800/60">
                                         <i data-lucide="calendar-plus" class="w-3 h-3"></i> Input: ${createdLabel}
                                     </span>
@@ -2503,6 +2557,8 @@
             e.preventDefault();
             const input = document.getElementById('new-todo-input');
             const tag = document.getElementById('new-todo-tag').value;
+            const levelSel = document.getElementById('new-todo-level');
+            const levelVal = levelSel ? levelSel.value : '';
             const text = input.value.trim();
             if (!text) return;
 
@@ -2510,6 +2566,7 @@
                 id: Date.now(),
                 text,
                 tag,
+                questionLevel: levelVal ? parseInt(levelVal, 10) : null,
                 done: false,
                 createdAt: formatNowTimestamp(),
                 completedAt: null
@@ -2521,6 +2578,7 @@
 
             appState.profiles[activeProfileId].todos.unshift(newItem);
             input.value = '';
+            if (levelSel) levelSel.value = '';
             saveState(true);
             renderTodoSection();
             renderHeroAndOverview();
@@ -2562,6 +2620,8 @@
                 tagInp.appendChild(opt);
             }
             tagInp.value = item.tag || 'Ulangkaji';
+            const lvlInp = document.getElementById('edit-todo-level-input');
+            if (lvlInp) lvlInp.value = item.questionLevel ? String(item.questionLevel) : '';
             const modal = document.getElementById('edit-todo-modal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -2580,6 +2640,7 @@
             if (editingTodoIdx === null) return;
             const newText = document.getElementById('edit-todo-text-input').value.trim();
             const newTag = document.getElementById('edit-todo-tag-input').value;
+            const newLevelVal = document.getElementById('edit-todo-level-input').value;
             if (!newText) {
                 showToast('Nama tugasan tidak boleh kosong!');
                 return;
@@ -2589,6 +2650,7 @@
             if (item) {
                 item.text = newText;
                 item.tag = newTag;
+                item.questionLevel = newLevelVal ? parseInt(newLevelVal, 10) : null;
                 if (newTag === 'Latihan') {
                     if (!item.ujianScale) item.ujianScale = 3;
                     if (!item.resultScale) item.resultScale = 3;
