@@ -300,27 +300,37 @@
                             </h2>
                             <p id="todo-section-desc" class="text-xs text-slate-500 dark:text-slate-400">Rancang sasaran harian supaya tidak tertinggal pelajaran.</p>
                         </div>
-                        <span id="todo-progress-badge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">0% Selesai</span>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span id="todo-streak-badge" title="Bilangan hari berturut-turut menyiapkan tugasan" class="px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800">🔥 Streak: 0 Hari</span>
+                            <span id="todo-progress-badge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">0% Selesai</span>
+                        </div>
                     </div>
 
                     <!-- Add Todo Form -->
-                    <form onsubmit="addTodoItem(event)" class="flex flex-col sm:flex-row gap-2">
-                        <input type="text" id="new-todo-input" placeholder="Tambah tugasan / latihan / misi membaca..." required class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <select id="new-todo-tag" class="px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold">
+                    <form onsubmit="addTodoItem(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2">
+                        <input type="text" id="new-todo-input" placeholder="Tambah tugasan / latihan / misi membaca..." required class="sm:col-span-2 lg:col-span-4 px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <details id="new-todo-subject-dd" class="relative lg:col-span-3">
+                            <summary class="list-none cursor-pointer flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold select-none">
+                                <span id="new-todo-subject-label" class="truncate">Subjek: Umum</span>
+                                <span class="text-slate-400 text-[10px]">▾</span>
+                            </summary>
+                            <div id="new-todo-subject-list" class="absolute z-30 left-0 right-0 mt-1 max-h-56 overflow-y-auto rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xl p-1.5 space-y-0.5"></div>
+                        </details>
+                        <select id="new-todo-tag" class="lg:col-span-2 px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold">
                             <option value="Ulangkaji">Ulangkaji</option>
                             <option value="Latihan">Latihan</option>
                             <option value="Kerja Sekolah">Kerja Sekolah</option>
                             <option value="Membaca / Hafazan">Membaca / Hafazan</option>
                         </select>
-                        <select id="new-todo-level" title="Tahap Kesukaran (Sangat Mudah hingga Sangat Susah)" class="px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold">
-                            <option value="">Tahap Kesukaran</option>
-                            <option value="1">Sangat Mudah</option>
+                        <select id="new-todo-level" title="Tahap Kesukaran (Sangat Mudah hingga Sangat Susah)" class="lg:col-span-2 px-2.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold">
+                            <option value="">Tahap</option>
+                            <option value="1">Sgt Mudah</option>
                             <option value="2">Mudah</option>
                             <option value="3">Sederhana</option>
                             <option value="4">Susah</option>
-                            <option value="5">Sangat Susah</option>
+                            <option value="5">Sgt Susah</option>
                         </select>
-                        <button type="submit" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition flex items-center justify-center gap-1.5">
+                        <button type="submit" class="lg:col-span-1 px-3 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition flex items-center justify-center gap-1">
                             <i data-lucide="plus" class="w-4 h-4"></i> Tambah
                         </button>
                     </form>
@@ -351,7 +361,7 @@
                         <i data-lucide="clipboard-list" class="w-5 h-5 text-rose-500"></i>
                         <span>Rekod Kesilapan Latihan</span>
                     </h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Catat bab yang kerap salah dalam latihan supaya kelemahan dapat dikenal pasti dan ditangani.</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Catat bab yang kerap salah dalam latihan supaya kelemahan dapat dikenal pasti, diulang kaji dan ditangani.</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -375,11 +385,15 @@
                         <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Bil. soalan salah</label>
                         <input type="number" id="lt-bilangan" min="1" max="99" value="1" class="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
-                    <div class="space-y-1 lg:col-span-3">
+                    <div class="space-y-1 lg:col-span-2">
                         <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Punca (pilihan)</label>
                         <select id="lt-punca" class="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
                     </div>
-                    <div class="space-y-1 sm:col-span-2 lg:col-span-5">
+                    <div class="space-y-1 lg:col-span-3">
+                        <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Rujukan / Muka Surat</label>
+                        <input type="text" id="lt-rujukan" placeholder="Cth: Buku Teks m/s 78 / Modul A" class="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div class="space-y-1 lg:col-span-3">
                         <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Catatan (pilihan)</label>
                         <input type="text" id="lt-catatan" placeholder="Cth: No. 5 &amp; 7, silap tukar unit" class="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
@@ -397,16 +411,26 @@
                     <h3 class="font-extrabold text-sm sm:text-base text-slate-800 dark:text-white flex items-center gap-2">
                         <i data-lucide="bar-chart-3" class="w-5 h-5 text-indigo-500"></i> Statistik Kelemahan
                     </h3>
-                    <select id="lt-filter" onchange="setLatihanFilter(this.value)" class="px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <label class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold cursor-pointer">
+                            <input type="checkbox" id="lt-only-unresolved" onchange="setLatihanUnresolvedFilter(this.checked)" class="rounded text-indigo-600">
+                            <span>Belum diatasi sahaja</span>
+                        </label>
+                        <select id="lt-filter-punca" onchange="setLatihanPuncaFilter(this.value)" class="px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
+                        <select id="lt-filter" onchange="setLatihanFilter(this.value)" class="px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
+                    </div>
                 </div>
                 <div id="latihan-stats" class="space-y-4"></div>
             </div>
 
             <!-- Senarai Rekod -->
             <div class="bg-violet-50 dark:bg-violet-950/40 rounded-2xl p-5 sm:p-6 border border-violet-200 dark:border-violet-900 shadow-sm space-y-3">
-                <h3 class="font-extrabold text-sm sm:text-base text-slate-800 dark:text-white flex items-center gap-2">
-                    <i data-lucide="history" class="w-5 h-5 text-slate-500"></i> Sejarah Rekod
-                </h3>
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h3 class="font-extrabold text-sm sm:text-base text-slate-800 dark:text-white flex items-center gap-2">
+                        <i data-lucide="history" class="w-5 h-5 text-slate-500"></i> Sejarah Rekod
+                    </h3>
+                    <span class="text-[11px] text-slate-500 dark:text-slate-400">Klik lencana status untuk tandakan sudah diulang kaji semula</span>
+                </div>
                 <div id="latihan-log" class="space-y-2 max-h-[60vh] overflow-y-auto pr-1"></div>
             </div>
         </section>
@@ -474,6 +498,18 @@
                     <label class="block text-xs font-bold mb-1">Nama Tugasan / Latihan</label>
                     <input type="text" id="edit-todo-text-input" placeholder="Masukkan nama tugasan..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
+                <div class="grid grid-cols-1 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Subjek (boleh pilih lebih dari satu)</label>
+                        <details id="edit-todo-subject-dd" class="relative">
+                            <summary class="list-none cursor-pointer flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-semibold select-none">
+                                <span id="edit-todo-subject-label" class="truncate">Subjek: Umum</span>
+                                <span class="text-slate-400 text-[10px]">▾</span>
+                            </summary>
+                            <div id="edit-todo-subject-list" class="absolute z-30 left-0 right-0 mt-1 max-h-48 overflow-y-auto rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xl p-1.5 space-y-0.5"></div>
+                        </details>
+                    </div>
+                </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold mb-1">Kategori</label>
@@ -537,6 +573,10 @@
                         <label class="block text-xs font-bold mb-1">Punca</label>
                         <select id="elt-punca" class="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-semibold"></select>
                     </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold mb-1">Rujukan / Muka Surat</label>
+                    <input type="text" id="elt-rujukan" placeholder="Cth: Buku Teks m/s 78" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
                 <div>
                     <label class="block text-xs font-bold mb-1">Catatan</label>
@@ -2419,9 +2459,101 @@
             saveState(false);
         }
 
+        function getActiveProfileSubjects() {
+            const pData = appState.profiles[activeProfileId];
+            const names = [];
+            (pData.exams || []).forEach(ex => (ex.subjects || []).forEach(sub => {
+                if (sub.name && !names.includes(sub.name)) names.push(sub.name);
+            }));
+            (pData.kafaExams || []).forEach(ex => (ex.subjects || []).forEach(sub => {
+                if (sub.name && !names.includes(sub.name)) names.push(sub.name);
+            }));
+            return names;
+        }
+
+        function getTodoSubjects(item) {
+            if (!item) return [];
+            if (Array.isArray(item.subjects)) return item.subjects.filter(Boolean);
+            return item.subject ? [item.subject] : [];
+        }
+
+        function renderSubjectChecklist(prefix, subjects, selected) {
+            const list = document.getElementById(prefix + '-subject-list');
+            if (!list) return;
+            if (!subjects.length) {
+                list.innerHTML = `<div class="px-2 py-1.5 text-[11px] text-slate-400">Tiada subjek. Tambah subjek dahulu.</div>`;
+            } else {
+                list.innerHTML = subjects.map(sub => `
+                    <label class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-200">
+                        <input type="checkbox" value="${escEv(sub)}" ${selected.includes(sub) ? 'checked' : ''} onchange="updateSubjectLabel('${prefix}')" class="w-3.5 h-3.5 rounded text-indigo-600 shrink-0">
+                        <span class="min-w-0 break-words">${escEv(sub)}</span>
+                    </label>`).join('');
+            }
+            updateSubjectLabel(prefix);
+        }
+
+        function getCheckedSubjects(prefix) {
+            const list = document.getElementById(prefix + '-subject-list');
+            if (!list) return [];
+            return [...list.querySelectorAll('input[type=checkbox]:checked')].map(c => c.value);
+        }
+
+        function updateSubjectLabel(prefix) {
+            const lbl = document.getElementById(prefix + '-subject-label');
+            if (!lbl) return;
+            const chosen = getCheckedSubjects(prefix);
+            lbl.textContent = chosen.length ? chosen.join(', ') : 'Subjek: Umum';
+        }
+
+        function populateTodoSubjectSelects(editSelected) {
+            const subjects = getActiveProfileSubjects();
+            renderSubjectChecklist('new-todo', subjects, getCheckedSubjects('new-todo'));
+            renderSubjectChecklist('edit-todo', subjects, editSelected || []);
+        }
+
+        // Tutup dropdown subjek bila klik di luar
+        document.addEventListener('click', (e) => {
+            ['new-todo-subject-dd', 'edit-todo-subject-dd'].forEach(id => {
+                const dd = document.getElementById(id);
+                if (dd && dd.open && !dd.contains(e.target)) dd.open = false;
+            });
+        });
+
+        function computeTodoStreak(todos) {
+            const dateKeys = new Set();
+            (todos || []).forEach(t => {
+                if (t.done && t.completedAt) {
+                    const part = String(t.completedAt).split(' ')[0];
+                    if (/^\d{2}\/\d{2}\/\d{4}$/.test(part)) dateKeys.add(part);
+                }
+            });
+            if (!dateKeys.size) return 0;
+
+            const fmtDate = (d) => {
+                const dd = String(d.getDate()).padStart(2, '0');
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const yy = d.getFullYear();
+                return `${dd}/${mm}/${yy}`;
+            };
+
+            let cursor = new Date();
+            if (!dateKeys.has(fmtDate(cursor))) {
+                cursor.setDate(cursor.getDate() - 1);
+                if (!dateKeys.has(fmtDate(cursor))) return 0;
+            }
+
+            let streak = 0;
+            while (dateKeys.has(fmtDate(cursor))) {
+                streak++;
+                cursor.setDate(cursor.getDate() - 1);
+            }
+            return streak;
+        }
+
         function renderTodoSection() {
             const cfg = PROFILES_CONFIG[activeProfileId];
             const pData = appState.profiles[activeProfileId];
+            populateTodoSubjectSelects();
 
             if (cfg.isKidMode) {
                 document.getElementById('todo-section-title').innerHTML = `<i data-lucide="sparkles" class="w-5 h-5 text-pink-500"></i> <span>Senarai Misi Harian & Membaca Aisyah</span>`;
@@ -2431,13 +2563,19 @@
                 document.getElementById('todo-section-desc').textContent = 'Urus kerja sekolah pagi dan latihan KAFA dengan teratur.';
             } else {
                 document.getElementById('todo-section-title').innerHTML = `<i data-lucide="list-todo" class="w-5 h-5 text-emerald-500"></i> <span>Senarai Tugasan & Ulangkaji</span>`;
-                document.getElementById('todo-section-desc').textContent = 'Rancang sasaran harian supaya tidak tertinggal pelajaran.';
+                document.getElementById('todo-section-desc').textContent = 'Rancang sasaran harian mengikut subjek dan tempoh masa.';
             }
 
             const total = pData.todos.length;
             const done = pData.todos.filter(t => t.done).length;
             const pct = total ? Math.round((done / total) * 100) : 0;
             document.getElementById('todo-progress-badge').textContent = `${pct}% Selesai (${done}/${total})`;
+
+            const streak = computeTodoStreak(pData.todos);
+            const streakEl = document.getElementById('todo-streak-badge');
+            if (streakEl) {
+                streakEl.textContent = `🔥 Streak: ${streak} Hari`;
+            }
 
             const listEl = document.getElementById('todo-list-container');
             if (!total) {
@@ -2447,7 +2585,7 @@
                 const columnHeaderHtml = hasCompletedLatihan
                     ? `<div class="hidden lg:grid lg:grid-cols-12 items-center gap-3 px-3.5 py-2 rounded-xl bg-slate-100/90 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 text-[11px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">
                            <div class="lg:col-span-6">Tugasan</div>
-                           <div class="lg:col-span-2 text-center">Cabaran Menjawab (1-5)</div>
+                           <div class="lg:col-span-2 text-center">Tahap Soalan</div>
                            <div class="lg:col-span-2 text-center">Keputusan (1-5)</div>
                            <div class="lg:col-span-2 text-right">Tindakan</div>
                        </div>`
@@ -2460,6 +2598,9 @@
                                <i data-lucide="check-circle-2" class="w-3 h-3"></i> Siap: ${item.completedAt}
                            </span>`
                         : '';
+                    const subjectBadge = getTodoSubjects(item).map(sub =>
+                        `<span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded ${latihanSubjectColor(sub).badge}">${escEv(sub)}</span>`
+                    ).join('');
 
                     // Kolum Ujian & Result hanya muncul untuk kategori 'Latihan' selepas di-tick siap
                     const showLatihanSliders = item.tag === 'Latihan' && item.done;
@@ -2470,13 +2611,13 @@
                         ? `
                             <div class="lg:col-span-2 flex flex-col gap-1 p-2 rounded-lg bg-white/80 dark:bg-slate-900/70 border border-slate-200/70 dark:border-slate-700/70">
                                 <div class="flex items-center justify-between gap-1">
-                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Cabaran Menjawab</span>
+                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Soalan</span>
                                     <span id="todo-ujianScale-badge-${idx}" class="px-1.5 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${getUjianBadgeClass(uVal)}">${UJIAN_SCALE_LABELS[uVal]}</span>
                                 </div>
                                 <input type="range" min="1" max="5" step="1" value="${uVal}"
                                     oninput="updateTodoSlider(${idx}, 'ujianScale', this.value)"
                                     onchange="updateTodoSlider(${idx}, 'ujianScale', this.value)"
-                                    title="Tahap Cabaran Menjawab (1 = Sgt Susah, 5 = Sgt Mudah)"
+                                    title="Tahap Soalan (1 = Sgt Susah, 5 = Sgt Mudah)"
                                     class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600">
                                 <div class="flex justify-between text-[9px] text-slate-400 font-semibold px-0.5">
                                     <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
@@ -2510,6 +2651,7 @@
                             <div class="min-w-0 flex-1">
                                 <div class="text-xs sm:text-sm font-semibold break-words ${item.done ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-100'}">${escEv(item.text)}</div>
                                 <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+                                    ${subjectBadge}
                                     <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">${item.tag}</span>
                                     <select onclick="event.preventDefault(); event.stopPropagation();" onchange="updateTodoLevel(${idx}, this.value)" title="Tahap Kesukaran (Sangat Mudah hingga Sangat Susah)" class="text-[10px] font-bold px-2 py-0.5 rounded border cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500 ${getQuestionLevelClass(item.questionLevel)}">
                                         <option value="" ${!item.questionLevel ? 'selected' : ''}>Tahap Kesukaran: -</option>
@@ -2556,6 +2698,7 @@
         function addTodoItem(e) {
             e.preventDefault();
             const input = document.getElementById('new-todo-input');
+            const chosenSubjects = getCheckedSubjects('new-todo');
             const tag = document.getElementById('new-todo-tag').value;
             const levelSel = document.getElementById('new-todo-level');
             const levelVal = levelSel ? levelSel.value : '';
@@ -2565,6 +2708,8 @@
             const newItem = {
                 id: Date.now(),
                 text,
+                subjects: chosenSubjects,
+                subject: chosenSubjects.join(', '),
                 tag,
                 questionLevel: levelVal ? parseInt(levelVal, 10) : null,
                 done: false,
@@ -2578,6 +2723,9 @@
 
             appState.profiles[activeProfileId].todos.unshift(newItem);
             input.value = '';
+            document.querySelectorAll('#new-todo-subject-list input:checked').forEach(c => c.checked = false);
+            populateTodoSubjectSelects();
+            const addDd = document.getElementById('new-todo-subject-dd'); if (addDd) addDd.open = false;
             if (levelSel) levelSel.value = '';
             saveState(true);
             renderTodoSection();
@@ -2609,9 +2757,11 @@
             const item = pData.todos[idx];
             if (!item) return;
             editingTodoIdx = idx;
+            populateTodoSubjectSelects(getTodoSubjects(item));
             const textInp = document.getElementById('edit-todo-text-input');
             const tagInp = document.getElementById('edit-todo-tag-input');
             textInp.value = item.text || '';
+            const editDd = document.getElementById('edit-todo-subject-dd'); if (editDd) editDd.open = false;
             // Jika tag sedia ada tidak tersenarai dalam pilihan default, tambah secara dinamik supaya tidak hilang
             if (!Array.from(tagInp.options).some(opt => opt.value === item.tag)) {
                 const opt = document.createElement('option');
@@ -2639,6 +2789,7 @@
         function saveEditTodoModal() {
             if (editingTodoIdx === null) return;
             const newText = document.getElementById('edit-todo-text-input').value.trim();
+            const newSubjects = getCheckedSubjects('edit-todo');
             const newTag = document.getElementById('edit-todo-tag-input').value;
             const newLevelVal = document.getElementById('edit-todo-level-input').value;
             if (!newText) {
@@ -2649,6 +2800,8 @@
             const item = pData.todos[editingTodoIdx];
             if (item) {
                 item.text = newText;
+                item.subjects = newSubjects;
+                item.subject = newSubjects.join(', ');
                 item.tag = newTag;
                 item.questionLevel = newLevelVal ? parseInt(newLevelVal, 10) : null;
                 if (newTag === 'Latihan') {
@@ -2936,7 +3089,6 @@
         // 9. LATIHAN - REKOD KESILAPAN & STATISTIK KELEMAHAN (Nurul Izzati)
         // Data disimpan dalam appState.profiles.spm.latihanLog (turut disync ke cloud)
         // =========================================================================
-        // Senarai bab: [nombor bab pertama, [tajuk...]]. Tambah subjek / Tingkatan 5 di sini.
         const LATIHAN_BAB_DATA = {
             'matematik': { t: 'T4', start: 1, bab: [
                 'Fungsi dan Persamaan Kuadratik dalam Satu Pemboleh Ubah', 'Asas Nombor', 'Penaakulan Logik', 'Operasi Set',
@@ -2966,6 +3118,8 @@
         const LATIHAN_PUNCA = ['Tak faham konsep', 'Cuai / silap kira', 'Lupa formula / fakta', 'Salah faham soalan', 'Tak sempat / lambat'];
         const LATIHAN_LAIN = '__lain__';
         let latihanFilter = '';
+        let latihanFilterPunca = '';
+        let latihanOnlyUnresolved = false;
 
         // Warna ikut subjek (bar statistik, lencana rekod & legenda)
         const LATIHAN_WARNA = {
@@ -3004,7 +3158,6 @@
             return pData.latihanLog;
         }
 
-        // Semua subjek daripada tab Keputusan (gabungan semua ujian, ikut susunan asal)
         function latihanSubjects() {
             const names = [];
             (appState.profiles.spm.exams || []).forEach(ex => (ex.subjects || []).forEach(sub => {
@@ -3019,6 +3172,7 @@
             const selS = document.getElementById('lt-subjek');
             const selP = document.getElementById('lt-punca');
             const selF = document.getElementById('lt-filter');
+            const selFP = document.getElementById('lt-filter-punca');
             const prevT = selT.value, prevS = selS.value, prevP = selP.value;
 
             const todos = (pData.todos || []).filter(t => t.tag === 'Latihan');
@@ -3035,7 +3189,7 @@
                 `<option value="${escEv(x)}">${escEv(x)}</option>`).join('');
             if ([...selP.options].some(o => o.value === prevP)) selP.value = prevP;
 
-            // Penapis statistik: semua subjek + subjek yang ada dalam rekod
+            // Penapis statistik subjek
             const logSubjects = latihanGetLog().map(r => r.subjek);
             const filterNames = [...subjects];
             logSubjects.forEach(n => { if (n && !filterNames.includes(n)) filterNames.push(n); });
@@ -3043,6 +3197,16 @@
                 `<option value="${escEv(n)}">${escEv(n)}</option>`).join('');
             if (!filterNames.includes(latihanFilter)) latihanFilter = '';
             selF.value = latihanFilter;
+
+            // Penapis statistik punca
+            if (selFP) {
+                selFP.innerHTML = `<option value="">Semua punca</option>` +
+                    [...LATIHAN_PUNCA, 'Tidak dinyatakan'].map(p => `<option value="${escEv(p)}">${escEv(p)}</option>`).join('');
+                selFP.value = latihanFilterPunca;
+            }
+
+            const chkUnres = document.getElementById('lt-only-unresolved');
+            if (chkUnres) chkUnres.checked = latihanOnlyUnresolved;
 
             latihanFillBab();
         }
@@ -3089,19 +3253,32 @@
                 bab,
                 bilangan: bil,
                 punca: document.getElementById('lt-punca').value,
+                rujukan: document.getElementById('lt-rujukan').value.trim(),
                 catatan: document.getElementById('lt-catatan').value.trim(),
+                reviewed: false,
+                reviewedAt: '',
                 todoId: todo ? todo.id : null,
                 todoText: todo ? todo.text : ''
             });
 
-            // Kosongkan medan yang perlu sahaja; subjek kekal untuk memudahkan rekod berturutan
             document.getElementById('lt-bab').value = '';
             document.getElementById('lt-bab-custom').value = '';
             document.getElementById('lt-bilangan').value = 1;
             document.getElementById('lt-punca').value = '';
+            document.getElementById('lt-rujukan').value = '';
             document.getElementById('lt-catatan').value = '';
             saveState(false);
             showToast('Rekod kesilapan disimpan!');
+            renderLatihanSection();
+        }
+
+        function toggleLatihanReviewed(id) {
+            const r = latihanGetLog().find(x => String(x.id) === String(id));
+            if (!r) return;
+            r.reviewed = !r.reviewed;
+            r.reviewedAt = r.reviewed ? latihanTodayLabel() : '';
+            saveState(false);
+            showToast(r.reviewed ? 'Ditandakan sudah diulang kaji!' : 'Status dikembalikan kepada belum diatasi.');
             renderLatihanSection();
         }
 
@@ -3151,7 +3328,6 @@
             editingLatihanId = r.id;
             const pData = appState.profiles.spm;
 
-            // Tugasan
             const selT = document.getElementById('elt-todo');
             const todos = (pData.todos || []).filter(t => t.tag === 'Latihan');
             let tHtml = `<option value="">— Tiada / tugasan lain —</option>` + todos.map(t =>
@@ -3162,23 +3338,21 @@
             selT.innerHTML = tHtml;
             selT.value = r.todoId != null ? String(r.todoId) : '';
 
-            // Subjek
             const selS = document.getElementById('elt-subjek');
             const subjects = latihanSubjects();
             if (r.subjek && !subjects.includes(r.subjek)) subjects.push(r.subjek);
             selS.innerHTML = subjects.map(n => `<option value="${escEv(n)}">${escEv(n)}</option>`).join('');
             selS.value = r.subjek;
 
-            // Punca
             const selP = document.getElementById('elt-punca');
             selP.innerHTML = `<option value="">— Tidak pasti —</option>` + LATIHAN_PUNCA.map(x =>
                 `<option value="${escEv(x)}">${escEv(x)}</option>`).join('');
             selP.value = r.punca || '';
 
-            // Bab (bab sedia ada dipilih, atau Lain-lain jika bukan dalam senarai)
             latihanEditFillBab(r.bab);
 
             document.getElementById('elt-bilangan').value = Number(r.bilangan) || 1;
+            document.getElementById('elt-rujukan').value = r.rujukan || '';
             document.getElementById('elt-catatan').value = r.catatan || '';
 
             const modal = document.getElementById('edit-latihan-modal');
@@ -3236,7 +3410,6 @@
                 r.todoId = todo.id;
                 r.todoText = todo.text;
             } else if (!(todoId && String(r.todoId) === String(todoId))) {
-                // Dikosongkan; jika tugasan lama (sudah dipadam) kekal dipilih, simpan seperti asal
                 r.todoId = null;
                 r.todoText = '';
             }
@@ -3244,6 +3417,7 @@
             r.bab = bab;
             r.bilangan = Math.max(1, Math.min(99, parseInt(document.getElementById('elt-bilangan').value, 10) || 1));
             r.punca = document.getElementById('elt-punca').value;
+            r.rujukan = document.getElementById('elt-rujukan').value.trim();
             r.catatan = document.getElementById('elt-catatan').value.trim();
 
             saveState(false);
@@ -3259,6 +3433,28 @@
         function setLatihanFilter(val) {
             latihanFilter = val || '';
             renderLatihanStats();
+            renderLatihanLog();
+        }
+
+        function setLatihanPuncaFilter(val) {
+            latihanFilterPunca = val || '';
+            renderLatihanStats();
+            renderLatihanLog();
+        }
+
+        function setLatihanUnresolvedFilter(checked) {
+            latihanOnlyUnresolved = !!checked;
+            renderLatihanStats();
+            renderLatihanLog();
+        }
+
+        function getFilteredLatihanLog() {
+            return latihanGetLog().filter(r => {
+                if (latihanFilter && r.subjek !== latihanFilter) return false;
+                if (latihanFilterPunca && (r.punca || 'Tidak dinyatakan') !== latihanFilterPunca) return false;
+                if (latihanOnlyUnresolved && r.reviewed) return false;
+                return true;
+            });
         }
 
         function latihanBars(rows, colorClass) {
@@ -3279,11 +3475,10 @@
         function renderLatihanStats() {
             const box = document.getElementById('latihan-stats');
             if (!box) return;
-            const all = latihanGetLog();
-            const log = latihanFilter ? all.filter(r => r.subjek === latihanFilter) : all;
+            const log = getFilteredLatihanLog();
 
             if (!log.length) {
-                box.innerHTML = `<div class="py-8 text-center text-xs text-slate-400">Belum ada rekod${latihanFilter ? ' untuk ' + escEv(latihanFilter) : ''}. Mulakan dengan mengisi borang di atas.</div>`;
+                box.innerHTML = `<div class="py-8 text-center text-xs text-slate-400">Tiada rekod sepadan dengan penapis semasa.</div>`;
                 return;
             }
 
@@ -3305,6 +3500,7 @@
                     <span class="w-2.5 h-2.5 rounded-full ${r.color}"></span>${escEv(r.label)}
                 </span>`).join('')}</div>`;
             const totalSalah = log.reduce((t, r) => t + (Number(r.bilangan) || 1), 0);
+            const reviewedCount = log.filter(r => r.reviewed).length;
 
             const card = (label, big, small) => `
                 <div class="rounded-xl bg-white/70 dark:bg-slate-800/60 border border-sky-100 dark:border-slate-700 p-3">
@@ -3315,7 +3511,7 @@
 
             box.innerHTML = `
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
-                    ${card('Jumlah soalan salah', totalSalah, `${log.length} rekod`)}
+                    ${card('Jumlah soalan salah', totalSalah, `${log.length} rekod (${reviewedCount} diulang kaji)`)}
                     ${card('Bab paling lemah', escEv(byBab[0].label.split(' · ').slice(1).join(' · ')), `${escEv(byBab[0].label.split(' · ')[0])} · ${byBab[0].value} salah`)}
                     ${card('Subjek paling lemah', escEv(bySubjek[0].label), `${bySubjek[0].value} salah`)}
                     ${card('Punca utama', escEv(byPunca[0].label), `${byPunca[0].value} salah`)}
@@ -3342,22 +3538,29 @@
         function renderLatihanLog() {
             const box = document.getElementById('latihan-log');
             if (!box) return;
-            const all = latihanGetLog();
-            const log = latihanFilter ? all.filter(r => r.subjek === latihanFilter) : all;
+            const log = getFilteredLatihanLog();
             if (!log.length) {
                 box.innerHTML = `<div class="py-8 text-center text-xs text-slate-400">Tiada rekod.</div>`;
                 return;
             }
             box.innerHTML = log.slice(0, 100).map(r => `
-                <div class="flex items-start justify-between gap-3 p-3 rounded-xl border border-violet-100 dark:border-violet-900 bg-white/70 dark:bg-slate-800/40">
+                <div class="flex items-start justify-between gap-3 p-3 rounded-xl border transition ${r.reviewed
+                    ? 'border-emerald-200 dark:border-emerald-900 bg-emerald-50/40 dark:bg-emerald-950/20'
+                    : 'border-violet-100 dark:border-violet-900 bg-white/70 dark:bg-slate-800/40'}">
                     <div class="min-w-0 space-y-1">
                         <div class="flex flex-wrap items-center gap-1.5 text-[10px]">
                             <span class="font-semibold text-slate-400">${escEv(r.tarikh)}</span>
                             <span class="px-2 py-0.5 rounded font-bold ${latihanSubjectColor(r.subjek).badge}">${escEv(r.subjek)}</span>
                             <span class="px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-bold">${Number(r.bilangan) || 1} salah</span>
                             ${r.punca ? `<span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold">${escEv(r.punca)}</span>` : ''}
+                            <button type="button" onclick="toggleLatihanReviewed(${Number(r.id)})" title="Klik untuk tukar status ulang kaji" class="px-2 py-0.5 rounded font-bold border transition cursor-pointer ${r.reviewed
+                                ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
+                                : 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800'}">
+                                ${r.reviewed ? `✓ Sudah Diulang Kaji${r.reviewedAt ? ' (' + escEv(r.reviewedAt) + ')' : ''}` : '⏳ Belum Diatasi'}
+                            </button>
                         </div>
                         <div class="text-xs font-bold text-slate-800 dark:text-slate-100 break-words">${escEv(r.bab)}</div>
+                        ${r.rujukan ? `<div class="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 break-words">📖 Rujukan: ${escEv(r.rujukan)}</div>` : ''}
                         ${r.catatan ? `<div class="text-[11px] text-slate-500 dark:text-slate-400 break-words">${escEv(r.catatan)}</div>` : ''}
                         ${r.todoText ? `<div class="text-[10px] text-slate-400 break-words">Tugasan: ${escEv(r.todoText)}</div>` : ''}
                     </div>
