@@ -108,11 +108,11 @@
                 </button>
                 <button id="tab-btn-todo" onclick="switchTab('todo')" class="flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-bold text-xs transition-all">
                     <i data-lucide="check-square" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-                    <span id="tab-todo-label">To-Do List</span>
+                    <span id="tab-todo-label">Latihan dan Tugasan</span>
                 </button>
                 <button id="tab-btn-latihan" onclick="switchTab('latihan')" class="hidden items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg font-bold text-xs transition-all">
                     <i data-lucide="clipboard-list" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-                    <span>Latihan</span>
+                    <span>Analisis</span>
                 </button>
             </nav>
         </div>
@@ -1671,7 +1671,7 @@
             document.getElementById('lock-icon-kafa').style.display = unlockedTabs.kafa ? 'none' : 'inline-block';
 
             // Update Todo label dynamically
-            document.getElementById('tab-todo-label').textContent = cfg.isKidMode ? 'Misi, Bintang & Hafazan' : (isRaisha ? 'To-Do & Hafazan' : 'To-Do List');
+            document.getElementById('tab-todo-label').textContent = 'Latihan dan Tugasan';
 
             // Show/Hide Sections (section-grades digunakan untuk kedua-dua 'grades' dan 'kafa')
             const isGradesOrKafa = (activeTab === 'grades' || activeTab === 'kafa');
