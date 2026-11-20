@@ -429,7 +429,11 @@
                     <h3 class="font-extrabold text-sm sm:text-base text-slate-800 dark:text-white flex items-center gap-2">
                         <i data-lucide="history" class="w-5 h-5 text-slate-500"></i> Sejarah Rekod
                     </h3>
-                    <span class="text-[11px] text-slate-500 dark:text-slate-400">Klik lencana status untuk tandakan sudah diulang kaji semula</span>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <select id="lt-log-filter-todo" onchange="setLatihanLogTodoFilter(this.value)" title="Tapis mengikut latihan" class="max-w-[240px] px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
+                        <select id="lt-log-filter-subjek" onchange="setLatihanLogSubjekFilter(this.value)" title="Tapis mengikut subjek" class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"></select>
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400">Klik lencana status untuk tandakan sudah diulang kaji semula</span>
+                    </div>
                 </div>
                 <div id="latihan-log" class="space-y-2 max-h-[60vh] overflow-y-auto pr-1"></div>
             </div>
@@ -3233,6 +3237,8 @@
         let latihanFilter = '';
         let latihanFilterPunca = '';
         let latihanOnlyUnresolved = false;
+        let latihanLogFilterTodo = '';
+        let latihanLogFilterSubjek = '';
 
         // Warna ikut subjek (bar statistik, lencana rekod & legenda)
         const LATIHAN_WARNA = {
@@ -3286,6 +3292,8 @@
             const selP = document.getElementById('lt-punca');
             const selF = document.getElementById('lt-filter');
             const selFP = document.getElementById('lt-filter-punca');
+            const selLT = document.getElementById('lt-log-filter-todo');
+            const selLS = document.getElementById('lt-log-filter-subjek');
             const prevT = selT.value, prevS = selS.value, prevP = selP.value;
 
             const todos = (pData.todos || []).filter(t => t.tag === 'Latihan');
@@ -3303,7 +3311,8 @@
             if ([...selP.options].some(o => o.value === prevP)) selP.value = prevP;
 
             // Penapis statistik subjek
-            const logSubjects = latihanGetLog().map(r => r.subjek);
+            const log = latihanGetLog();
+            const logSubjects = log.map(r => r.subjek);
             const filterNames = [...subjects];
             logSubjects.forEach(n => { if (n && !filterNames.includes(n)) filterNames.push(n); });
             selF.innerHTML = `<option value="">Semua subjek</option>` + filterNames.map(n =>
@@ -3316,6 +3325,33 @@
                 selFP.innerHTML = `<option value="">Semua punca</option>` +
                     [...LATIHAN_PUNCA, 'Tidak dinyatakan'].map(p => `<option value="${escEv(p)}">${escEv(p)}</option>`).join('');
                 selFP.value = latihanFilterPunca;
+            }
+
+            // Penapis Sejarah Rekod: Latihan & Subjek
+            if (selLT) {
+                const todoMap = new Map();
+                todos.forEach(t => todoMap.set(String(t.id), t.text));
+                log.forEach(r => {
+                    if (r.todoText) {
+                        const k = r.todoId != null ? String(r.todoId) : `txt:${r.todoText}`;
+                        if (!todoMap.has(k)) todoMap.set(k, r.todoText);
+                    }
+                });
+                const todoOpts = [...todoMap.entries()];
+                selLT.innerHTML = `<option value="">Semua latihan</option>` +
+                    todoOpts.map(([val, lbl]) => `<option value="${escEv(val)}">${escEv(lbl)}</option>`).join('') +
+                    `<option value="__none__">Tanpa latihan</option>`;
+                if (latihanLogFilterTodo && latihanLogFilterTodo !== '__none__' && !todoOpts.some(([v]) => v === latihanLogFilterTodo)) {
+                    latihanLogFilterTodo = '';
+                }
+                selLT.value = latihanLogFilterTodo;
+            }
+
+            if (selLS) {
+                selLS.innerHTML = `<option value="">Semua subjek</option>` + filterNames.map(n =>
+                    `<option value="${escEv(n)}">${escEv(n)}</option>`).join('');
+                if (!filterNames.includes(latihanLogFilterSubjek)) latihanLogFilterSubjek = '';
+                selLS.value = latihanLogFilterSubjek;
             }
 
             const chkUnres = document.getElementById('lt-only-unresolved');
@@ -3561,11 +3597,37 @@
             renderLatihanLog();
         }
 
+        function setLatihanLogTodoFilter(val) {
+            latihanLogFilterTodo = val || '';
+            renderLatihanLog();
+        }
+
+        function setLatihanLogSubjekFilter(val) {
+            latihanLogFilterSubjek = val || '';
+            renderLatihanLog();
+        }
+
         function getFilteredLatihanLog() {
             return latihanGetLog().filter(r => {
                 if (latihanFilter && r.subjek !== latihanFilter) return false;
                 if (latihanFilterPunca && (r.punca || 'Tidak dinyatakan') !== latihanFilterPunca) return false;
                 if (latihanOnlyUnresolved && r.reviewed) return false;
+                return true;
+            });
+        }
+
+        function getFilteredSejarahLog() {
+            return getFilteredLatihanLog().filter(r => {
+                if (latihanLogFilterSubjek && r.subjek !== latihanLogFilterSubjek) return false;
+                if (latihanLogFilterTodo) {
+                    const hasTodo = !!(r.todoText || r.todoId != null);
+                    if (latihanLogFilterTodo === '__none__') {
+                        if (hasTodo) return false;
+                    } else {
+                        const key = r.todoId != null ? String(r.todoId) : (r.todoText ? `txt:${r.todoText}` : '');
+                        if (key !== latihanLogFilterTodo) return false;
+                    }
+                }
                 return true;
             });
         }
@@ -3609,40 +3671,42 @@
             byBab.forEach(r => { r.color = latihanSubjectColor(r.label.split(' · ')[0]).bar; });
             bySubjek.forEach(r => { r.color = latihanSubjectColor(r.label).bar; });
             const legend = latihanFilter ? '' : `<div class="flex flex-wrap gap-x-3 gap-y-1">${bySubjek.map(r => `
-                <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
-                    <span class="w-2.5 h-2.5 rounded-full ${r.color}"></span>${escEv(r.label)}
+                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-600 dark:text-slate-300">
+                    <span class="w-2.5 h-2.5 rounded-sm ${r.color}"></span>${escEv(r.label)}
                 </span>`).join('')}</div>`;
-            const totalSalah = log.reduce((t, r) => t + (Number(r.bilangan) || 1), 0);
-            const reviewedCount = log.filter(r => r.reviewed).length;
-
-            const card = (label, big, small) => `
-                <div class="rounded-xl bg-white/70 dark:bg-slate-800/60 border border-sky-100 dark:border-slate-700 p-3">
-                    <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500">${label}</div>
-                    <div class="text-sm sm:text-base font-black text-slate-800 dark:text-white mt-1 leading-snug break-words">${big}</div>
-                    ${small ? `<div class="text-[10px] text-slate-400 mt-0.5">${small}</div>` : ''}
-                </div>`;
+            const totalSalah = log.reduce((s, r) => s + (Number(r.bilangan) || 1), 0);
+            const belumDiatasi = log.filter(r => !r.reviewed).reduce((s, r) => s + (Number(r.bilangan) || 1), 0);
+            const topBab = byBab[0];
 
             box.innerHTML = `
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
-                    ${card('Jumlah soalan salah', totalSalah, `${log.length} rekod (${reviewedCount} diulang kaji)`)}
-                    ${card('Bab paling lemah', escEv(byBab[0].label.split(' · ').slice(1).join(' · ')), `${escEv(byBab[0].label.split(' · ')[0])} · ${byBab[0].value} salah`)}
-                    ${card('Subjek paling lemah', escEv(bySubjek[0].label), `${bySubjek[0].value} salah`)}
-                    ${card('Punca utama', escEv(byPunca[0].label), `${byPunca[0].value} salah`)}
-                </div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                    <div class="space-y-2">
-                        <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">Bab paling banyak salah (10 teratas)</h4>
-                        ${legend}
-                        ${latihanBars(byBab.slice(0, 10), 'bg-rose-500')}
+                <div class="grid grid-cols-3 gap-2.5">
+                    <div class="p-3 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-sky-200/80 dark:border-sky-800/60">
+                        <div class="text-[10px] font-bold uppercase text-slate-400">Jumlah Soalan Salah</div>
+                        <div class="text-xl font-black text-rose-500 mt-0.5">${totalSalah}</div>
                     </div>
-                    <div class="space-y-5">
-                        ${latihanFilter ? '' : `<div class="space-y-2">
-                            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">Mengikut subjek</h4>
-                            ${latihanBars(bySubjek, 'bg-orange-500')}
-                        </div>`}
-                        <div class="space-y-2">
-                            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">Punca kesilapan</h4>
-                            ${latihanBars(byPunca, 'bg-slate-500')}
+                    <div class="p-3 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-sky-200/80 dark:border-sky-800/60">
+                        <div class="text-[10px] font-bold uppercase text-slate-400">Belum Diatasi</div>
+                        <div class="text-xl font-black text-amber-500 mt-0.5">${belumDiatasi}</div>
+                    </div>
+                    <div class="p-3 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-sky-200/80 dark:border-sky-800/60">
+                        <div class="text-[10px] font-bold uppercase text-slate-400">Paling Kerap Salah</div>
+                        <div class="text-xs font-extrabold text-slate-800 dark:text-white mt-1 truncate" title="${topBab ? escEv(topBab.label) : '-'}">${topBab ? escEv(topBab.label) : '-'}</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 rounded-xl bg-white/70 dark:bg-slate-900/50 border border-sky-200/70 dark:border-sky-800/50 space-y-2.5">
+                        <div class="text-[11px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">Ikut Bab</div>
+                        ${legend}
+                        ${latihanBars(byBab, 'bg-rose-500')}
+                    </div>
+                    <div class="space-y-4">
+                        ${!latihanFilter ? `<div class="p-4 rounded-xl bg-white/70 dark:bg-slate-900/50 border border-sky-200/70 dark:border-sky-800/50 space-y-2.5">
+                            <div class="text-[11px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">Ikut Subjek</div>
+                            ${latihanBars(bySubjek, 'bg-indigo-500')}
+                        </div>` : ''}
+                        <div class="p-4 rounded-xl bg-white/70 dark:bg-slate-900/50 border border-sky-200/70 dark:border-sky-800/50 space-y-2.5">
+                            <div class="text-[11px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">Ikut Punca Kesilapan</div>
+                            ${latihanBars(byPunca, 'bg-amber-500')}
                         </div>
                     </div>
                 </div>`;
@@ -3651,45 +3715,55 @@
         function renderLatihanLog() {
             const box = document.getElementById('latihan-log');
             if (!box) return;
-            const log = getFilteredLatihanLog();
+            const log = getFilteredSejarahLog();
             if (!log.length) {
-                box.innerHTML = `<div class="py-8 text-center text-xs text-slate-400">Tiada rekod.</div>`;
+                box.innerHTML = `<div class="py-8 text-center text-xs text-slate-400">Tiada rekod sepadan dengan penapis Sejarah Rekod.</div>`;
                 return;
             }
-            box.innerHTML = log.slice(0, 100).map(r => `
-                <div class="flex items-start justify-between gap-3 p-3 rounded-xl border transition ${r.reviewed
-                    ? 'border-emerald-200 dark:border-emerald-900 bg-emerald-50/40 dark:bg-emerald-950/20'
-                    : 'border-violet-100 dark:border-violet-900 bg-white/70 dark:bg-slate-800/40'}">
-                    <div class="min-w-0 space-y-1">
-                        <div class="flex flex-wrap items-center gap-1.5 text-[10px]">
-                            <span class="font-semibold text-slate-400">${escEv(r.tarikh)}</span>
-                            <span class="px-2 py-0.5 rounded font-bold ${latihanSubjectColor(r.subjek).badge}">${escEv(r.subjek)}</span>
-                            <span class="px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-bold">${Number(r.bilangan) || 1} salah</span>
-                            ${r.punca ? `<span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold">${escEv(r.punca)}</span>` : ''}
-                            <button type="button" onclick="toggleLatihanReviewed(${Number(r.id)})" title="Klik untuk tukar status ulang kaji" class="px-2 py-0.5 rounded font-bold border transition cursor-pointer ${r.reviewed
-                                ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
-                                : 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800'}">
-                                ${r.reviewed ? `✓ Sudah Diulang Kaji${r.reviewedAt ? ' (' + escEv(r.reviewedAt) + ')' : ''}` : '⏳ Belum Diatasi'}
+            box.innerHTML = log.map(r => {
+                const sc = latihanSubjectColor(r.subjek);
+                const statusBtn = r.reviewed
+                    ? `<button type="button" onclick="toggleLatihanReviewed('${r.id}')" class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 hover:opacity-80 transition">Sudah diulang kaji${r.reviewedAt ? ' (' + escEv(r.reviewedAt) + ')' : ''}</button>`
+                    : `<button type="button" onclick="toggleLatihanReviewed('${r.id}')" class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 hover:opacity-80 transition">Belum diatasi</button>`;
+                const puncaTag = r.punca
+                    ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100/80 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300">${escEv(r.punca)}</span>` : '';
+                const rujukanTag = r.rujukan
+                    ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-100/80 dark:bg-sky-950/70 text-sky-800 dark:text-sky-300">Rujukan: ${escEv(r.rujukan)}</span>` : '';
+                const todoTag = r.todoText
+                    ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-100/80 dark:bg-indigo-950/70 text-indigo-800 dark:text-indigo-300">Latihan: ${escEv(r.todoText)}</span>` : '';
+                const catatanHtml = r.catatan
+                    ? `<div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">${escEv(r.catatan)}</div>` : '';
+
+                return `
+                    <div class="flex flex-wrap items-start justify-between gap-3 p-3 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-violet-200/80 dark:border-violet-800/60">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                <span class="text-[11px] font-bold text-slate-400">${escEv(r.tarikh)}</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${sc.badge}">${escEv(r.subjek)}</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300">${Number(r.bilangan) || 1} salah</span>
+                                ${puncaTag}
+                                ${rujukanTag}
+                                ${todoTag}
+                            </div>
+                            <div class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 mt-1">${escEv(r.bab)}</div>
+                            ${catatanHtml}
+                        </div>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            ${statusBtn}
+                            <button type="button" onclick="openEditLatihanModal('${r.id}')" title="Sunting rekod" class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition">
+                                <i data-lucide="pencil" class="w-4 h-4"></i>
+                            </button>
+                            <button type="button" onclick="deleteLatihanRecord('${r.id}')" title="Padam rekod (Master PIN)" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
-                        <div class="text-xs font-bold text-slate-800 dark:text-slate-100 break-words">${escEv(r.bab)}</div>
-                        ${r.rujukan ? `<div class="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 break-words">📖 Rujukan: ${escEv(r.rujukan)}</div>` : ''}
-                        ${r.catatan ? `<div class="text-[11px] text-slate-500 dark:text-slate-400 break-words">${escEv(r.catatan)}</div>` : ''}
-                        ${r.todoText ? `<div class="text-[10px] text-slate-400 break-words">Tugasan: ${escEv(r.todoText)}</div>` : ''}
-                    </div>
-                    <div class="flex items-center gap-0.5 shrink-0">
-                        <button onclick="openEditLatihanModal(${Number(r.id)})" title="Sunting rekod" class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition">
-                            <i data-lucide="pencil" class="w-4 h-4"></i>
-                        </button>
-                        <button onclick="deleteLatihanRecord(${Number(r.id)})" title="Padam rekod (Perlu Master PIN Ibu Bapa)" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                </div>`).join('') + (log.length > 100 ? `<div class="text-center text-[10px] text-slate-400 py-1">Memaparkan 100 rekod terkini daripada ${log.length}.</div>` : '');
+                    </div>`;
+            }).join('');
+            lucide.createIcons();
         }
 
         function renderLatihanSection() {
-            if (activeProfileId !== 'spm' || !document.getElementById('lt-todo')) return;
+            if (activeProfileId !== 'spm') return;
             latihanFillForm();
             renderLatihanStats();
             renderLatihanLog();
@@ -3697,7 +3771,7 @@
         }
 
         // =========================================================================
-        // 10. INITIALIZATION
+        // 10. MASTER RENDER & INITIALIZATION
         // =========================================================================
         function renderAll() {
             renderProfileSwitcher();
@@ -3706,20 +3780,20 @@
             renderHeroAndOverview();
             renderEventsGrid();
             updateCountdownTick();
-            if (unlockedTabs.grades || unlockedTabs.kafa) renderGradesSection();
-            if (activeTab === 'todo') renderTodoSection();
-            if (activeTab === 'latihan') renderLatihanSection();
             lucide.createIcons();
         }
 
-        window.onload = function () {
-            loadTheme();
-            loadState();
-            detectInitialProfile();
-            renderAll();
-            initFirebaseSync();
-            setInterval(updateCountdownTick, 1000);
-        };
+        // Boot Sequence
+        loadTheme();
+        loadState();
+        detectInitialProfile();
+        renderAll();
+        initFirebaseSync();
+
+        // Live Countdown Interval (1s)
+        setInterval(() => {
+            updateCountdownTick();
+        }, 1000);
     </script>
 </body>
 </html>
