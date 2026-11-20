@@ -353,7 +353,7 @@
             </div>
         </section>
 
-        <!-- TAB 4: LATIHAN - REKOD KESILAPAN & STATISTIK KELEMAHAN (Nurul Izzati sahaja) -->
+        <!-- TAB 4: ANALISIS - REKOD KESILAPAN & STATISTIK KELEMAHAN (Semua Pelajar) -->
         <section id="section-latihan" class="hidden space-y-6 fade-in">
             <div class="bg-amber-50 dark:bg-amber-950/40 rounded-2xl p-5 sm:p-6 border border-amber-200 dark:border-amber-900 shadow-sm space-y-4">
                 <div>
@@ -1448,6 +1448,13 @@
                 window.history.replaceState({}, '', url);
             } catch (e) {}
 
+            // Reset penapis Analisis apabila tukar profil
+            latihanFilter = '';
+            latihanFilterPunca = '';
+            latihanOnlyUnresolved = false;
+            latihanLogFilterTodo = '';
+            latihanLogFilterSubjek = '';
+
             // Kembali ke tab Countdown apabila tukar profil
             activeTab = 'countdown';
             renderAll();
@@ -1616,18 +1623,12 @@
                 activeTab = 'grades';
             }
 
-            const isSPM = cfg.id === 'spm';
-            // Tab Latihan hanya untuk Nurul Izzati
-            if (!isSPM && activeTab === 'latihan') {
-                activeTab = 'countdown';
-            }
-
-            // Susun grid navigasi: 4 tab untuk Raisha (Countdown, Keputusan Sekolah, Keputusan KAFA, To-Do & Hafazan) dan Izzati (Countdown, Keputusan, To-Do, Latihan), 3 tab untuk anak lain
+            // Susun grid navigasi: 5 tab untuk Raisha (termasuk Keputusan KAFA), 4 tab untuk pelajar lain (termasuk Analisis)
             const navEl = document.getElementById('main-nav-tabs');
             if (navEl) {
-                navEl.className = (isRaisha || isSPM)
-                    ? 'pt-1 border-t border-slate-200/70 dark:border-slate-800/70 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2.5'
-                    : 'pt-1 border-t border-slate-200/70 dark:border-slate-800/70 grid grid-cols-3 gap-1.5 sm:gap-2.5';
+                navEl.className = isRaisha
+                    ? 'pt-1 border-t border-slate-200/70 dark:border-slate-800/70 grid grid-cols-2 sm:grid-cols-5 gap-1.5 sm:gap-2.5'
+                    : 'pt-1 border-t border-slate-200/70 dark:border-slate-800/70 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2.5';
             }
 
             // Peraturan Khas: Countdown = Merah bila dipilih, Hijau bila tidak dipilih
@@ -1649,13 +1650,9 @@
             btnGr.className = activeTab === 'grades' ? activeStd : inactiveStd;
             btnTd.className = activeTab === 'todo' ? activeStd : inactiveStd;
 
-            // Butang Latihan (khas untuk Izzati sahaja)
+            // Butang Analisis (untuk semua pelajar)
             const btnLt = document.getElementById('tab-btn-latihan');
-            if (isSPM) {
-                btnLt.className = activeTab === 'latihan' ? activeStd : inactiveStd;
-            } else {
-                btnLt.classList.add('hidden');
-            }
+            btnLt.className = activeTab === 'latihan' ? activeStd : inactiveStd;
 
             // Label tab Keputusan: untuk Raisha jadi "Keputusan Sekolah"
             document.getElementById('tab-grades-label').textContent = isRaisha ? 'Keputusan Sekolah' : 'Keputusan';
@@ -3188,8 +3185,8 @@
 
 
         // =========================================================================
-        // 9. LATIHAN - REKOD KESILAPAN & STATISTIK KELEMAHAN (Nurul Izzati)
-        // Data disimpan dalam appState.profiles.spm.latihanLog (turut disync ke cloud)
+        // 9. ANALISIS - REKOD KESILAPAN & STATISTIK KELEMAHAN (Semua Pelajar)
+        // Data disimpan dalam appState.profiles[activeProfileId].latihanLog (turut disync ke cloud)
         // =========================================================================
         const LATIHAN_BAB_DATA = {
             'matematik': { t: 'T4', start: 1, bab: [
@@ -3267,26 +3264,31 @@
         }
 
         function latihanBabList(subjek) {
+            if (activeProfileId !== 'spm') return [];
             const d = LATIHAN_BAB_DATA[String(subjek || '').trim().toLowerCase()];
             return d ? d.bab.map((title, i) => `${d.t} Bab ${d.start + i}: ${title}`) : [];
         }
 
         function latihanGetLog() {
-            const pData = appState.profiles.spm;
+            const pData = appState.profiles[activeProfileId];
             if (!Array.isArray(pData.latihanLog)) pData.latihanLog = [];
             return pData.latihanLog;
         }
 
         function latihanSubjects() {
+            const pData = appState.profiles[activeProfileId];
             const names = [];
-            (appState.profiles.spm.exams || []).forEach(ex => (ex.subjects || []).forEach(sub => {
+            (pData.exams || []).forEach(ex => (ex.subjects || []).forEach(sub => {
+                if (sub.name && !names.includes(sub.name)) names.push(sub.name);
+            }));
+            (pData.kafaExams || []).forEach(ex => (ex.subjects || []).forEach(sub => {
                 if (sub.name && !names.includes(sub.name)) names.push(sub.name);
             }));
             return names;
         }
 
         function latihanFillForm() {
-            const pData = appState.profiles.spm;
+            const pData = appState.profiles[activeProfileId];
             const selT = document.getElementById('lt-todo');
             const selS = document.getElementById('lt-subjek');
             const selP = document.getElementById('lt-punca');
@@ -3393,7 +3395,7 @@
 
             const bil = Math.max(1, Math.min(99, parseInt(document.getElementById('lt-bilangan').value, 10) || 1));
             const todoId = document.getElementById('lt-todo').value;
-            const todo = (appState.profiles.spm.todos || []).find(t => String(t.id) === String(todoId));
+            const todo = (appState.profiles[activeProfileId].todos || []).find(t => String(t.id) === String(todoId));
 
             latihanGetLog().unshift({
                 id: Date.now(),
@@ -3459,7 +3461,7 @@
                 return;
             }
             if (pendingDeleteLatihanId !== null) {
-                const pData = appState.profiles.spm;
+                const pData = appState.profiles[activeProfileId];
                 pData.latihanLog = latihanGetLog().filter(r => String(r.id) !== String(pendingDeleteLatihanId));
                 saveState(false);
                 showToast('Rekod berjaya dipadam!');
@@ -3475,7 +3477,7 @@
             const r = latihanGetLog().find(x => String(x.id) === String(id));
             if (!r) return;
             editingLatihanId = r.id;
-            const pData = appState.profiles.spm;
+            const pData = appState.profiles[activeProfileId];
 
             const selT = document.getElementById('elt-todo');
             const todos = (pData.todos || []).filter(t => t.tag === 'Latihan');
@@ -3554,7 +3556,7 @@
             if (!bab) { showToast('Sila pilih atau taip nama bab.'); return; }
 
             const todoId = document.getElementById('elt-todo').value;
-            const todo = (appState.profiles.spm.todos || []).find(t => String(t.id) === String(todoId));
+            const todo = (appState.profiles[activeProfileId].todos || []).find(t => String(t.id) === String(todoId));
             if (todo) {
                 r.todoId = todo.id;
                 r.todoText = todo.text;
