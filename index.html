@@ -325,7 +325,7 @@ function getResultBadgeClass(val){const v=Number(val)||3;if(v>=4)return'bg-emera
 const QUESTION_LEVEL_LABELS={1:'1/5',2:'2/5',3:'3/5',4:'4/5',5:'5/5'
 };function getQuestionLevelClass(val){const v=Number(val);if(v===1||v===2)return'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800';if(v===3)return'bg-orange-100 text-orange-700 dark:bg-orange-950/80 dark:text-orange-300 border-orange-300 dark:border-orange-800';if(v===4||v===5)return'bg-rose-100 text-rose-700 dark:bg-rose-950/80 dark:text-rose-300 border-rose-300 dark:border-rose-800';return'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700';}
 function updateTodoLevel(idx,val){const pData=appState.profiles[activeProfileId];const item=pData.todos[idx];if(!item)return;item.questionLevel=val?Math.max(1,Math.min(5,parseInt(val,10))):null;saveState(false);renderTodoSection();}
-function updateTodoSlider(idx,field,val){const pData=appState.profiles[activeProfileId];const item=pData.todos[idx];if(!item||!item.done||item.tag!=='Latihan')return;const num=Math.max(1,Math.min(5,parseInt(val,10)||3));if(field==='resultScale'){if(String(resultSliderUnlockedId)!==String(item.id)){renderTodoSection();return;}item.resultSet=true;const rInp=document.getElementById(`todo-resultScale-input-${idx}`);if(rInp)rInp.classList.remove('slider-unset');}item[field]=num;const badge=document.getElementById(`todo-${field}-badge-${idx}`);if(badge){if(field==='ujianScale'){badge.textContent=UJIAN_SCALE_LABELS[num];badge.className=`px-1.5 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${getUjianBadgeClass(num)}`;}else{badge.textContent=RESULT_SCALE_LABELS[num];badge.className=`px-1.5 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${getResultBadgeClass(num)}`;}
+function updateTodoSlider(idx,field,val,subjKey){const pData=appState.profiles[activeProfileId];const item=pData.todos[idx];if(!item||!item.done||item.tag!=='Latihan')return;const num=Math.max(1,Math.min(5,parseInt(val,10)||3));if(field==='resultScale'){if(String(resultSliderUnlockedId)!==String(item.id)){renderTodoSection();return;}if(subjKey!==undefined&&subjKey!==''){if(!item.resultScales||typeof item.resultScales!=='object')item.resultScales={};if(!item.resultSets||typeof item.resultSets!=='object')item.resultSets={};item.resultScales[subjKey]=num;item.resultSets[subjKey]=true;const safeId=encodeURIComponent(subjKey).replace(/[^a-zA-Z0-9]/g,'_');const rInp=document.getElementById(`todo-resultScale-input-${idx}-${safeId}`);if(rInp)rInp.classList.remove('slider-unset');const badge=document.getElementById(`todo-resultScale-badge-${idx}-${safeId}`);if(badge){badge.textContent=RESULT_SCALE_LABELS[num];badge.className=`px-1.5 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${getResultBadgeClass(num)}`;}saveState(false);return;}item.resultSet=true;const rInp=document.getElementById(`todo-resultScale-input-${idx}`);if(rInp)rInp.classList.remove('slider-unset');}item[field]=num;const badge=document.getElementById(`todo-${field}-badge-${idx}`);if(badge){if(field==='ujianScale'){badge.textContent=UJIAN_SCALE_LABELS[num];badge.className=`px-1.5 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${getUjianBadgeClass(num)}`;}else{badge.textContent=RESULT_SCALE_LABELS[num];badge.className=`px-1.5 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${getResultBadgeClass(num)}`;}
 }
 saveState(false);}
 function getActiveProfileSubjects(){const pData=appState.profiles[activeProfileId];const names=[];
@@ -362,7 +362,26 @@ const listEl=document.getElementById('todo-list-container');if(!total){listEl.in
                            </span>`
 :'';const subjectBadge=getTodoSubjects(item).map(sub=>
 `<span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded ${latihanSubjectColor(sub).badge}">${escEv(sub)}</span>`
-).join('');const showLatihanSliders=item.tag==='Latihan'&&item.done;const uVal=Number(item.ujianScale)||3;const rVal=Number(item.resultScale)||3;const rSet=isResultSet(item);const rUnlocked=String(resultSliderUnlockedId)===String(item.id);const sliderColumnsHtml=showLatihanSliders
+).join('');const showLatihanSliders=item.tag==='Latihan'&&item.done;const uVal=Number(item.ujianScale)||3;const rVal=Number(item.resultScale)||3;const rSet=isResultSet(item);const rUnlocked=String(resultSliderUnlockedId)===String(item.id);const itemSubjects=getTodoSubjects(item);const multiSubjects=itemSubjects.length>1;const renderSingleResultSlider=(subjName,sIdx)=>{const isMulti=Boolean(subjName);const curVal=isMulti?(Number((item.resultScales||{})[subjName])||rVal):rVal;const curSet=isMulti?isResultSet(item,subjName):rSet;const safeId=isMulti?encodeURIComponent(subjName).replace(/[^a-zA-Z0-9]/g,'_'):'';const inpId=isMulti?`todo-resultScale-input-${idx}-${safeId}`:`todo-resultScale-input-${idx}`;const badgeId=isMulti?`todo-resultScale-badge-${idx}-${safeId}`:`todo-resultScale-badge-${idx}`;const argSubj=isMulti?`, '${subjName.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}'`:'';const labelTxt=isMulti?escEv(subjName):'Keputusan';return`
+                                <div class="${isMulti&&sIdx>0?'pt-1.5 border-t border-slate-200/70 dark:border-slate-700/70':''} space-y-1">
+                                    <div class="flex items-center justify-between gap-1">
+                                        <span class="text-[10px] font-extrabold ${isMulti?'':'uppercase tracking-wider'} text-slate-500 dark:text-slate-400 truncate" title="${labelTxt}">${labelTxt}${!isMulti||sIdx===0?(rUnlocked?'':' 🔒'):''}</span>
+                                        <span id="${badgeId}" class="px-1.5 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${curSet?getResultBadgeClass(curVal):'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700'}">${curSet?RESULT_SCALE_LABELS[curVal]:'Belum dinilai'}</span>
+                                    </div>
+                                    <div class="relative">
+                                        <input id="${inpId}" type="range" min="1" max="5" step="1" value="${curVal}" ${rUnlocked?'':'tabindex="-1"'}
+                                            oninput="updateTodoSlider(${idx}, 'resultScale', this.value${argSubj})"
+                                            onchange="updateTodoSlider(${idx}, 'resultScale', this.value${argSubj})"
+                                            title="Skala Keputusan${isMulti?' ('+escEv(subjName)+')':''} (1 = Lemah, 5 = Cemerlang)"
+                                            class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-600 ${curSet?'':'slider-unset'}">
+                                        ${rUnlocked?'':`<div onclick="requestResultSlider('${item.id}')" title="Perlu Master PIN Ibu Bapa untuk ubah" class="absolute -inset-y-2 inset-x-0 z-10 cursor-pointer"></div>`}
+                                    </div>
+                                    <div class="flex justify-between text-[9px] text-slate-400 font-semibold px-0.5">
+                                        <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                                    </div>
+                                </div>`;};const resultSlidersHtml=multiSubjects
+?itemSubjects.map((sub,sIdx)=>renderSingleResultSlider(sub,sIdx)).join('')
+:renderSingleResultSlider('',0);const sliderColumnsHtml=showLatihanSliders
 ?`
                             <div class="lg:col-span-2 flex flex-col gap-1 p-2 rounded-lg bg-white/80 dark:bg-slate-900/70 border border-slate-200/70 dark:border-slate-700/70">
                                 <div class="flex items-center justify-between gap-1">
@@ -379,22 +398,8 @@ const listEl=document.getElementById('todo-list-container');if(!total){listEl.in
                                 </div>
                             </div>
                             <div class="lg:col-span-2 flex flex-col gap-1 p-2 rounded-lg bg-white/80 dark:bg-slate-900/70 border border-slate-200/70 dark:border-slate-700/70">
-                                <div class="flex items-center justify-between gap-1">
-                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Keputusan${rUnlocked?'':' 🔒'}</span>
-                                    <span id="todo-resultScale-badge-${idx}" class="px-1.5 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${rSet?getResultBadgeClass(rVal):'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700'}">${rSet?RESULT_SCALE_LABELS[rVal]:'Belum dinilai'}</span>
-                                </div>
-                                <div class="relative">
-                                    <input id="todo-resultScale-input-${idx}" type="range" min="1" max="5" step="1" value="${rVal}" ${rUnlocked?'':'tabindex="-1"'}
-                                        oninput="updateTodoSlider(${idx}, 'resultScale', this.value)"
-                                        onchange="updateTodoSlider(${idx}, 'resultScale', this.value);finishResultSlider()"
-                                        onblur="finishResultSlider()"
-                                        title="Skala Keputusan (1 = Lemah, 5 = Cemerlang)"
-                                        class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-600 ${rSet?'':'slider-unset'}">
-                                    ${rUnlocked?'':`<div onclick="requestResultSlider('${item.id}')" title="Perlu Master PIN Ibu Bapa untuk ubah" class="absolute -inset-y-2 inset-x-0 z-10 cursor-pointer"></div>`}
-                                </div>
-                                <div class="flex justify-between text-[9px] text-slate-400 font-semibold px-0.5">
-                                    <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
-                                </div>
+                                ${resultSlidersHtml}
+                                ${rUnlocked?`<button type="button" onclick="finishResultSlider()" class="mt-0.5 w-full py-0.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold transition">Selesai & Kunci</button>`:''}
                             </div>
                         `
 :'';return`
@@ -444,7 +449,7 @@ function addTodoItem(e){e.preventDefault();const input=document.getElementById('
 };if(tag==='Latihan'){newItem.ujianScale=3;newItem.resultSet=false;}
 appState.profiles[activeProfileId].todos.unshift(newItem);input.value='';document.querySelectorAll('#new-todo-subject-list input:checked').forEach(c=>c.checked=false);populateTodoSubjectSelects();const addDd=document.getElementById('new-todo-subject-dd');if(addDd)addDd.open=false;if(levelSel)levelSel.value='';toggleNewTodoLevelVisibility();saveState(true);renderTodoSection();renderHeroAndOverview();}
 let resultSliderUnlockedId=null;let pendingResultSliderId=null;
-function isResultSet(item){if(item.resultSet===true)return true;if(item.resultSet===false)return false;return item.resultScale!=null&&Number(item.resultScale)!==3;}
+function isResultSet(item,subjKey){if(subjKey!==undefined&&subjKey!==''){if(item.resultSets&&typeof item.resultSets==='object'&&subjKey in item.resultSets)return Boolean(item.resultSets[subjKey]);if(item.resultScales&&typeof item.resultScales==='object'&&subjKey in item.resultScales)return Number(item.resultScales[subjKey])!==3;}if(item.resultSet===true)return true;if(item.resultSet===false)return false;return item.resultScale!=null&&Number(item.resultScale)!==3;}
 function requestResultSlider(id){pendingResultSliderId=id;const input=document.getElementById('result-slider-pin-input');input.value='';document.getElementById('result-slider-pin-error').classList.add('hidden');const modal=document.getElementById('result-slider-pin-modal');modal.classList.remove('hidden');modal.classList.add('flex');lucide.createIcons();setTimeout(()=>input.focus(),100);}
 function closeResultSliderPinModal(){const modal=document.getElementById('result-slider-pin-modal');modal.classList.add('hidden');modal.classList.remove('flex');pendingResultSliderId=null;}
 function confirmResultSliderPin(){const entered=document.getElementById('result-slider-pin-input').value.trim();if(entered===MASTER_PIN){resultSliderUnlockedId=pendingResultSliderId;closeResultSliderPinModal();renderTodoSection();showToast('Slider Keputusan dibuka. Sila pilih tahap.');}else{document.getElementById('result-slider-pin-error').classList.remove('hidden');}}
