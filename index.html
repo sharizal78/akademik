@@ -351,7 +351,8 @@ function renderTodoSection(){const cfg=PROFILES_CONFIG[activeProfileId];const pD
 const total=pData.todos.length;const done=pData.todos.filter(t=>t.done).length;const pct=total?Math.round((done/total)*100):0;document.getElementById('todo-progress-badge').textContent=`${pct}% Selesai (${done}/${total})`;const streak=computeTodoStreak(pData.todos);const streakEl=document.getElementById('todo-streak-badge');if(streakEl){streakEl.textContent=`🔥 Streak: ${streak} Hari`;}
 const listEl=document.getElementById('todo-list-container');if(!total){listEl.innerHTML=`<div class="py-12 text-center text-xs text-slate-400">Tiada tugasan buat masa ini. Tambah tugasan pertama di atas!</div>`;}else{const hasCompletedLatihan=pData.todos.some(t=>t.tag==='Latihan'&&t.done);const columnHeaderHtml=hasCompletedLatihan
 ?`<div class="hidden lg:grid lg:grid-cols-12 items-center gap-3 px-3.5 py-2 rounded-xl bg-slate-100/90 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 text-[11px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-                           <div class="lg:col-span-7">Tugasan</div>
+                           <div class="lg:col-span-5">Tugasan</div>
+                           <div class="lg:col-span-2 text-center">Tahap Ujian</div>
                            <div class="lg:col-span-3 text-center">Keputusan (1-5)</div>
                            <div class="lg:col-span-2 text-right">Tindakan</div>
                        </div>`
@@ -400,6 +401,9 @@ const listEl=document.getElementById('todo-list-container');if(!total){listEl.in
 ?itemSubjects.map((sub,sIdx)=>renderSingleResultSlider(sub,sIdx)).join('')
 :renderSingleResultSlider('',0);const sliderColumnsHtml=showLatihanSliders
 ?`
+                            <div class="lg:col-span-2 flex flex-col gap-1 p-2 rounded-lg bg-white/80 dark:bg-slate-900/70 border border-slate-200/70 dark:border-slate-700/70">
+                                ${ujianSlidersHtml}
+                            </div>
                             <div class="lg:col-span-3 flex flex-col gap-1 p-2 rounded-lg bg-white/80 dark:bg-slate-900/70 border border-slate-200/70 dark:border-slate-700/70">
                                 ${resultSlidersHtml}
                                 ${rUnlocked?`<button type="button" onclick="finishResultSlider()" class="mt-0.5 w-full py-0.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold transition">Selesai & Kunci</button>`:''}
@@ -427,7 +431,7 @@ const listEl=document.getElementById('todo-list-container');if(!total){listEl.in
                     <div class="grid grid-cols-1 ${showLatihanSliders?'lg:grid-cols-12':'sm:flex'} items-stretch sm:items-center justify-between gap-3 p-3.5 rounded-xl border transition ${item.done
 ?'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200/70 dark:border-emerald-900/50'
 :'bg-slate-50 dark:bg-slate-800/60 border-slate-200/70 dark:border-slate-700/70'}">
-                        <label class="${showLatihanSliders?'lg:col-span-7':'flex-1'} flex items-start sm:items-center gap-3 cursor-pointer min-w-0">
+                        <label class="${showLatihanSliders?'lg:col-span-5':'flex-1'} flex items-start sm:items-center gap-3 cursor-pointer min-w-0">
                             <input type="checkbox" ${item.done?'checked':''} onchange="toggleTodoItem(${idx}, this)" class="mt-0.5 sm:mt-0 w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 shrink-0">
                             <div class="min-w-0 flex-1">
                                 <div class="text-xs sm:text-sm font-semibold break-words ${item.done?'line-through text-slate-400':'text-slate-800 dark:text-slate-100'}">${escEv(item.text)}</div>
@@ -837,17 +841,7 @@ function renderLatihanProgress(){
                 :(diff<0
                     ?`<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300">▼ ${diff} Menurun</span>`
                     :`<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">— Kekal (${latest.result}/5)</span>`));
-        const recentRows=[...pts].reverse().slice(0,4).map((pt,rIdx)=>`
-            <div class="flex items-center justify-between gap-2 text-[11px] py-1 px-2 rounded-lg bg-slate-50/90 dark:bg-slate-900/60">
-                <div class="min-w-0 flex-1 truncate">
-                    <span class="font-bold text-slate-400 mr-1">#${pts.length-rIdx}</span>
-                    <span class="font-semibold text-slate-700 dark:text-slate-200">${escEv(pt.title)}</span>
-                </div>
-                <div class="flex items-center gap-1.5 shrink-0">
-                    ${pt.level!=null?`<span class="px-1.5 py-0.5 rounded text-[10px] font-bold border ${getQuestionLevelClass(pt.level)}">Level ${pt.level}/5</span>`:'<span class="text-[10px] text-slate-400">Level -</span>'}
-                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold border ${getResultBadgeClass(pt.result)}">${RESULT_SCALE_LABELS[pt.result]}</span>
-                </div>
-            </div>`).join('');
+
         return `
             <div class="rounded-2xl bg-white/90 dark:bg-slate-800/70 border border-emerald-100 dark:border-slate-700 p-4 space-y-3 shadow-sm">
                 <div class="flex flex-wrap items-center justify-between gap-2">
@@ -863,7 +857,6 @@ function renderLatihanProgress(){
                     <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-sky-400/50 border border-sky-400 inline-block"></span> Bar = Level Soalan (1/5–5/5)</span>
                 </div>
                 <div class="pt-1">${buildSubjectProgressSvg(pts,sub)}</div>
-                <div class="space-y-1 pt-1 border-t border-slate-100 dark:border-slate-700/70">${recentRows}</div>
             </div>`;
     }).join('');
     box.innerHTML=`
