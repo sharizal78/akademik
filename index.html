@@ -976,17 +976,29 @@ function ltQuadrant(by){
 function ltWeeklyWrong(){
     const log=latihanGetLog();
     const ws=ltWeekStart(new Date());ws.setDate(ws.getDate()-49);
-    const weeks=[];for(let i=0;i<8;i++){const d=new Date(ws);d.setDate(ws.getDate()+i*7);weeks.push({t:d.getTime(),ok:0,no:0});}
-    let totAll=0,okAll=0;
-    log.forEach(r=>{const b=Number(r.bilangan)||1;totAll+=b;if(r.reviewed)okAll+=b;const ts=parseTodoTimestamp(r.tarikh);if(!ts)return;let idx=-1;weeks.forEach((w,i)=>{if(ts>=w.t)idx=i;});if(idx<0)return;if(r.reviewed)weeks[idx].ok+=b;else weeks[idx].no+=b;});
+    const weeks=[];for(let i=0;i<8;i++){const d=new Date(ws);d.setDate(ws.getDate()+i*7);weeks.push({t:d.getTime(),by:new Map()});}
+    const tot=new Map();let totAll=0,okAll=0;
+    log.forEach(r=>{const b=Number(r.bilangan)||1,sub=r.subjek||'Umum';totAll+=b;if(r.reviewed)okAll+=b;
+        const ts=parseTodoTimestamp(r.tarikh);if(!ts)return;let idx=-1;weeks.forEach((w,i)=>{if(ts>=w.t)idx=i;});if(idx<0)return;
+        weeks[idx].by.set(sub,(weeks[idx].by.get(sub)||0)+b);tot.set(sub,(tot.get(sub)||0)+b);});
     if(!totAll)return ltEmpty('Belum ada rekod kesilapan.');
-    const W=460,H=190,L=30,R=10,T=18,B=28,pw=W-L-R,ph=H-T-B;
-    const max=Math.max(5,...weeks.map(w=>w.ok+w.no));const bw=Math.min(34,pw/8*0.6);
-    const bars=weeks.map((w,i)=>{const cx=L+pw/8*(i+.5),tot=w.ok+w.no;const hOk=w.ok/max*ph,hNo=w.no/max*ph;
-        return `<rect x="${cx-bw/2}" y="${T+ph-hOk}" width="${bw}" height="${hOk}" rx="2" fill="#10b981"><title>Diatasi: ${w.ok}</title></rect><rect x="${cx-bw/2}" y="${T+ph-hOk-hNo}" width="${bw}" height="${hNo}" rx="2" fill="#fb7185"><title>Belum diatasi: ${w.no}</title></rect>${tot?`<text x="${cx}" y="${T+ph-hOk-hNo-4}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 text-[10px] font-extrabold">${tot}</text>`:''}<text x="${cx}" y="${H-9}" text-anchor="middle" class="fill-slate-400 text-[9px] font-bold">${ltDM(w.t)}</text>`;}).join('');
-    const base=`<line x1="${L}" y1="${T+ph}" x2="${W-R}" y2="${T+ph}" stroke="currentColor" class="text-slate-300 dark:text-slate-600"/>`;
+    if(!tot.size)return ltEmpty('Tiada kesilapan direkodkan dalam 8 minggu terakhir.');
+    const subs=[...tot.entries()].sort((x,y)=>y[1]-x[1]).map(x=>x[0]);
+    const W=460,H=200,L=30,R=10,T=18,B=28,pw=W-L-R,ph=H-T-B;
+    const sum=w=>[...w.by.values()].reduce((x,y)=>x+y,0);
+    const max=Math.max(5,...weeks.map(sum));const bw=Math.min(36,pw/8*0.62);
+    let g='';[0,.5,1].forEach(f=>{const y=T+ph-f*ph;g+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="currentColor" class="text-slate-200 dark:text-slate-700/80" stroke-dasharray="${f?'3 3':''}"/>${f?`<text x="${L-6}" y="${y+3}" text-anchor="end" class="fill-slate-400 text-[9px] font-bold">${Math.round(max*f)}</text>`:''}`;});
+    const bars=weeks.map((w,i)=>{
+        const cx=L+pw/8*(i+.5);let y=T+ph,seg='';
+        subs.forEach(sub=>{const v=w.by.get(sub);if(!v)return;const h=v/max*ph;y-=h;
+            seg+=`<rect x="${cx-bw/2}" y="${y}" width="${bw}" height="${h}" fill="${latihanSubjectHex(sub)}" stroke="white" stroke-width=".8"><title>${escEv(sub)}: ${v} soalan salah (minggu ${ltDM(w.t)})</title></rect>`;
+            if(h>=13)seg+=`<text x="${cx}" y="${y+h/2+3}" text-anchor="middle" class="fill-white text-[9px] font-extrabold" style="pointer-events:none">${v}</text>`;});
+        const t=sum(w);
+        return seg+(t?`<text x="${cx}" y="${y-4}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 text-[10px] font-extrabold">${t}</text>`:'')+`<text x="${cx}" y="${H-9}" text-anchor="middle" class="fill-slate-400 text-[9px] font-bold">${ltDM(w.t)}</text>`;
+    }).join('');
+    const legend=`<div class="flex flex-wrap gap-x-3 gap-y-1">${subs.map(s=>`<span class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-600 dark:text-slate-300"><span class="w-2.5 h-2.5 rounded-sm" style="background:${latihanSubjectHex(s)}"></span>${escEv(s)} (${tot.get(s)})</span>`).join('')}</div>`;
     const pct=Math.round(okAll/totAll*100);
-    return `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto overflow-visible select-none">${base}${bars}</svg><div class="flex flex-wrap items-center justify-between gap-2 text-[10px] font-semibold text-slate-500"><span><span class="inline-block w-2.5 h-2.5 rounded-sm bg-emerald-500 align-middle"></span> Sudah diatasi &nbsp;<span class="inline-block w-2.5 h-2.5 rounded-sm bg-rose-400 align-middle"></span> Belum diatasi</span><span class="text-xs font-black text-slate-700 dark:text-slate-200">${pct}% kesilapan sudah diulang kaji</span></div>`;
+    return `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto overflow-visible select-none">${g}${bars}</svg>${legend}<div class="flex flex-wrap items-center justify-between gap-2 text-[10px] font-semibold text-slate-500"><span>Setiap warna = satu subjek • angka dalam kurungan = jumlah 8 minggu</span><span class="text-xs font-black text-slate-700 dark:text-slate-200">${pct}% kesilapan sudah diulang kaji</span></div>`;
 }
 function renderLatihanOverview(){
     const box=document.getElementById('latihan-overview');if(!box)return;
@@ -994,7 +1006,7 @@ function renderLatihanOverview(){
     box.innerHTML=`<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">`+
         ltCard('1. Radar Kekuatan Subjek','Bentuk besar &amp; sekata = seimbang. Penyek = subjek lemah.',ltRadar(by))+
         ltCard('2. Kuadran Level vs Keputusan','Satu titik = latihan terkini bagi setiap subjek. Nama subjek dipaparkan jika boleh naik level.',ltQuadrant(by))+
-        ltCard('3. Soalan Salah Mingguan','Bar semakin rendah dari minggu ke minggu = anak berkembang.',ltWeeklyWrong(),'lg:col-span-2')+
+        ltCard('3. Soalan Salah Mingguan','Bar semakin rendah dari minggu ke minggu = anak berkembang. Dipecahkan ikut subjek.',ltWeeklyWrong(),'lg:col-span-2')+
         `</div>`;
 }
 function renderLatihanSection(){const ae=document.activeElement;if(!(ae&&ae.id==='lt-bab-custom'))latihanFillForm();renderLatihanOverview();renderLatihanProgress();renderLatihanStats();renderLatihanBabCharts();renderLatihanLog();lucide.createIcons();}function renderUlangkajiSection(){const ae=document.activeElement;if(!(ae&&ae.id==='lt-bab-custom'))latihanFillForm();renderLatihanLog();lucide.createIcons();}
