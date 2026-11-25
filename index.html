@@ -823,6 +823,8 @@ function buildSubjectProgressSvg(points,subName){
         grid+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="currentColor" class="text-slate-200 dark:text-slate-700/80" stroke-dasharray="${v===1?'':'3 3'}" stroke-width="1"/>`;
         grid+=`<text x="${padL-7}" y="${y+3.5}" text-anchor="end" class="fill-slate-400 text-[10px] font-bold">${v}</text>`;
     }
+    const _log=(typeof latihanGetLog==='function')?latihanGetLog():[];
+    const revStat=pt=>{let t=0,ok=0;_log.forEach(r=>{if(String(r.todoId)===String(pt.id)&&(r.subjek||'Umum')===subName){const b=Number(r.bilangan)||1;t+=b;if(r.reviewed)ok+=b;}});return{t,ok};};
     let bars='';
     points.forEach((pt,i)=>{
         if(pt.level==null)return;
@@ -832,7 +834,14 @@ function buildSubjectProgressSvg(points,subName){
         const lvlFill=pt.level>=4?'fill-rose-400/35 dark:fill-rose-500/30':(pt.level===3?'fill-amber-400/35 dark:fill-amber-500/30':'fill-sky-400/35 dark:fill-sky-500/30');
         const lvlStroke=pt.level>=4?'stroke-rose-400/70':(pt.level===3?'stroke-amber-400/70':'stroke-sky-400/70');
         bars+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW}" height="${Math.max(4,h).toFixed(1)}" rx="4" class="${lvlFill} ${lvlStroke}" stroke-width="1"><title>${escEv(pt.title)} • Level Soalan: ${pt.level}/5</title></rect>`;
+        const rs=revStat(pt),bh=Math.max(4,h);
+        if(rs.t>0){
+            const rh=bh*rs.ok/rs.t;
+            if(rs.ok>0)bars+=`<rect x="${x.toFixed(1)}" y="${(padT+plotH-rh).toFixed(1)}" width="${barW}" height="${rh.toFixed(1)}" rx="4" fill="#10b981" fill-opacity=".8"><title>Sudah diulang kaji: ${rs.ok}/${rs.t} soalan salah</title></rect>`;
+            if(rs.ok<rs.t)bars+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW}" height="${bh.toFixed(1)}" rx="4" fill="none" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="3 2"><title>Belum diulang kaji: ${rs.t-rs.ok}/${rs.t} soalan salah</title></rect>`;
+        }
         bars+=`<text x="${xAt(i).toFixed(1)}" y="${Math.max(padT+10,y+11).toFixed(1)}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 text-[8.5px] font-extrabold">L${pt.level}</text>`;
+        if(rs.t>0)bars+=`<text x="${xAt(i).toFixed(1)}" y="${(padT+plotH-3).toFixed(1)}" text-anchor="middle" class="fill-slate-700 dark:fill-white text-[7.5px] font-extrabold" style="pointer-events:none">${rs.ok}/${rs.t}</text>`;
     });
     const linePts=points.map((pt,i)=>`${xAt(i).toFixed(1)},${yAt(pt.result).toFixed(1)}`).join(' ');
     const polyline=n>1?`<polyline fill="none" stroke="#10b981" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" points="${linePts}"/>`:'';
@@ -914,6 +923,8 @@ function renderLatihanProgress(){
                 <div class="flex flex-wrap items-center gap-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
                     <span class="inline-flex items-center gap-1"><span class="w-3 h-0.5 bg-emerald-500 inline-block"></span><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Keputusan (1–5)</span>
                     <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-sky-400/50 border border-sky-400 inline-block"></span> Bar = Level Soalan (1/5–5/5)</span>
+                    <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-500/80 inline-block"></span> Hijau = soalan salah sudah diulang kaji</span>
+                    <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm border border-dashed border-rose-500 inline-block"></span> Garis merah putus = masih ada belum diulang kaji</span>
                 </div>
                 <div class="pt-1">${buildSubjectProgressSvg(pts,sub)}</div>
             </div>`;
@@ -930,6 +941,23 @@ function ltWeekStart(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate(
 function ltEmpty(t){return `<div class="py-6 text-center text-xs text-slate-400">${t}</div>`;}
 function ltCard(title,desc,body,cls){return `<div class="rounded-2xl bg-white/90 dark:bg-slate-800/70 border border-emerald-100 dark:border-slate-700 p-4 space-y-3 shadow-sm ${cls||''}"><div><h4 class="text-sm font-extrabold text-slate-800 dark:text-white">${title}</h4><p class="text-[11px] text-slate-500 dark:text-slate-400">${desc}</p></div>${body}</div>`;}
 function ltLegend(subs){return `<div class="flex flex-wrap gap-x-3 gap-y-1">${subs.map(s=>`<span class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-600 dark:text-slate-300"><span class="w-2.5 h-2.5 rounded-full" style="background:${latihanSubjectHex(s)}"></span>${escEv(s)}</span>`).join('')}</div>`;}
+function ltRadar(by){
+    const subs=[...by.keys()];
+    if(subs.length<3)return ltEmpty('Radar memerlukan sekurang-kurangnya 3 subjek yang dinilai.');
+    const ts=p=>parseTodoTimestamp(p.fullDate),now=Date.now(),D=30*864e5;
+    const hasTs=subs.some(s=>by.get(s).some(p=>ts(p)>0));
+    const avg=(pts,f)=>{const a=pts.filter(f);return a.length?a.reduce((x,p)=>x+p.result,0)/a.length:0;};
+    const cur=subs.map(s=>avg(by.get(s),p=>hasTs?ts(p)>=now-D:true));
+    const prev=subs.map(s=>avg(by.get(s),p=>hasTs&&ts(p)>=now-2*D&&ts(p)<now-D));
+    const W=360,H=290,cx=180,cy=145,R=95,n=subs.length;
+    const pt=(i,v)=>{const a=-Math.PI/2+2*Math.PI*i/n;return[cx+Math.cos(a)*R*v/5,cy+Math.sin(a)*R*v/5];};
+    let rings='';for(let v=1;v<=5;v++)rings+=`<polygon points="${subs.map((_,i)=>pt(i,v).join(',')).join(' ')}" fill="none" stroke="currentColor" class="text-slate-200 dark:text-slate-700" stroke-width="1"/>`;
+    const axes=subs.map((s,i)=>{const[x,y]=pt(i,5.9);const[x2,y2]=pt(i,5);const lab=s.length>13?s.slice(0,12)+'…':s;return `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="currentColor" class="text-slate-200 dark:text-slate-700"/><text x="${x}" y="${y+3}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 text-[9px] font-bold">${escEv(lab)}</text>`;}).join('');
+    const poly=(arr,stroke,fill,dash)=>`<polygon points="${arr.map((v,i)=>pt(i,v).join(',')).join(' ')}" fill="${fill}" stroke="${stroke}" stroke-width="2" ${dash?'stroke-dasharray="4 3"':''}/>`;
+    const dots=cur.map((v,i)=>{const[x,y]=pt(i,v);return `<circle cx="${x}" cy="${y}" r="3" fill="#6366f1"><title>${escEv(subs[i])}: ${v.toFixed(1)}/5</title></circle>`;}).join('');
+    const hasPrev=prev.some(v=>v>0);
+    return `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto max-w-sm mx-auto select-none">${rings}${axes}${hasPrev?poly(prev,'#94a3b8','rgba(148,163,184,.12)',true):''}${poly(cur,'#6366f1','rgba(99,102,241,.25)')}${dots}</svg><div class="flex flex-wrap justify-center gap-4 text-[10px] font-semibold text-slate-500"><span><span class="inline-block w-3 h-0.5 bg-indigo-500 align-middle"></span> ${hasTs?'30 hari terakhir':'Purata keseluruhan'}</span>${hasPrev?'<span><span class="inline-block w-3 h-0.5 bg-slate-400 align-middle"></span> 30 hari sebelumnya</span>':''}<span>Skala = purata keputusan (1–5)</span></div>`;
+}
 function ltQuadrant(by){
     const items=[];by.forEach((pts,s)=>{const lv=pts.filter(p=>p.level!=null);if(lv.length)items.push({s,p:lv[lv.length-1]});});
     if(!items.length)return ltEmpty('Belum ada data level dan keputusan.');
@@ -988,8 +1016,9 @@ function renderLatihanOverview(){
     const box=document.getElementById('latihan-overview');if(!box)return;
     const by=extractProgressPoints();
     box.innerHTML=`<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">`+
-        ltCard('1. Kuadran Level vs Keputusan','Satu titik = latihan terkini bagi setiap subjek. Nama subjek dipaparkan jika boleh naik level (biru) atau dapat keputusan 1 &amp; 2 (merah).',ltQuadrant(by))+
-        ltCard('2. Soalan Salah Mingguan','Bar semakin rendah dari minggu ke minggu = anak berkembang. Setiap subjek ada carta sendiri.',ltWeeklyWrong(),'lg:col-span-2')+
+        ltCard('1. Radar Kekuatan Subjek','Bentuk besar &amp; sekata = seimbang. Penyek = subjek lemah.',ltRadar(by))+
+        ltCard('2. Kuadran Level vs Keputusan','Satu titik = latihan terkini bagi setiap subjek. Nama subjek dipaparkan jika boleh naik level (biru) atau dapat keputusan 1 &amp; 2 (merah).',ltQuadrant(by))+
+        ltCard('3. Soalan Salah Mingguan','Bar semakin rendah dari minggu ke minggu = anak berkembang. Setiap subjek ada carta sendiri.',ltWeeklyWrong(),'lg:col-span-2')+
         `</div>`;
 }
 function renderLatihanSection(){const ae=document.activeElement;if(!(ae&&ae.id==='lt-bab-custom'))latihanFillForm();renderLatihanOverview();renderLatihanProgress();renderLatihanStats();renderLatihanBabCharts();renderLatihanLog();lucide.createIcons();}function renderUlangkajiSection(){const ae=document.activeElement;if(!(ae&&ae.id==='lt-bab-custom'))latihanFillForm();renderLatihanLog();lucide.createIcons();}
