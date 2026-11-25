@@ -811,62 +811,28 @@ function extractProgressPoints(){
     return bySubject;
 }
 function buildSubjectProgressSvg(points,subName){
-    const W=460,H=205,padL=34,padR=38,padT=24,padB=38;
+    const W=460,H=205,padL=34,padR=20,padT=24,padB=38;
     const plotW=W-padL-padR,plotH=H-padT-padB;
     const n=points.length;
     const xAt=i=>n===1?(padL+plotW/2):(padL+(i/(n-1))*plotW);
     const yAt=v=>padT+((5-v)/4)*plotH;
-    const _log=(typeof latihanGetLog==='function')?latihanGetLog():[];
-    const revStat=pt=>{let t=0,ok=0;_log.forEach(r=>{if(String(r.todoId)===String(pt.id)&&(r.subjek||'Umum')===subName){const b=Number(r.bilangan)||1;t+=b;if(r.reviewed)ok+=b;}});return{t,ok};};
-    const stats=points.map(pt=>revStat(pt));
-    const maxWrong=Math.max(5,...stats.map(s=>s.t));
-    const yWrong=v=>padT+plotH-(Math.min(v,maxWrong)/maxWrong)*plotH;
     const barW=Math.min(28,Math.max(14,Math.floor(plotW/Math.max(n*1.9,3))));
     let grid='';
     for(let v=1;v<=5;v++){
         const y=yAt(v);
         grid+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="currentColor" class="text-slate-200 dark:text-slate-700/80" stroke-dasharray="${v===1?'':'3 3'}" stroke-width="1"/>`;
         grid+=`<text x="${padL-7}" y="${y+3.5}" text-anchor="end" class="fill-slate-400 text-[10px] font-bold">${v}</text>`;
-        const wTick=Math.round(((v-1)/4)*maxWrong);
-        grid+=`<text x="${W-padR+7}" y="${y+3.5}" text-anchor="start" class="fill-orange-500/85 dark:fill-orange-400/85 text-[9.5px] font-extrabold">${wTick}</text>`;
     }
     grid+=`<text x="${padL-7}" y="${padT-10}" text-anchor="end" class="fill-slate-400 text-[8px] font-bold uppercase">Skor</text>`;
-    grid+=`<text x="${W-padR+7}" y="${padT-10}" text-anchor="start" class="fill-orange-500 dark:fill-orange-400 text-[8px] font-bold uppercase">Salah</text>`;
     let bars='';
     points.forEach((pt,i)=>{
         const x=xAt(i)-barW/2;
         const baseBottom=padT+plotH;
-        const rs=stats[i];
-        // 1. Bar Latar Level Soalan (1/5 - 5/5) sebagai garis panduan nipis di belakang
         if(pt.level!=null){
             const yLvl=yAt(pt.level);
-            const hLvl=Math.max(4,baseBottom-yLvl);
-            bars+=`<rect x="${(x-2).toFixed(1)}" y="${yLvl.toFixed(1)}" width="${barW+4}" height="${hLvl.toFixed(1)}" rx="4" fill="none" stroke="#38bdf8" stroke-opacity="0.55" stroke-width="1.2" stroke-dasharray="2 2"><title>${escEv(pt.title)} • Level Soalan: ${pt.level}/5</title></rect>`;
-            bars+=`<text x="${xAt(i).toFixed(1)}" y="${Math.max(padT-2,yLvl-3).toFixed(1)}" text-anchor="middle" class="fill-sky-600 dark:fill-sky-400 text-[8px] font-extrabold">L${pt.level}</text>`;
-        }
-        // 2. Bar Bertingkat (Stacked) Soalan Salah & Ulangkaji:
-        //    - Keseluruhan ketinggian bar (0 hingga rs.t) = Jumlah soalan salah (Oren Cerah #fb923c)
-        //    - Bahagian bawah bar (0 hingga rs.ok) = Soalan sudah diulang kaji (Oren Gelap/Tembaga #9a3412)
-        //    - Baki atas (rs.ok hingga rs.t) kekal Oren Cerah = Belum diulang kaji
-        if(rs.t>0){
-            const yTotal=yWrong(rs.t);
-            const hTotal=Math.max(6,baseBottom-yTotal);
-            const yRev=yWrong(rs.ok);
-            const hRev=rs.ok>0?Math.max(4,baseBottom-yRev):0;
-            const belumCount=rs.t-rs.ok;
-            const barTip=`${escEv(pt.title)} • Jumlah salah: ${rs.t} soalan | Sudah diulang kaji: ${rs.ok}/${rs.t} | Belum diulang kaji: ${belumCount}`;
-            // Bar penuh warna oren cerah (mewakili skala keseluruhan soalan salah, kekal kelihatan dari skala ok+1 hingga t)
-            bars+=`<rect x="${x.toFixed(1)}" y="${yTotal.toFixed(1)}" width="${barW}" height="${hTotal.toFixed(1)}" rx="4" fill="#fb923c" fill-opacity="0.88" stroke="#ea580c" stroke-width="1"><title>${barTip}</title></rect>`;
-            // Lapisan bawah warna oren gelap (mewakili skala 1 hingga rs.ok yang sudah diulang kaji)
-            if(rs.ok>0){
-                const clipId=`clip-rev-${subName.replace(/[^a-zA-Z0-9]/g,'')}-${i}`;
-                bars+=`<defs><clipPath id="${clipId}"><rect x="${x.toFixed(1)}" y="${yTotal.toFixed(1)}" width="${barW}" height="${hTotal.toFixed(1)}" rx="4"/></clipPath></defs>`;
-                bars+=`<rect x="${x.toFixed(1)}" y="${(baseBottom-hRev).toFixed(1)}" width="${barW}" height="${hRev.toFixed(1)}" fill="#7c2d12" fill-opacity="0.95" clip-path="url(#${clipId})"><title>${barTip}</title></rect>`;
-                if(rs.ok<rs.t){
-                    bars+=`<line x1="${x.toFixed(1)}" y1="${(baseBottom-hRev).toFixed(1)}" x2="${(x+barW).toFixed(1)}" y2="${(baseBottom-hRev).toFixed(1)}" stroke="#fed7aa" stroke-width="1.2"/>`;
-                }
-            }
-            bars+=`<text x="${xAt(i).toFixed(1)}" y="${(baseBottom-3).toFixed(1)}" text-anchor="middle" class="fill-white text-[8px] font-black" style="pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,0.65)">${rs.ok}/${rs.t}</text>`;
+            const hLvl=Math.max(6,baseBottom-yLvl);
+            bars+=`<rect x="${x.toFixed(1)}" y="${yLvl.toFixed(1)}" width="${barW}" height="${hLvl.toFixed(1)}" rx="4" fill="#38bdf8" fill-opacity="0.24" stroke="#0284c7" stroke-opacity="0.55" stroke-width="1"><title>${escEv(pt.title)} • Level Soalan: ${pt.level}/5</title></rect>`;
+            bars+=`<text x="${xAt(i).toFixed(1)}" y="${Math.max(padT-2,yLvl-3).toFixed(1)}" text-anchor="middle" class="fill-sky-600 dark:fill-sky-400 text-[8.5px] font-extrabold">L${pt.level}</text>`;
         }
     });
     const linePts=points.map((pt,i)=>`${xAt(i).toFixed(1)},${yAt(pt.result).toFixed(1)}`).join(' ');
@@ -875,9 +841,7 @@ function buildSubjectProgressSvg(points,subName){
     points.forEach((pt,i)=>{
         const cx=xAt(i),cy=yAt(pt.result);
         const dotFill=pt.result>=4?'#10b981':(pt.result===3?'#f59e0b':'#f43f5e');
-        const rs=stats[i];
-        const revInfo=rs.t>0?` • Ulangkaji salah: ${rs.ok}/${rs.t}`:'';
-        const tip=`${escEv(pt.title)} (${escEv(pt.fullDate)}) • Keputusan: ${RESULT_SCALE_LABELS[pt.result]}${pt.level!=null?' • Level Soalan: '+pt.level+'/5':''}${revInfo}`;
+        const tip=`${escEv(pt.title)} (${escEv(pt.fullDate)}) • Keputusan: ${RESULT_SCALE_LABELS[pt.result]}${pt.level!=null?' • Level Soalan: '+pt.level+'/5':''}`;
         dots+=`<g>
             <circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="5.5" fill="${dotFill}" stroke="#ffffff" stroke-width="2"><title>${tip}</title></circle>
             <text x="${cx.toFixed(1)}" y="${(cy-8.5).toFixed(1)}" text-anchor="middle" class="fill-slate-800 dark:fill-white text-[10px] font-black">${pt.result}</text>
@@ -950,9 +914,7 @@ function renderLatihanProgress(){
                 </div>
                 <div class="flex flex-wrap items-center gap-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
                     <span class="inline-flex items-center gap-1"><span class="w-3 h-0.5 bg-emerald-500 inline-block"></span><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Keputusan (1–5)</span>
-                    <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm border border-dashed border-sky-400 inline-block"></span> Rangka = Level (1/5–5/5)</span>
-                    <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-amber-950 border border-orange-600 inline-block"></span> Oren Gelap = Sudah diulang kaji</span>
-                    <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-orange-400 border border-orange-600 inline-block"></span> Oren Cerah = Belum diulang kaji</span>
+                    <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-sky-400/40 border border-sky-500 inline-block"></span> Bar = Level Soalan (1/5–5/5)</span>
                 </div>
                 <div class="pt-1">${buildSubjectProgressSvg(pts,sub)}</div>
             </div>`;
@@ -1010,26 +972,49 @@ function ltQuadrant(by){
     const note=naik.length?`<div class="text-xs font-bold text-sky-700 dark:text-sky-300">⬆ Boleh naik level: ${naik.map(escEv).join(', ')}</div>`:`<div class="text-[11px] text-slate-400">Tiada subjek yang sedia naik level buat masa ini.</div>`;
     return `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto max-w-md mx-auto select-none">${bg}<line x1="${mx}" y1="${T}" x2="${mx}" y2="${T+ph}" stroke="#94a3b8" stroke-dasharray="3 3"/><line x1="${L}" y1="${my}" x2="${L+pw}" y2="${my}" stroke="#94a3b8" stroke-dasharray="3 3"/>${labels}${ax}${dots}</svg>${note}${lemahNote}${ltLegend(items.map(i=>i.s))}`;
 }
+function ltDarkenHex(hex,factor){
+    const h=String(hex||'#f97316').replace('#','');
+    if(h.length!==6)return '#7c2d12';
+    const r=Math.max(0,Math.min(255,Math.round(parseInt(h.slice(0,2),16)*factor)));
+    const g=Math.max(0,Math.min(255,Math.round(parseInt(h.slice(2,4),16)*factor)));
+    const b=Math.max(0,Math.min(255,Math.round(parseInt(h.slice(4,6),16)*factor)));
+    return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
 function ltWeeklyWrong(){
     const log=latihanGetLog();
     const ws=ltWeekStart(new Date());ws.setDate(ws.getDate()-49);
-    const weeks=[];for(let i=0;i<8;i++){const d=new Date(ws);d.setDate(ws.getDate()+i*7);weeks.push({t:d.getTime(),by:new Map()});}
+    const weeks=[];for(let i=0;i<8;i++){const d=new Date(ws);d.setDate(ws.getDate()+i*7);weeks.push({t:d.getTime(),by:new Map(),byOk:new Map()});}
     const tot=new Map(),allBy=new Map();let totAll=0,okAll=0;
     log.forEach(r=>{const b=Number(r.bilangan)||1,sub=r.subjek||'Umum';totAll+=b;if(r.reviewed)okAll+=b;
         const a=allBy.get(sub)||{t:0,ok:0};a.t+=b;if(r.reviewed)a.ok+=b;allBy.set(sub,a);
         const ts=parseTodoTimestamp(r.tarikh);if(!ts)return;let idx=-1;weeks.forEach((w,i)=>{if(ts>=w.t)idx=i;});if(idx<0)return;
-        weeks[idx].by.set(sub,(weeks[idx].by.get(sub)||0)+b);tot.set(sub,(tot.get(sub)||0)+b);});
+        weeks[idx].by.set(sub,(weeks[idx].by.get(sub)||0)+b);
+        if(r.reviewed)weeks[idx].byOk.set(sub,(weeks[idx].byOk.get(sub)||0)+b);
+        tot.set(sub,(tot.get(sub)||0)+b);});
     if(!totAll)return ltEmpty('Belum ada rekod kesilapan.');
     if(!tot.size)return ltEmpty('Tiada kesilapan direkodkan dalam 8 minggu terakhir.');
     const subs=[...tot.entries()].sort((x,y)=>y[1]-x[1]).map(x=>x[0]);
     const W=460,H=170,L=30,R=10,T=18,B=28,pw=W-L-R,ph=H-T-B;
     const cards=subs.map(sub=>{
         const vals=weeks.map(w=>w.by.get(sub)||0);
-        const max=Math.max(5,...vals);const bw=Math.min(36,pw/8*0.62);const col=latihanSubjectHex(sub);
+        const okVals=weeks.map(w=>w.byOk.get(sub)||0);
+        const max=Math.max(5,...vals);const bw=Math.min(36,pw/8*0.62);const col=latihanSubjectHex(sub);const darkCol=ltDarkenHex(col,0.45);
         let g='';[0,.5,1].forEach(f=>{const y=T+ph-f*ph;g+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="currentColor" class="text-slate-200 dark:text-slate-700/80" stroke-dasharray="${f?'3 3':''}"/>${f?`<text x="${L-6}" y="${y+3}" text-anchor="end" class="fill-slate-400 text-[9px] font-bold">${Math.round(max*f)}</text>`:''}`;});
         const bars=weeks.map((w,i)=>{
-            const cx=L+pw/8*(i+.5),v=vals[i],h=v/max*ph,y=T+ph-h;
-            const bar=v?`<rect x="${cx-bw/2}" y="${y}" width="${bw}" height="${h}" rx="3" fill="${col}" fill-opacity=".9"><title>${escEv(sub)}: ${v} soalan salah (minggu ${ltDM(w.t)})</title></rect><text x="${cx}" y="${y-4}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 text-[10px] font-extrabold">${v}</text>`:'';
+            const cx=L+pw/8*(i+.5),v=vals[i],vOk=okVals[i],h=v/max*ph,y=T+ph-h;
+            const hOk=vOk/max*ph,yOk=T+ph-hOk;
+            const clipId=`wk-clip-${sub.replace(/[^a-zA-Z0-9]/g,'')}-${i}`;
+            const tip=`${escEv(sub)} (minggu ${ltDM(w.t)}) • Jumlah salah: ${v} | Sudah diulang kaji: ${vOk}/${v} | Belum: ${v-vOk}`;
+            let bar='';
+            if(v){
+                bar+=`<rect x="${cx-bw/2}" y="${y}" width="${bw}" height="${h}" rx="3" fill="${col}" fill-opacity=".88"><title>${tip}</title></rect>`;
+                if(vOk>0){
+                    bar+=`<defs><clipPath id="${clipId}"><rect x="${cx-bw/2}" y="${y}" width="${bw}" height="${h}" rx="3"/></clipPath></defs>`;
+                    bar+=`<rect x="${cx-bw/2}" y="${yOk}" width="${bw}" height="${hOk}" fill="${darkCol}" fill-opacity=".96" clip-path="url(#${clipId})"><title>${tip}</title></rect>`;
+                    if(vOk<v)bar+=`<line x1="${cx-bw/2}" y1="${yOk}" x2="${cx+bw/2}" y2="${yOk}" stroke="#ffffff" stroke-opacity=".75" stroke-width="1.2"/>`;
+                }
+                bar+=`<text x="${cx}" y="${y-4}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 text-[10px] font-extrabold">${vOk>0?`${vOk}/${v}`:v}</text>`;
+            }
             return bar+`<text x="${cx}" y="${H-9}" text-anchor="middle" class="fill-slate-400 text-[9px] font-bold">${ltDM(w.t)}</text>`;
         }).join('');
         const a=allBy.get(sub),pct=Math.round(a.ok/a.t*100);
@@ -1038,7 +1023,7 @@ function ltWeeklyWrong(){
             <svg viewBox="0 0 ${W} ${H}" class="w-full h-auto overflow-visible select-none">${g}${bars}</svg></div>`;
     }).join('');
     const pct=Math.round(okAll/totAll*100);
-    return `<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">${cards}</div><div class="flex flex-wrap items-center justify-between gap-2 text-[10px] font-semibold text-slate-500"><span>Satu carta = satu subjek • paksi-X = permulaan minggu (Isnin)</span><span class="text-xs font-black text-slate-700 dark:text-slate-200">${pct}% kesilapan keseluruhan sudah diulang kaji</span></div>`;
+    return `<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">${cards}</div><div class="flex flex-wrap items-center justify-between gap-2 text-[10px] font-semibold text-slate-500"><span><span class="inline-block w-2.5 h-2.5 rounded-sm bg-slate-700 align-middle mr-1"></span>Warna gelap (bawah) = sudah diulang kaji • <span class="inline-block w-2.5 h-2.5 rounded-sm bg-orange-400 align-middle mx-1"></span>Warna cerah (atas) = belum diulang kaji</span><span class="text-xs font-black text-slate-700 dark:text-slate-200">${pct}% kesilapan keseluruhan sudah diulang kaji</span></div>`;
 }
 function renderLatihanOverview(){
     const box=document.getElementById('latihan-overview');if(!box)return;
