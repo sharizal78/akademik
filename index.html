@@ -885,21 +885,12 @@ function renderLatihanProgress(){
         box.innerHTML=`<div class="py-8 text-center text-xs text-slate-500 dark:text-slate-400">Belum ada keputusan latihan dinilai. Tandakan latihan selesai di tab <b>Latihan dan Tugasan</b> dan tetapkan slider <b>Keputusan (1-5)</b> untuk melihat graf progress.</div>`;
         return;
     }
-    const allPoints=[...bySubject.values()].flat();
-    const avgAll=(allPoints.reduce((s,p)=>s+p.result,0)/allPoints.length).toFixed(1);
-    const subjAverages=subjects.map(s=>{
-        const arr=bySubject.get(s);
-        return{sub:s,avg:arr.reduce((a,b)=>a+b.result,0)/arr.length,count:arr.length};
-    }).sort((a,b)=>b.avg-a.avg);
-    const bestSub=subjAverages[0];
-    const focusSub=subjAverages[subjAverages.length-1];
-    const kpi=(label,big,sub)=>`
-        <div class="rounded-xl bg-white/85 dark:bg-slate-800/75 border border-emerald-100 dark:border-slate-700 p-3">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${label}</div>
-            <div class="text-lg font-black text-slate-800 dark:text-white mt-0.5 truncate" title="${escEv(String(big))}">${escEv(String(big))}</div>
-            <div class="text-[10px] text-slate-400 truncate">${escEv(sub)}</div>
-        </div>`;
-    const targetSubjects=latihanProgressFilter?[latihanProgressFilter]:subjects;
+    const avgOfSubj=s=>{
+        const arr=bySubject.get(s)||[];
+        return arr.length?(arr.reduce((a,b)=>a+b.result,0)/arr.length):0;
+    };
+    const sortedSubjects=[...subjects].sort((a,b)=>avgOfSubj(a)-avgOfSubj(b));
+    const targetSubjects=latihanProgressFilter?[latihanProgressFilter]:sortedSubjects;
     const cardsHtml=targetSubjects.map(sub=>{
         const pts=bySubject.get(sub)||[];
         const latest=pts[pts.length-1];
@@ -932,9 +923,6 @@ function renderLatihanProgress(){
             </div>`;
     }).join('');
     box.innerHTML=`
-        <div class="grid grid-cols-1 gap-3">
-            ${kpi('Perlu Fokus',focusSub?`${focusSub.sub}`:'-',focusSub?`Purata ${focusSub.avg.toFixed(1)}/5 (${focusSub.count} latihan)`:'')}
-        </div>
         <div class="grid grid-cols-1 ${targetSubjects.length>1?'lg:grid-cols-2':''} gap-4">${cardsHtml}</div>`;
 }
 
