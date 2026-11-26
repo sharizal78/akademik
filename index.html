@@ -944,9 +944,27 @@ function ltRadar(by){
     let rings='';for(let v=1;v<=5;v++)rings+=`<polygon points="${subs.map((_,i)=>pt(i,v).join(',')).join(' ')}" fill="none" stroke="currentColor" class="text-slate-200 dark:text-slate-700" stroke-width="1"/>`;
     const axes=subs.map((s,i)=>{const[x,y]=pt(i,5.9);const[x2,y2]=pt(i,5);const lab=s.length>13?s.slice(0,12)+'…':s;return `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="currentColor" class="text-slate-200 dark:text-slate-700"/><text x="${x}" y="${y+3}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 text-[9px] font-bold">${escEv(lab)}</text>`;}).join('');
     const poly=(arr,stroke,fill,dash)=>`<polygon points="${arr.map((v,i)=>pt(i,v).join(',')).join(' ')}" fill="${fill}" stroke="${stroke}" stroke-width="2" ${dash?'stroke-dasharray="4 3"':''}/>`;
-    const dots=cur.map((v,i)=>{const[x,y]=pt(i,v);const isLow=v<3;return `<circle cx="${x}" cy="${y}" r="${isLow?4:3}" fill="${isLow?'#ef4444':'#6366f1'}"><title>${escEv(subs[i])}: ${v.toFixed(1)}/5</title></circle>`;}).join('');
+    const attentionList=[];
+    const dots=cur.map((v,i)=>{
+        const[x,y]=pt(i,v);
+        const isLow=v<3;
+        if(isLow)attentionList.push({name:subs[i],score:v});
+        return `<circle cx="${x}" cy="${y}" r="${isLow?4:3}" fill="${isLow?'#ef4444':'#6366f1'}"><title>${escEv(subs[i])}: ${v.toFixed(1)}/5</title></circle>`;
+    }).join('');
+    attentionList.sort((a,b)=>a.score-b.score);
     const hasPrev=prev.some(v=>v>0);
-    return `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto max-w-sm mx-auto select-none">${rings}${axes}${hasPrev?poly(prev,'#94a3b8','rgba(148,163,184,.12)',true):''}${poly(cur,'#6366f1','rgba(99,102,241,.25)')}${dots}</svg><div class="flex flex-wrap justify-center gap-4 text-[10px] font-semibold text-slate-500"><span><span class="inline-block w-3 h-0.5 bg-indigo-500 align-middle"></span> ${hasTs?'30 hari terakhir':'Purata keseluruhan'}</span>${hasPrev?'<span><span class="inline-block w-3 h-0.5 bg-slate-400 align-middle"></span> 30 hari sebelumnya</span>':''}<span>Skala = purata keputusan (1–5)</span></div>`;
+    const attentionBox=attentionList.length
+        ?`<div class="mt-2 p-2.5 rounded-xl bg-rose-50/90 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/70 space-y-1.5">
+            <div class="flex items-center gap-1.5 text-[11px] font-extrabold text-rose-700 dark:text-rose-300">
+                <span class="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
+                <span>Subjek perlu perhatian (${attentionList.length}):</span>
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+                ${attentionList.map(item=>`<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-white dark:bg-slate-900 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/80"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>${escEv(item.name)} <span class="text-[10px] font-semibold opacity-80">(${item.score.toFixed(1)}/5)</span></span>`).join('')}
+            </div>
+        </div>`
+        :`<div class="mt-2 px-3 py-2 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-900/60 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5"><span>✓ Semua subjek berada pada tahap memuaskan (≥ 3.0/5).</span></div>`;
+    return `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto max-w-sm mx-auto select-none">${rings}${axes}${hasPrev?poly(prev,'#94a3b8','rgba(148,163,184,.12)',true):''}${poly(cur,'#6366f1','rgba(99,102,241,.25)')}${dots}</svg><div class="flex flex-wrap justify-center gap-4 text-[10px] font-semibold text-slate-500"><span><span class="inline-block w-3 h-0.5 bg-indigo-500 align-middle"></span> ${hasTs?'30 hari terakhir':'Purata keseluruhan'}</span>${hasPrev?'<span><span class="inline-block w-3 h-0.5 bg-slate-400 align-middle"></span> 30 hari sebelumnya</span>':''}<span>Skala = purata keputusan (1–5)</span></div>${attentionBox}`;
 }
 function ltQuadrant(by){
     const items=[];by.forEach((pts,s)=>{const lv=pts.filter(p=>p.level!=null);if(lv.length)items.push({s,p:lv[lv.length-1]});});
