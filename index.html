@@ -221,6 +221,12 @@ const activePillCls=ctx.isKafa
                             </td>
                             <td class="py-3 px-4 text-right">
                                 <div class="inline-flex items-center justify-end gap-1">
+                                    <button onclick="moveSubject(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} title="Pindah ke Atas" class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 disabled:opacity-25 disabled:pointer-events-none transition">
+                                        <i data-lucide="chevron-up" class="w-4 h-4"></i>
+                                    </button>
+                                    <button onclick="moveSubject(${idx}, 1)" ${idx === currentExam.subjects.length - 1 ? 'disabled' : ''} title="Pindah ke Bawah" class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 disabled:opacity-25 disabled:pointer-events-none transition">
+                                        <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                                    </button>
                                     <button onclick="openSingleSubjectEditModal(${idx})" title="Edit Nama Mata Pelajaran" class="p-1.5 rounded-lg text-slate-400 hover:text-sky-500 hover:bg-sky-50 dark:hover:bg-sky-950/40 transition">
                                         <i data-lucide="pencil" class="w-4 h-4"></i>
                                     </button>
@@ -282,6 +288,7 @@ function selectExamCategory(examId){const ctx=getExamContext();ctx.setSelectedId
 function updateSubjectMark(subjIdx,val){const ctx=getExamContext();const currentExam=ctx.exams.find(e=>e.id===ctx.getSelectedId());if(!currentExam)return;if(val===''){currentExam.subjects[subjIdx].mark='';}else{const num=Math.max(0,Math.min(100,Number(val)));currentExam.subjects[subjIdx].mark=num;}
 saveState(true);renderGradesSection();renderHeroAndOverview();}
 function updateSubjectTP(subjIdx,tpVal){const ctx=getExamContext();const currentExam=ctx.exams.find(e=>e.id===ctx.getSelectedId());if(!currentExam)return;currentExam.subjects[subjIdx].tp=tpVal;saveState(true);renderGradesSection();}
+function moveSubject(subjIdx,dir){const ctx=getExamContext();const currentExam=ctx.exams.find(e=>e.id===ctx.getSelectedId());if(!currentExam||!Array.isArray(currentExam.subjects))return;const newIdx=subjIdx+dir;if(subjIdx<0||subjIdx>=currentExam.subjects.length||newIdx<0||newIdx>=currentExam.subjects.length)return;const targetSubj=currentExam.subjects[newIdx];const[moved]=currentExam.subjects.splice(subjIdx,1);currentExam.subjects.splice(newIdx,0,moved);if(moved&&targetSubj){ctx.exams.forEach(ex=>{if(ex.id===currentExam.id||!Array.isArray(ex.subjects))return;const iA=ex.subjects.findIndex(s=>s.name===moved.name);const iB=ex.subjects.findIndex(s=>s.name===targetSubj.name);if(iA!==-1&&iB!==-1){const tmp=ex.subjects[iA];ex.subjects[iA]=ex.subjects[iB];ex.subjects[iB]=tmp;}});}saveState(false);renderGradesSection();}
 function deleteSubject(subjIdx){const ctx=getExamContext();const currentExam=ctx.exams.find(e=>e.id===ctx.getSelectedId());if(!currentExam)return;currentExam.subjects.splice(subjIdx,1);saveState(true);renderGradesSection();}
 function openAddExamModal(){document.getElementById('new-exam-name').value='';const m=document.getElementById('add-exam-modal');m.classList.remove('hidden');m.classList.add('flex');}
 function closeAddExamModal(){const m=document.getElementById('add-exam-modal');m.classList.add('hidden');m.classList.remove('flex');}
